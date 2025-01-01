@@ -14,13 +14,13 @@ const getGoals = async (req, res) => {
 };
 
 const addGoal = async (req, res) => {
-  const { name, amount, description, deadline, priority } = req.body;
+  const { name, amount, description, deadline, priority, currency } = req.body;
   const userId = req.user.id;
 
   try {
     const result = await pool.query(
-      "INSERT INTO goals (user_id, name, description, amount, balance, deadline, priority) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [userId, name, description, amount, 0, deadline, priority]
+      "INSERT INTO goals (user_id, name, description, amount, balance, deadline, priority, currency) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+      [userId, name, description, amount, 0, deadline, priority, currency]
     );
 
     res.status(201).json(result.rows[0]);
@@ -33,10 +33,11 @@ const addGoal = async (req, res) => {
 const updateGoal = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, amount, balance, priority, deadline } = req.body;
+    const { name, description, amount, balance, priority, deadline, currency } =
+      req.body;
     const result = await pool.query(
-      "UPDATE goals SET name = $1, description = $2, amount = $3, balance = $4, priority = $5, deadline = $6 WHERE id = $7 RETURNING *",
-      [name, description, amount, balance, priority, deadline, id]
+      "UPDATE goals SET name = $1, description = $2, amount = $3, balance = $4, priority = $5, deadline = $6, currency = $7 WHERE id = $8 RETURNING *",
+      [name, description, amount, balance, priority, deadline, currency, id]
     );
     res.json(result.rows[0]);
   } catch (error) {

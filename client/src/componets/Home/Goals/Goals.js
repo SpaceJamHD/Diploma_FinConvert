@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../../styles/HomePage.css";
 import "../../../styles/goal.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
@@ -11,10 +11,20 @@ const Goals = ({ goals = [], setGoals }) => {
     amount: "",
     deadline: "",
     priority: "",
+    currency: "UAH",
   });
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  useEffect(() => {
+    const tooltipTriggerList = [].slice.call(
+      document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    );
+    tooltipTriggerList.forEach((tooltipTriggerEl) => {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }, [goals]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -206,12 +216,26 @@ const Goals = ({ goals = [], setGoals }) => {
                     return (
                       <tr key={index}>
                         <td className="fin-td text-start">{goal.name}</td>
-                        <td className="fin-td text-start">
-                          {goal.description || "Без опису"}
+                        <td
+                          className="fin-td text-start"
+                          style={{ position: "relative" }}
+                          title={goal.description}
+                        >
+                          {goal.description.length > 30
+                            ? `${goal.description.slice(0, 30)}...`
+                            : goal.description}
+                          <div className="tooltip">{goal.description}</div>
                         </td>
+
                         <td className="fin-td text-center align-middle">
-                          ₴{balance.toFixed(2)}
+                          {goal.currency === "USD"
+                            ? "$"
+                            : goal.currency === "EUR"
+                            ? "€"
+                            : "₴"}
+                          {balance.toFixed(2)}
                         </td>
+
                         <td className="fin-td align-middle">
                           <div className="fin-progress-wrapper">
                             <div className="fin-progress-bar">
@@ -228,7 +252,12 @@ const Goals = ({ goals = [], setGoals }) => {
                           </div>
                         </td>
                         <td className="fin-td text-center align-middle">
-                          ₴{(amount - balance).toFixed(2)}
+                          {goal.currency === "USD"
+                            ? "$"
+                            : goal.currency === "EUR"
+                            ? "€"
+                            : "₴"}
+                          {balance.toFixed(2)}
                         </td>
                         <td className="fin-td text-center align-middle">
                           {goal.deadline
@@ -362,7 +391,7 @@ const Goals = ({ goals = [], setGoals }) => {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.7)", // Увеличен прозрачный фон
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -378,12 +407,13 @@ const Goals = ({ goals = [], setGoals }) => {
               backgroundColor: "#1e1e1e", // Темный фон
               color: "#fff", // Белый текст
               padding: "20px",
-              borderRadius: "8px",
+              borderRadius: "12px",
               width: "400px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.5)",
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.8)", // Усилен эффект тени
+              animation: "fadeIn 0.3s ease-in-out",
             }}
           >
-            <div style={{ marginBottom: "20px" }}>
+            <div style={{ marginBottom: "20px", textAlign: "center" }}>
               <h3 style={{ margin: 0 }}>
                 {newGoal.id ? "Редагувати ціль" : "Додати нову ціль"}
               </h3>
@@ -401,10 +431,11 @@ const Goals = ({ goals = [], setGoals }) => {
                 style={{
                   width: "100%",
                   padding: "8px",
-                  backgroundColor: "#333", // Темный фон для инпута
+                  backgroundColor: "#333",
                   color: "#fff",
                   border: "1px solid #555",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
                 }}
               />
             </div>
@@ -421,10 +452,11 @@ const Goals = ({ goals = [], setGoals }) => {
                 style={{
                   width: "100%",
                   padding: "8px",
-                  backgroundColor: "#333", // Темный фон для текстового поля
+                  backgroundColor: "#333",
                   color: "#fff",
                   border: "1px solid #555",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
                 }}
               />
             </div>
@@ -441,12 +473,37 @@ const Goals = ({ goals = [], setGoals }) => {
                 style={{
                   width: "100%",
                   padding: "8px",
-                  backgroundColor: "#333", // Темный фон для инпута
+                  backgroundColor: "#333",
                   color: "#fff",
                   border: "1px solid #555",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
                 }}
               />
+            </div>
+            <div style={{ marginBottom: "15px" }}>
+              <label style={{ display: "block", marginBottom: "5px" }}>
+                Валюта
+              </label>
+              <select
+                name="currency"
+                value={newGoal.currency || "UAH"}
+                onChange={handleInputChange}
+                required
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  backgroundColor: "#333",
+                  color: "#fff",
+                  border: "1px solid #555",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
+                }}
+              >
+                <option value="UAH">Гривна (UAH)</option>
+                <option value="USD">Доллар (USD)</option>
+                <option value="EUR">Евро (EUR)</option>
+              </select>
             </div>
             <div style={{ marginBottom: "15px" }}>
               <label style={{ display: "block", marginBottom: "5px" }}>
@@ -461,10 +518,11 @@ const Goals = ({ goals = [], setGoals }) => {
                 style={{
                   width: "100%",
                   padding: "8px",
-                  backgroundColor: "#333", // Темный фон для инпута
+                  backgroundColor: "#333",
                   color: "#fff",
                   border: "1px solid #555",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
                 }}
               />
             </div>
@@ -480,10 +538,11 @@ const Goals = ({ goals = [], setGoals }) => {
                 style={{
                   width: "100%",
                   padding: "8px",
-                  backgroundColor: "#333", // Темный фон для селекта
+                  backgroundColor: "#333",
                   color: "#fff",
                   border: "1px solid #555",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
+                  fontSize: "1rem",
                 }}
               >
                 <option value="">Виберіть</option>
@@ -497,27 +556,35 @@ const Goals = ({ goals = [], setGoals }) => {
                 type="button"
                 onClick={() => setShowForm(false)}
                 style={{
-                  padding: "8px 12px",
+                  padding: "10px 15px",
                   marginRight: "10px",
                   backgroundColor: "#444",
                   color: "#fff",
                   border: "none",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
                   cursor: "pointer",
+                  transition: "background 0.3s ease",
                 }}
+                onMouseOver={(e) => (e.target.style.backgroundColor = "#555")}
+                onMouseOut={(e) => (e.target.style.backgroundColor = "#444")}
               >
                 Закрити
               </button>
               <button
                 type="submit"
                 style={{
-                  padding: "8px 12px",
+                  padding: "10px 15px",
                   backgroundColor: "#007bff",
-                  color: "white",
+                  color: "#fff",
                   border: "none",
-                  borderRadius: "4px",
+                  borderRadius: "6px",
                   cursor: "pointer",
+                  transition: "background 0.3s ease",
                 }}
+                onMouseOver={(e) =>
+                  (e.target.style.backgroundColor = "#0056b3")
+                }
+                onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
               >
                 Зберегти
               </button>

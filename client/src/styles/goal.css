@@ -7,6 +7,33 @@ body {
 
 }
 
+.fin-td:hover .tooltip {
+    display: block;
+    /* Показываем текст при наведении */
+}
+
+.tooltip {
+    display: none;
+    /* Скрываем текст по умолчанию */
+    position: absolute;
+    top: 100%;
+    /* Располагаем ниже ячейки */
+    left: 0;
+    background-color: #333;
+    /* Темный фон */
+    color: #fff;
+    /* Белый текст */
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    white-space: pre-wrap;
+    /* Сохраняем перенос строк */
+    max-width: 300px;
+    /* Максимальная ширина */
+}
+
+
 .modal-overlay {
     position: fixed;
     top: 0;
