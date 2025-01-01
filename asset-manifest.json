@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/Diploma_FinConvert/static/css/main.169e447e.css",
+    "main.js": "/Diploma_FinConvert/static/js/main.218360af.js",
+    "static/media/bootstrap-icons.woff?": "/Diploma_FinConvert/static/media/bootstrap-icons.39795c0b4513de014cf8.woff",
+    "static/media/bootstrap-icons.woff2?": "/Diploma_FinConvert/static/media/bootstrap-icons.b7bcc075b395c14ce8c2.woff2",
+    "static/media/Abstract Design.png": "/Diploma_FinConvert/static/media/Abstract Design.66c841529e0ec821f2ee.png",
+    "index.html": "/Diploma_FinConvert/index.html",
+    "main.169e447e.css.map": "/Diploma_FinConvert/static/css/main.169e447e.css.map",
+    "main.218360af.js.map": "/Diploma_FinConvert/static/js/main.218360af.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.169e447e.css",
+    "static/js/main.218360af.js"
+  ]
+}
