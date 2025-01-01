@@ -1,0 +1,787 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+body {
+    font-family: "Roboto", sans-serif;
+    background: #1A1A1A;
+}
+
+
+
+/* Основной стиль для кнопки валют */
+#currencyMenu {
+    flex-shrink: 0;
+    width: 170px;
+    background: linear-gradient(145deg, #1a1a1a, #292929, #131313);
+
+    color: #ffffff;
+    border: none;
+}
+
+#currencyMenu:hover {
+    background-color: #495057;
+}
+
+#currency-dropdown {
+    background-color: #343a40;
+    width: 170px;
+
+    color: #ffffff;
+    border: 1px solid #495057;
+}
+
+#currency-dropdown .dropdown-item {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+#currency-dropdown .dropdown-item:hover {
+    background-color: #495057;
+    color: #ffffff;
+}
+
+#currency-dropdown li {
+    padding: 5px 10px;
+}
+
+/* papapapapapapapapapapap Convetation */
+
+.main-conv-card {
+    position: relative;
+}
+
+.plus-block {
+    position: absolute;
+    top: 0;
+}
+
+.conversion-card {
+    border-radius: 15px;
+    background: linear-gradient(145deg, #1a1a1a, #292929, #131313);
+    color: #ffffff;
+    max-width: 500px;
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.9);
+}
+
+.border {
+    border-style: solid;
+    border-color: #373737 !important;
+    border-width: 3px;
+}
+
+.exchange-curs {
+    margin-top: 20px;
+}
+
+.border-bottom {
+    border-bottom: 2px solid #373737 !important;
+}
+
+.border-end {
+    border-right: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.transaction-item {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    padding: 20px 30px;
+    max-width: 800px;
+    margin: 0 auto;
+    transition: transform 0.3s ease-in-out;
+}
+
+.transaction-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+#toggle-transactions {
+    border: none;
+    background-color: transparent;
+    color: #ffd700;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease-in-out;
+}
+
+#toggle-transactions:hover {
+    transform: scale(1.1);
+    color: #ffffff;
+}
+
+/* Стиль скрытых транзакций */
+#past-transactions .transaction-item {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    padding: 15px;
+}
+
+
+.exchange-card {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+}
+
+.currency-box {
+    text-align: center;
+}
+
+.currency-code {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.currency-box small {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+}
+
+/* Значения валют */
+.exchange-value {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.border-end {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.border-bottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.p-2 {
+    padding: 10px;
+}
+
+.gap-1 {
+    gap: 5px;
+}
+
+/* Адаптивность */
+@media (max-width: 576px) {
+    .exchange-card {
+        padding: 10px;
+    }
+
+    .currency-box,
+    .exchange-value {
+        font-size: 0.9rem;
+    }
+}
+
+
+.exchange-flags img {
+    border-radius: 5px;
+    width: 30px;
+    height: 20px;
+}
+
+.bi-arrow-right {
+    font-size: 1.2rem;
+    color: #ffffff;
+}
+
+
+.exchange-card {
+    background-color: #1c1e22;
+    border-radius: 15px;
+    color: #ffffff;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.exchange-card {
+    background-color: #1c1e22;
+    border-radius: 15px;
+    color: #ffffff;
+    max-width: 500px;
+    margin: 0 auto;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.flag-icon {
+    border-radius: 5px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0px 5px 10px rgba(40, 167, 69, 0.5);
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    box-shadow: 0px 8px 15px rgba(40, 167, 69, 0.7);
+}
+
+
+.currency-container {
+    background-color: #1c1e22;
+    border-radius: 50px;
+    max-width: 750px;
+
+    padding: 40px;
+    margin: 0 auto;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.8);
+    margin-top: 30px;
+}
+
+.currency-icon {
+    background-color: #2a2d34;
+    color: #28a745;
+    font-size: 1.4rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: all 0.3s ease-in-out;
+}
+
+.currency-icon:hover {
+    background-color: #28a745;
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+@media (max-width: 991px) {
+    .navbar-collapse {
+        text-align: center;
+    }
+}
+
+.header-image {
+    position: absolute;
+    top: 0;
+    left: 0px;
+    width: 65%;
+    height: 300px;
+    /* Высота заголовка */
+    background-image: url('../../public/img/Abstract\ Design.png');
+    background-size: cover;
+    /* Изображение будет адаптировано по размеру */
+    background-position: top left;
+    /* Фокус на верхнем левом углу */
+    filter: brightness(0.8);
+    /* Темный фильтр для лучшей читабельности текста */
+    z-index: -1;
+    /* Отправляем изображение на задний план */
+    /* Эффект разделения */
+}
+
+/* Стили для текста, что меняется */
+.txt-rotate {
+    font-size: 2.5rem;
+    /* Увеличенный размер текста */
+    font-weight: bold;
+    color: #ffd700;
+    /* Жёлтый цвет */
+}
+
+/* Для анимации */
+.txt-rotate>.wrap {
+    border-right: 0.08em solid #ffd700;
+}
+
+/* Основной приветственный текст */
+.js-change {
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: #b3b3b3;
+    /* Светло-серый */
+}
+
+/* МОИ ФИНАНСЫ ЦЕЛИ */
+
+/* Кнопка */
+
+
+/* Текст в карточке */
+.goal-card p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #b3b3b3;
+    /* Умеренно-серый цвет */
+}
+
+.goal-card h5 {
+    color: #ffd700;
+    /* Золотой акцент */
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+/* Добавляем мягкий фон для карточки */
+.goal-card {
+    background: linear-gradient(135deg, #1e1e1e, #2b2b2b);
+    /* Глубокий градиент */
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.goal-card:hover {
+    transform: scale(1.02);
+    /* Лёгкое увеличение */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    /* Увеличиваем тень */
+}
+
+.progress-ring {
+    --stroke-width: 10px;
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.progress-ring svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.ring-background,
+.ring-progress {
+    fill: none;
+    stroke-width: var(--stroke-width);
+}
+
+.ring-background {
+    stroke: #2e2e2e;
+    /* Тёмный фон для кольца */
+}
+
+.ring-progress {
+    stroke: #28a745;
+    /* По умолчанию зелёный */
+    stroke-linecap: round;
+    /* Скругляем концы кольца */
+    transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease;
+    /* Добавляем плавность смены цветов */
+}
+
+.ring-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #ffd700;
+    /* Цвет текста внутри кольца */
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    /* Лёгкий эффект свечения */
+}
+
+/* ввввввввввввв */
+
+/* Финансовая карточка */
+
+.fin-goal-text {
+    margin-top: 120px;
+}
+
+.fin-card {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    color: #fff;
+}
+
+.fin-card-header {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    padding: 20px;
+    border-bottom: 1px solid #444;
+}
+
+.fin-card-body {
+    padding: 20px;
+}
+
+/* Таблица */
+.fin-table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.fin-th,
+.fin-td {
+    padding: 20px;
+    font-size: 1.1rem;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.fin-th {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #b3b3b3;
+    border-bottom: 1px solid #444;
+    font-size: 1rem;
+}
+
+.fin-td {
+    color: #fff;
+    border-bottom: 1px solid #333;
+}
+
+/* Прогресс-бары */
+.fin-progress-wrapper {
+    text-align: center;
+}
+
+.fin-progress-bar {
+    background-color: #333;
+    border-radius: 5px;
+    height: 15px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.fin-progress-fill {
+    height: 100%;
+    border-radius: 5px;
+}
+
+.fin-progress-yellow {
+    background-color: #ffd700;
+}
+
+.fin-progress-blue {
+    background-color: #007bff;
+}
+
+.fin-progress-green {
+    background-color: #28a745;
+}
+
+/* Бейджи */
+.badge {
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+    color: #1e1e1e;
+}
+
+.bg-success {
+    background-color: #28a745;
+}
+
+.bg-danger {
+    background-color: #dc3545;
+}
+
+/* Улучшение текста */
+.fin-title {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.fin-subtitle {
+    font-size: 1rem;
+    margin: 5px 0 0;
+    color: #b3b3b3;
+}
+
+/* Для заголовка и стрелки */
+#account-balance .bi-arrow-right-circle,
+#financial-overview .bi-arrow-right-circle,
+#currency-forecast .bi-arrow-right-circle {
+    transition: transform 0.3s ease;
+}
+
+#account-balance a:hover .bi-arrow-right-circle,
+#currency-forecast a:hover .bi-arrow-right-circle,
+#financial-overview a:hover .bi-arrow-right-circle {
+    transform: translateX(5px);
+    /* Двигаем стрелку вправо */
+}
+
+#account-balance a {
+    font-size: 1rem;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+#account-balance a:hover {
+    color: #ffd700;
+    /* Меняем цвет при наведении */
+}
+
+/* аааааааааааааааааааааааааа */
+
+/* Общие настройки карты */
+.balance-card {
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.balance-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Иконка */
+.balance-icon {
+    font-size: 3rem;
+}
+
+/* Название карты */
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Значение баланса */
+.balance-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffd700;
+    /* Золотистый цвет */
+    margin: 10px 0;
+}
+
+/* Текст под значением */
+.text-muted {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+}
+
+/* Отступы между карточками */
+.gy-4>div {
+    padding: 0 15px;
+}
+
+/* ffffffffffffffffffffffffffffffffffffff */
+
+/* Карточки для финансового обзора */
+.financial-card {
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.financial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Иконки финансового обзора */
+.financial-icon i {
+    font-size: 3rem;
+}
+
+/* Значения финансового обзора */
+.financial-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+/* Градиенты */
+.bg-gradient-success {
+    background: linear-gradient(145deg, #28a745, #1e1e1e);
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(145deg, #dc3545, #1e1e1e);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(145deg, #007bff, #1e1e1e);
+}
+
+/* вввввввввввввввввввввввввввввв */
+
+.card {
+    background-color: #1e1e1e;
+    /* Темный фон */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.card h6 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.chart-canvas {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.horizontal {
+    border-top: 1px solid #444;
+}
+
+.text-secondary {
+    color: #b3b3b3;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.text-warning {
+    color: #ffd700;
+}
+
+
+/* ааааааааааааааааааа */
+
+
+/* Ізольовані стилі для секції прогнозування */
+#currency-forecast .forecast-card {
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#currency-forecast .forecast-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+#currency-forecast .forecast-body {
+    color: #fff;
+}
+
+#currency-forecast .forecast-icon {
+    font-size: 2.5rem;
+    color: #ffd700;
+    /* Золотий акцент */
+}
+
+#currency-forecast .forecast-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#currency-forecast .forecast-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#currency-forecast .forecast-change {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#currency-forecast .forecast-updated {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+}
+
+#currency-forecast .recommendation-card {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+}
+
+#currency-forecast .forecast-recommendation {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-top: 10px;
+    color: #b3b3b3;
+}
+
+#currency-forecast .text-highlight {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+/* Кнопка */
+#currency-forecast .btn-warning {
+    background-color: #ffd700;
+    color: #1e1e1e;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    transition: all 0.3s ease-in-out;
+}
+
+#currency-forecast .btn-warning:hover {
+    box-shadow: 0 0 10px #ffd700;
+    transform: scale(1.05);
+}
+
+/* аааааааааааааааааааа ФУТЕЕЕЕЕЕЕЕЕЕЕЕР */
+
+#site-footer {
+    background-color: #1e1e1e;
+    border-top: 1px solid #444;
+    margin-top: 100px;
+}
+
+#site-footer h4,
+#site-footer h5 {
+    font-weight: bold;
+}
+
+#site-footer a {
+    color: #ffd700;
+    transition: color 0.3s ease;
+}
+
+#site-footer a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+#site-footer .form-control {
+    background-color: #2e2e2e;
+    border: 1px solid #444;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#site-footer .form-control::placeholder {
+    color: #b3b3b3;
+}
+
+#site-footer .form-control:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 5px #ffd700;
+}
+
+#site-footer .btn-warning {
+    color: #1e1e1e;
+    background-color: #ffd700;
+    border: none;
+    padding: 10px 15px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#site-footer .btn-warning:hover {
+    background-color: #ffc107;
+    box-shadow: 0 0 10px #ffd700;
+}
+
+#site-footer .bi {
+    color: #b3b3b3;
+    transition: color 0.3s ease;
+}
+
+#site-footer .bi:hover {
+    color: #ffd700;
+}

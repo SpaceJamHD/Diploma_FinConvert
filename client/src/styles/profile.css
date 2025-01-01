@@ -1,0 +1,146 @@
+/* === ОСНОВНЫЕ СТИЛИ === */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #1a1a1a;
+    /* Тёмный фон */
+    color: #ffffff;
+
+}
+
+/* === НАВБАР === */
+
+/* === КАРТОЧКИ === */
+
+
+/* Карточка */
+.card {
+    background: linear-gradient(145deg, #1e1e1e, #292929);
+    border-radius: 15px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+    color: #fff;
+}
+
+/* Хедер карточки */
+.card-header {
+    background: #292929;
+    border-bottom: 1px solid #444;
+    padding: 1.5rem;
+    border-radius: 15px 15px 0 0;
+}
+
+/* Заголовок профиля */
+.header-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Кнопки */
+.btn-primary {
+    background: #ffd700;
+    color: #1a1a1a;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background: #ffcc00;
+    color: #000;
+}
+
+.form-control {
+    background-color: #1e1e1e;
+
+    /* Тёмный фон */
+    border: 1px solid #444;
+    /* Темная рамка */
+    color: #ffd700;
+    /* Белый текст */
+    border-radius: 8px;
+    /* Закруглённые углы */
+    padding: 0.75rem;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.form-control::placeholder {
+    color: #aaa;
+    /* Цвет для текста подсказки */
+    opacity: 1;
+    /* Убедитесь, что прозрачность не равна 0 */
+}
+
+input {
+    color: #ffcc00 !important;
+    background-color: #323232 !important;
+    margin: 5px;
+}
+
+
+/* Убираем белую подсветку при фокусе */
+.form-control:focus {
+    background: #292929;
+    /* Остаётся тёмным */
+    border-color: #ffd700;
+    /* Жёлтая рамка для акцента */
+    color: #fff;
+    /* Белый текст */
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    /* Лёгкая жёлтая тень */
+    outline: none;
+    /* Убираем стандартное выделение */
+}
+
+/* Горизонтальная линия */
+.horizontal.dark {
+    border-top: 1px solid #444;
+    margin: 1.5rem 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .card-header {
+        text-align: center;
+    }
+
+    .header-title {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Карточка */
+.balance-card {
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1e1e1e, #292929);
+}
+
+.balance-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Иконка */
+.balance-icon {
+    font-size: 3rem;
+}
+
+/* Заголовок карточки */
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Баланс */
+.balance-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffd700;
+    margin: 10px 0;
+}
+
+/* Диаграмма */
+.card canvas {
+    background: transparent;
+    border-radius: 10px;
+}

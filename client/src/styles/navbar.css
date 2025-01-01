@@ -1,0 +1,299 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+body {
+    font-family: "Roboto", sans-serif;
+    background: #1A1A1A;
+}
+
+nav {
+    background-color: #1A1A1A;
+    box-shadow: 0px 3px 55px rgba(0, 0, 0, 0.5);
+}
+
+.nav-link {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+
+.nav-link:hover {
+    color: #ffd700;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -3px;
+    left: 50%;
+    background-color: #ffd700;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.navbar-brand img {
+    height: 50px;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.2);
+}
+
+.navbar-brand span {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-menu {
+    background-color: #1a1a1a;
+    box-shadow: 0px 3px 55px rgba(0, 0, 0, 0.5);
+    border: none;
+}
+
+.dropdown-menu.show {
+    display: block;
+    margin-top: 5px;
+}
+
+.dropdown-menu a {
+    color: white;
+}
+
+.dropdown-menu a:hover {
+    color: #ffd700;
+    background-color: #333;
+}
+
+#search-box {
+    position: absolute;
+    top: -7px;
+    right: 50px;
+    width: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    transition: width 0.4s ease, opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.hidden {
+    width: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    transition: width 0.4s ease, opacity 0.4s ease, visibility 0.4s ease;
+}
+
+#search-box.active {
+    width: 250px;
+    opacity: 1;
+    visibility: visible;
+}
+
+
+#currencyMenu {
+    flex-shrink: 0;
+    width: 170px;
+    background: linear-gradient(145deg, #1a1a1a, #292929, #131313);
+
+    color: #ffffff;
+    border: none;
+}
+
+#currencyMenu:hover {
+    background-color: #495057;
+}
+
+#currency-dropdown {
+    background-color: #343a40;
+    width: 170px;
+
+    color: #ffffff;
+    border: 1px solid #495057;
+}
+
+#currency-dropdown .dropdown-item {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+#currency-dropdown .dropdown-item:hover {
+    background-color: #495057;
+    color: #ffffff;
+}
+
+#currency-dropdown li {
+    padding: 5px 10px;
+}
+
+
+
+/* Основной стиль для кнопки валют */
+#currencyMenu {
+    flex-shrink: 0;
+    width: 170px;
+    background: linear-gradient(145deg, #1a1a1a, #292929, #131313);
+
+    color: #ffffff;
+    border: none;
+}
+
+#currencyMenu:hover {
+    background-color: #495057;
+}
+
+#currency-dropdown {
+    background-color: #343a40;
+    width: 170px;
+
+    color: #ffffff;
+    border: 1px solid #495057;
+}
+
+#currency-dropdown .dropdown-item {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+#currency-dropdown .dropdown-item:hover {
+    background-color: #495057;
+    color: #ffffff;
+}
+
+#currency-dropdown li {
+    padding: 5px 10px;
+}
+
+/* papapapapapapapapapapap Convetation */
+
+.main-conv-card {
+    position: relative;
+}
+
+.plus-block {
+    position: absolute;
+    top: 0;
+}
+
+.conversion-card {
+    border-radius: 15px;
+    background: linear-gradient(145deg, #1a1a1a, #292929, #131313);
+    color: #ffffff;
+    max-width: 500px;
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.9);
+}
+
+.border {
+    border-style: solid;
+    border-color: #373737 !important;
+    border-width: 3px;
+}
+
+.exchange-curs {
+    margin-top: 20px;
+}
+
+.border-bottom {
+    border-bottom: 2px solid #373737 !important;
+}
+
+.border-end {
+    border-right: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.transaction-item {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    padding: 20px 30px;
+    max-width: 800px;
+    margin: 0 auto;
+    transition: transform 0.3s ease-in-out;
+}
+
+.transaction-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+#toggle-transactions {
+    border: none;
+    background-color: transparent;
+    color: #ffd700;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease-in-out;
+}
+
+#toggle-transactions:hover {
+    transform: scale(1.1);
+    color: #ffffff;
+}
+
+/* Стиль скрытых транзакций */
+#past-transactions .transaction-item {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    padding: 15px;
+}
+
+
+.exchange-card {
+    background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+}
+
+.currency-box {
+    text-align: center;
+}
+
+.currency-code {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.currency-box small {
+    font-size: 0.8rem;
+    color: #b3b3b3;
+}
+
+/* Значения валют */
+.exchange-value {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.border-end {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.border-bottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.p-2 {
+    padding: 10px;
+}
+
+.gap-1 {
+    gap: 5px;
+}

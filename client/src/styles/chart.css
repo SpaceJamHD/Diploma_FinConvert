@@ -1,0 +1,33 @@
+.chart-container {
+    width: 100%;
+    /* На всю ширину */
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #2c2f33;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    color: white;
+    max-width: none;
+    /* Убираем ограничение ширины */
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    /* Адаптация к ширине */
+    height: 200px;
+    /* Уменьшаем высоту графика */
+}
+
+.chart-description {
+    margin-top: 15px;
+}
+
+.chart-description p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #b5b5b5;
+}
+
+.chart-description strong {
+    color: #ffcc00;
+}
