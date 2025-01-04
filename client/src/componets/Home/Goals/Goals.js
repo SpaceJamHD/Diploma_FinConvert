@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import AddBalanceForm from "./AddBalanceForm";
+
 import "../../../styles/HomePage.css";
 import "../../../styles/goal.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
@@ -13,6 +15,14 @@ const Goals = ({ goals = [], setGoals }) => {
     priority: "",
     currency: "UAH",
   });
+
+  const [showAddBalanceForm, setShowAddBalanceForm] = useState(false);
+  const [currentGoal, setCurrentGoal] = useState(null);
+
+  const openAddBalanceForm = (goal) => {
+    setCurrentGoal(goal);
+    setShowAddBalanceForm(true);
+  };
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -290,6 +300,24 @@ const Goals = ({ goals = [], setGoals }) => {
                           </span>
                         </td>
                         <td className="fin-td text-center align-middle">
+                          <button
+                            onClick={() => {
+                              setCurrentGoal(goal);
+                              setShowAddBalanceForm(true);
+                            }}
+                            style={{
+                              marginLeft: "10px",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <i
+                              className="bi bi-plus-circle"
+                              style={{ color: "#28a745" }}
+                            ></i>
+                          </button>
+
                           {/* Иконка редактирования */}
                           <button
                             onClick={() => handleEditGoal(goal.id)}
@@ -329,6 +357,24 @@ const Goals = ({ goals = [], setGoals }) => {
           </div>
         </div>
       </div>
+
+      {showAddBalanceForm && (
+        <AddBalanceForm
+          goalId={currentGoal?.id}
+          currentCurrency={currentGoal?.currency}
+          onClose={() => setShowAddBalanceForm(false)}
+          onSave={(updatedBalance) => {
+            setGoals((prevGoals) =>
+              prevGoals.map((goal) =>
+                goal.id === currentGoal.id
+                  ? { ...goal, balance: updatedBalance }
+                  : goal
+              )
+            );
+            setShowAddBalanceForm(false);
+          }}
+        />
+      )}
 
       {showConfirm && (
         <div
