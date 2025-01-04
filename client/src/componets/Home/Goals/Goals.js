@@ -40,11 +40,15 @@ const Goals = ({ goals = [], setGoals }) => {
   };
 
   const handleSaveGoal = async () => {
+    const { name, description, amount, currency, deadline, priority } = newGoal;
+
     if (
-      !newGoal.name ||
-      !newGoal.amount ||
-      !newGoal.deadline ||
-      !newGoal.priority
+      !name ||
+      !description ||
+      !amount ||
+      !currency ||
+      !deadline ||
+      !priority
     ) {
       alert("Заполните все поля.");
       return;
@@ -60,7 +64,10 @@ const Goals = ({ goals = [], setGoals }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(newGoal),
+        body: JSON.stringify({
+          ...newGoal,
+          balance: 0, // Баланс всегда 0 при создании новой цели
+        }),
       });
 
       if (!response.ok) {
@@ -86,10 +93,12 @@ const Goals = ({ goals = [], setGoals }) => {
       setShowForm(false); // Закрываем форму
       setNewGoal({
         name: "",
+        description: "",
         amount: "",
+        balance: 0,
         deadline: "",
         priority: "",
-        description: "",
+        currency: "UAH",
       });
     } catch (error) {
       console.error("Ошибка:", error);
@@ -208,10 +217,11 @@ const Goals = ({ goals = [], setGoals }) => {
                   </tr>
                 ) : (
                   goals.map((goal, index) => {
-                    const balance = parseFloat(goal.balance) || 0; // Преобразуем в число, если не число, то 0
-                    const amount = parseFloat(goal.amount) || 0; // Аналогично для суммы
+                    const balance = parseFloat(goal.balance) || 0; // Баланс (всегда 0 для новых целей)
+                    const amount = parseFloat(goal.amount) || 0; // Сумма цели
+                    const remaining = amount; // Остаток равен сумме цели
                     const progress =
-                      amount > 0 ? ((balance / amount) * 100).toFixed(2) : 0; // Вычисляем прогресс
+                      amount > 0 ? ((balance / amount) * 100).toFixed(2) : 0; // Прогресс всегда 0%
 
                     return (
                       <tr key={index}>
@@ -257,7 +267,7 @@ const Goals = ({ goals = [], setGoals }) => {
                             : goal.currency === "EUR"
                             ? "€"
                             : "₴"}
-                          {balance.toFixed(2)}
+                          {remaining.toFixed(2)}
                         </td>
                         <td className="fin-td text-center align-middle">
                           {goal.deadline
