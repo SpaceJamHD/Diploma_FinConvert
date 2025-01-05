@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { fetchConvertedAmount } from "../../../utils/api";
 
 const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
   const [amount, setAmount] = useState("");
@@ -11,13 +12,29 @@ const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
     }
 
     try {
+      let convertedAmount = parseFloat(amount);
+
+      // Если валюта пополнения отличается от валюты цели
+      if (fromCurrency !== currentCurrency) {
+        convertedAmount = await fetchConvertedAmount(
+          fromCurrency,
+          currentCurrency,
+          amount
+        );
+      }
+
+      console.log("Отправка данных:", {
+        amount: convertedAmount,
+        fromCurrency,
+      });
+
       const response = await fetch(`/api/goals/${goalId}/add-balance`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ amount, fromCurrency }), // Передаем сумму и валюту пополнения
+        body: JSON.stringify({ amount: convertedAmount, fromCurrency }),
       });
 
       if (!response.ok) {
@@ -76,6 +93,7 @@ const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
           <option value="UAH">Гривна (UAH)</option>
           <option value="USD">Доллар (USD)</option>
           <option value="EUR">Евро (EUR)</option>
+          <option value="BTC">Биткойн (BTC)</option>
         </select>
         <button
           type="submit"

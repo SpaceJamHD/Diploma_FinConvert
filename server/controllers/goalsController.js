@@ -58,41 +58,36 @@ const deleteGoal = async (req, res) => {
 
 const addBalanceToGoal = async (req, res) => {
   const { id } = req.params;
-  const { amount, fromCurrency } = req.body; // Получаем сумму и валюту пополнения
+  const { amount } = req.body;
   const userId = req.user.id;
 
+  console.log("Параметры запроса:", { id, amount, userId });
+
   try {
-    // Получаем текущую цель
-    const goalQuery = await pool.query(
+    const goal = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [id, userId]
     );
+    console.log("Цель найдена:", goal.rows);
 
-    if (!goalQuery.rows.length) {
+    if (!goal.rows.length) {
+      console.error("Цель не найдена");
       return res.status(404).json({ message: "Цель не найдена" });
     }
 
-    const currentGoal = goalQuery.rows[0];
-    const goalCurrency = currentGoal.currency; // Валюта цели
+    const currentBalance = parseFloat(goal.rows[0].balance);
+    const newBalance = currentBalance + parseFloat(amount);
 
-    // Конвертация суммы, если валюты не совпадают
-    let convertedAmount = parseFloat(amount);
-    if (fromCurrency !== goalCurrency) {
-      const exchangeRate = await getExchangeRate(fromCurrency, goalCurrency); // Получаем курс валют
-      convertedAmount = convertedAmount * exchangeRate;
-    }
+    console.log("Обновленный баланс:", newBalance);
 
-    // Обновляем баланс цели
-    const updatedBalance = parseFloat(currentGoal.balance) + convertedAmount;
-
-    const result = await pool.query(
+    const updatedGoal = await pool.query(
       "UPDATE goals SET balance = $1 WHERE id = $2 RETURNING balance",
-      [updatedBalance, id]
+      [newBalance, id]
     );
 
-    res.json({ updatedBalance: result.rows[0].balance });
+    res.json({ updatedBalance: updatedGoal.rows[0].balance });
   } catch (error) {
-    console.error("Ошибка при добавлении баланса:", error);
+    console.error("Ошибка на сервере:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
