@@ -7,6 +7,73 @@ body {
 
 }
 
+/* === История транзакций === */
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    color: #ffffff;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    font-size: 0.9rem;
+}
+
+.transaction-table th,
+.transaction-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #444444;
+}
+
+.transaction-table th {
+    background: #333333;
+    color: #ffd700;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.transaction-table td {
+    background: #1e1e1e;
+    color: #dddddd;
+}
+
+.transaction-table tr:hover td {
+    background: #292929;
+    color: #ffffff;
+}
+
+/* Цвет для доходов и расходов */
+.transaction-table .income {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.transaction-table .expense {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+
+/* === График анализа транзакций === */
+.analysis-chart {
+    margin: 20px auto;
+    max-width: 400px;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.analysis-chart h2 {
+    font-size: 1.5rem;
+    color: #ffd700;
+    margin-bottom: 15px;
+}
+
+
 .fin-td:hover .tooltip {
     display: block;
     /* Показываем текст при наведении */
