@@ -14,6 +14,7 @@ import Register from "./componets/Authentication/Register/Register";
 import ProtectedRoute from "./componets/ProtectedRoute";
 import ProfilePage from "./componets/Home/Profile/ProfilePage";
 import GoalsPage from "./componets/Home/Goals/GoalsPage";
+import GoalDetails from "./componets/Home/Goals/GoalDetails";
 
 const AppContent = () => {
   const location = useLocation();
@@ -49,6 +50,15 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <GoalsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/goals/:goalId"
+          element={
+            <ProtectedRoute>
+              <GoalDetails />
             </ProtectedRoute>
           }
         />
