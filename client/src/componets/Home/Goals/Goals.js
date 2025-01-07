@@ -301,6 +301,22 @@ const Goals = ({ goals = [], setGoals }) => {
                         </td>
                         <td className="fin-td text-center align-middle">
                           <button
+                            onClick={() =>
+                              (window.location.href = `/goals/${goal.id}`)
+                            }
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <i
+                              className="bi bi-eye"
+                              style={{ color: "#007bff", fontSize: "1.2rem" }}
+                              title="Посмотреть цель"
+                            ></i>
+                          </button>
+                          <button
                             onClick={() => {
                               setCurrentGoal(goal);
                               setShowAddBalanceForm(true);
