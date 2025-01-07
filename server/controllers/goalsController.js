@@ -57,18 +57,18 @@ const deleteGoal = async (req, res) => {
 };
 
 const addBalanceToGoal = async (req, res) => {
-  const { id } = req.params;
-  const { amount } = req.body;
-  const userId = req.user.id;
+  const { id } = req.params; // ID цели
+  const { amount } = req.body; // Сумма для добавления
+  const userId = req.user.id; // ID пользователя из токена
 
   console.log("Параметры запроса:", { id, amount, userId });
 
   try {
+    // Получаем цель из базы данных
     const goal = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [id, userId]
     );
-    console.log("Цель найдена:", goal.rows);
 
     if (!goal.rows.length) {
       console.error("Цель не найдена");
@@ -80,14 +80,42 @@ const addBalanceToGoal = async (req, res) => {
 
     console.log("Обновленный баланс:", newBalance);
 
+    // Обновляем баланс цели
     const updatedGoal = await pool.query(
       "UPDATE goals SET balance = $1 WHERE id = $2 RETURNING balance",
       [newBalance, id]
     );
 
+    // Добавляем запись в таблицу транзакций
+    await pool.query(
+      "INSERT INTO transactions (user_id, goal_id, amount, type, date, description) VALUES ($1, $2, $3, $4, NOW(), $5)",
+      [userId, id, amount, "income", "Пополнение баланса"]
+    );
+
     res.json({ updatedBalance: updatedGoal.rows[0].balance });
   } catch (error) {
     console.error("Ошибка на сервере:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+const getGoalById = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
+      [id, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Цель не найдена" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Ошибка при получении цели:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
@@ -98,4 +126,5 @@ module.exports = {
   updateGoal,
   deleteGoal,
   addBalanceToGoal,
+  getGoalById,
 };

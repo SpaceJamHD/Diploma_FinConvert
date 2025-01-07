@@ -6,6 +6,7 @@ const {
   updateGoal,
   deleteGoal,
   addBalanceToGoal,
+  getGoalById,
 } = require("../controllers/goalsController");
 const authenticateToken = require("../middleware/authenticateToken");
 
@@ -14,5 +15,7 @@ router.post("/", authenticateToken, addGoal);
 router.put("/:id", authenticateToken, updateGoal);
 router.delete("/:id", authenticateToken, deleteGoal);
 router.post("/:id/add-balance", authenticateToken, addBalanceToGoal);
+
+router.get("/:id", authenticateToken, getGoalById);
 
 module.exports = router;
