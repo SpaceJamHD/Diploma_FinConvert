@@ -22,3 +22,25 @@ export const fetchConvertedAmount = async (
     throw error;
   }
 };
+
+export const withdrawFromGoal = async (goalId, amount) => {
+  try {
+    const response = await fetch(`/api/goals/${goalId}/withdraw`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ amount }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка при снятии средств");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка при снятии средств:", error);
+    throw error;
+  }
+};
