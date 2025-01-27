@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AddBalanceForm from "./AddBalanceForm";
+import WithdrawForm from "./WithdrawForm";
 
 import "../../../styles/HomePage.css";
 import "../../../styles/goal.css";
@@ -15,6 +16,13 @@ const Goals = ({ goals = [], setGoals }) => {
     priority: "",
     currency: "UAH",
   });
+
+  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+
+  const openWithdrawForm = (goal) => {
+    setCurrentGoal(goal);
+    setShowWithdrawForm(true);
+  };
 
   const [showAddBalanceForm, setShowAddBalanceForm] = useState(false);
   const [currentGoal, setCurrentGoal] = useState(null);
@@ -334,6 +342,21 @@ const Goals = ({ goals = [], setGoals }) => {
                             ></i>
                           </button>
 
+                          <button
+                            onClick={() => openWithdrawForm(goal)}
+                            style={{
+                              marginLeft: "10px",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <i
+                              className="bi bi-dash-circle"
+                              style={{ color: "#dc3545" }}
+                            ></i>
+                          </button>
+
                           {/* Иконка редактирования */}
                           <button
                             onClick={() => handleEditGoal(goal.id)}
@@ -373,6 +396,23 @@ const Goals = ({ goals = [], setGoals }) => {
           </div>
         </div>
       </div>
+
+      {showWithdrawForm && (
+        <WithdrawForm
+          goal={currentGoal}
+          onClose={() => setShowWithdrawForm(false)}
+          onWithdraw={(newBalance) => {
+            setGoals((prevGoals) =>
+              prevGoals.map((goal) =>
+                goal.id === currentGoal.id
+                  ? { ...goal, balance: newBalance }
+                  : goal
+              )
+            );
+            setShowWithdrawForm(false);
+          }}
+        />
+      )}
 
       {showAddBalanceForm && (
         <AddBalanceForm
