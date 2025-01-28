@@ -28,13 +28,27 @@ const registerUser = async (req, res) => {
     // Хэширование пароля
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Сохранение пользователя
-    await pool.query(
-      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4)",
+    // Сохранение пользователя и получение его ID
+    const userResult = await pool.query(
+      "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id",
       [name, email, hashedPassword, role]
     );
 
-    res.status(201).json({ message: "Пользователь успешно зарегистрирован." });
+    const userId = userResult.rows[0].id; // Получаем ID нового пользователя
+
+    // Создание начального баланса в кошельке
+    await pool.query(
+      `INSERT INTO balances (user_id, currency, amount, type) VALUES
+       ($1, 'UAH', 25000, 'regular'),
+       ($1, 'USD', 1200, 'regular'),
+       ($1, 'EUR', 800, 'regular'),
+       ($1, 'BTC', 0.005, 'regular')`,
+      [userId]
+    );
+
+    res.status(201).json({
+      message: "Пользователь успешно зарегистрирован, баланс создан.",
+    });
   } catch (error) {
     console.error("Ошибка при регистрации пользователя:", error);
     res.status(500).json({ message: "Ошибка сервера." });

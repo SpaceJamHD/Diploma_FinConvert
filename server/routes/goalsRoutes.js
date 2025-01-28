@@ -16,7 +16,8 @@ router.post("/", authenticateToken, addGoal);
 router.put("/:id", authenticateToken, updateGoal);
 router.delete("/:id", authenticateToken, deleteGoal);
 router.post("/:id/add-balance", authenticateToken, addBalanceToGoal);
-router.post("/:id/withdraw", authenticateToken, withdrawFromGoal);
+
+router.post("/:id/withdraw-balance", authenticateToken, withdrawFromGoal);
 
 router.get("/:id", authenticateToken, getGoalById);
 

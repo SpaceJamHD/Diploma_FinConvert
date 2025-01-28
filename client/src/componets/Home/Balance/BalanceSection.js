@@ -1,20 +1,40 @@
 import React, { useEffect, useState } from "react";
 
 const BalanceSection = ({ hideViewAll = false }) => {
-  const [balances, setBalances] = useState({ UAH: 0, USD: 0, BTC: 0 });
+  const [balances, setBalances] = useState({
+    UAH: 0,
+    USD: 0,
+    BTC: 0,
+  });
+
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchBalances = async () => {
     try {
-      const response = await fetch("/api/balances");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("❌ Ошибка: Токен отсутствует");
+        return;
       }
+
+      const response = await fetch("http://localhost:5000/api/balances", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ошибка API: ${response.status}`);
+      }
+
       const data = await response.json();
-      setBalances(data || { UAH: 0, USD: 0, BTC: 0 });
+      console.log("🎯 Баланс получен с сервера:", data); // ✅ Логируем для проверки
+
+      setBalances(data);
     } catch (error) {
-      console.error("Ошибка загрузки баланса:", error);
-      setBalances({ UAH: 0, USD: 0, BTC: 0 });
+      console.error("❌ Ошибка загрузки баланса:", error);
     } finally {
       setIsLoading(false);
     }
@@ -48,49 +68,49 @@ const BalanceSection = ({ hideViewAll = false }) => {
       </div>
 
       {isLoading ? (
-        <p className="text-light">Завантаження...</p>
+        <p className="text-light">⏳ Завантаження...</p>
       ) : (
         <div className="row gy-5 shadow-lg">
-          <div className="col-md-4">
-            <div className="card balance-card bg-dark text-light shadow">
-              <div className="card-body text-center py-4">
-                <div className="balance-icon mb-3">
-                  <i className="bi bi-currency-exchange text-warning fs-2"></i>
+          {[
+            {
+              label: "Гривня (UAH)",
+              value: balances.UAH,
+              icon: "bi bi-currency-exchange",
+              color: "text-warning",
+            },
+            {
+              label: "Долар США (USD)",
+              value: balances.USD,
+              icon: "bi bi-cash-coin",
+              color: "text-primary",
+            },
+            {
+              label: "Біткойн (BTC)",
+              value: balances.BTC,
+              icon: "bi bi-coin",
+              color: "text-success",
+            },
+          ].map((item, index) => (
+            <div key={index} className="col-md-4">
+              <div className="card balance-card bg-dark text-light shadow">
+                <div className="card-body text-center py-4">
+                  <div className={`balance-icon mb-3 ${item.color}`}>
+                    <i className={`${item.icon} fs-2`}></i>
+                  </div>
+                  <h5 className="card-title mb-2">{item.label}</h5>
+                  <p className="balance-value fs-4">
+                    {item.label.includes("BTC")
+                      ? `${balances.BTC} BTC`
+                      : formatCurrency(
+                          item.value,
+                          item.label.includes("USD") ? "USD" : "UAH"
+                        )}
+                  </p>
+                  <small className="text-muted">Оновлено: сьогодні</small>
                 </div>
-                <h5 className="card-title mb-2">Гривня (UAH)</h5>
-                <p className="balance-value fs-4">
-                  {formatCurrency(balances.UAH, "UAH")}
-                </p>
-                <small className="text-muted">Оновлено: сьогодні</small>
               </div>
             </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card balance-card bg-dark text-light shadow">
-              <div className="card-body text-center py-4">
-                <div className="balance-icon mb-3">
-                  <i className="bi bi-cash-coin text-primary fs-2"></i>
-                </div>
-                <h5 className="card-title mb-2">Долар США (USD)</h5>
-                <p className="balance-value fs-4">
-                  {formatCurrency(balances.USD, "USD")}
-                </p>
-                <small className="text-muted">Оновлено: сьогодні</small>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card balance-card bg-dark text-light shadow">
-              <div className="card-body text-center py-4">
-                <div className="balance-icon mb-3">
-                  <i className="bi bi-coin text-success fs-2"></i>
-                </div>
-                <h5 className="card-title mb-2">Криптовалюта (BTC)</h5>
-                <p className="balance-value fs-4">{balances.BTC} BTC</p>
-                <small className="text-muted">Оновлено: сьогодні</small>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       )}
     </section>

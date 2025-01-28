@@ -11,10 +11,27 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
     }
 
     try {
-      const data = await withdrawFromGoal(goal.id, parseFloat(amount));
-      onWithdraw(data.newBalance);
+      const response = await fetch(`/api/goals/${goal.id}/withdraw-balance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ amount: parseFloat(amount) }), // ✅ Исправлено
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при снятии средств");
+      }
+
+      onWithdraw(data.newGoalBalance);
+      fetchBalances(); // ✅ Теперь кошелек обновится сразу!
+
+      const data = await response.json();
+      onWithdraw(data.newGoalBalance);
     } catch (error) {
       alert("Ошибка при снятии средств!");
+      console.error(error);
     }
   };
 
