@@ -1,5 +1,8 @@
 const pool = require("../models/userModel");
-const { getExchangeRate } = require("../utils/exchangeRates");
+const {
+  getExchangeRate,
+  getCryptoToFiatRate,
+} = require("../utils/exchangeRates");
 
 const getGoals = async (req, res) => {
   try {
@@ -58,45 +61,75 @@ const deleteGoal = async (req, res) => {
 
 const addBalanceToGoal = async (req, res) => {
   const { id } = req.params; // ID цели
-  const { amount } = req.body; // Сумма для добавления
-  const userId = req.user.id; // ID пользователя из токена
-
-  console.log("Параметры запроса:", { id, amount, userId });
+  const { amount, fromCurrency } = req.body; // Сумма для пополнения и валюта, с которой списывать
+  const userId = req.user.id;
 
   try {
-    // Получаем цель из базы данных
+    // ✅ Получаем цель
     const goal = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [id, userId]
     );
 
     if (!goal.rows.length) {
-      console.error("Цель не найдена");
       return res.status(404).json({ message: "Цель не найдена" });
     }
 
-    const currentBalance = parseFloat(goal.rows[0].balance);
-    const newBalance = currentBalance + parseFloat(amount);
+    const goalCurrency = goal.rows[0].currency; // Валюта цели
+    let finalAmount = parseFloat(amount); // Финальная сумма пополнения
 
-    console.log("Обновленный баланс:", newBalance);
-
-    await updateBalance(userId, goal.rows[0].currency, amount, "withdraw");
-
-    // Обновляем баланс цели
-    const updatedGoal = await pool.query(
-      "UPDATE goals SET balance = $1 WHERE id = $2 RETURNING balance",
-      [newBalance, id]
+    // ✅ Получаем баланс пользователя
+    const balanceResult = await pool.query(
+      "SELECT currency, amount FROM balances WHERE user_id = $1",
+      [userId]
     );
 
-    // Добавляем запись в таблицу транзакций
+    const balances = {};
+    balanceResult.rows.forEach(({ currency, amount }) => {
+      balances[currency] = parseFloat(amount);
+    });
+
+    // Если баланс пользователя в валюте цели — просто списываем
+    if (fromCurrency === goalCurrency) {
+      if (balances[fromCurrency] < finalAmount) {
+        return res.status(400).json({ message: "Недостаточно средств" });
+      }
+      await updateBalance(userId, fromCurrency, finalAmount, "withdraw");
+    } else {
+      // 🔄 Если валюта пополнения отличается, конвертируем сумму
+      const exchangeRate = await getExchangeRate(fromCurrency, goalCurrency);
+      if (!exchangeRate || isNaN(exchangeRate) || exchangeRate <= 0) {
+        return res
+          .status(400)
+          .json({ message: "Ошибка получения курса валют" });
+      }
+
+      finalAmount = parseFloat(amount) * exchangeRate;
+
+      // Проверяем, есть ли у пользователя нужные деньги в выбранной валюте
+      if (balances[fromCurrency] < amount) {
+        return res.status(400).json({ message: "Недостаточно средств" });
+      }
+
+      // ✅ Списываем деньги в исходной валюте
+      await updateBalance(userId, fromCurrency, amount, "withdraw");
+    }
+
+    // ✅ Обновляем баланс цели с правильной суммой
+    const updatedGoal = await pool.query(
+      "UPDATE goals SET balance = balance + $1 WHERE id = $2 RETURNING balance",
+      [finalAmount, id]
+    );
+
+    // ✅ Записываем транзакцию
     await pool.query(
       "INSERT INTO transactions (user_id, goal_id, amount, type, date, description) VALUES ($1, $2, $3, $4, NOW(), $5)",
-      [userId, id, amount, "income", "Пополнение баланса"]
+      [userId, id, finalAmount, "income", "Пополнение цели"]
     );
 
     res.json({ updatedBalance: updatedGoal.rows[0].balance });
   } catch (error) {
-    console.error("Ошибка на сервере:", error);
+    console.error("Ошибка пополнения цели:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
@@ -153,8 +186,8 @@ const updateBalance = async (userId, currency, amount, operation) => {
 
     let newAmount =
       operation === "withdraw"
-        ? balance.rows[0].amount - amount // ❌ Уменьшаем баланс
-        : balance.rows[0].amount + amount; // ✅ Возвращаем баланс
+        ? balance.rows[0].amount - amount // ✅ Уменьшаем баланс
+        : balance.rows[0].amount + amount; // ✅ Увеличиваем баланс
 
     if (newAmount < 0) {
       throw new Error("Недостаточно средств на балансе");

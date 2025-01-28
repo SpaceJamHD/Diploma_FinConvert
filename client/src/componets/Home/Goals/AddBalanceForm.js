@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import { fetchConvertedAmount } from "../../../utils/api";
 
-const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
+const AddBalanceForm = ({
+  goalId,
+  currentCurrency,
+  refreshWallet,
+  onClose,
+  onSave,
+}) => {
   const [amount, setAmount] = useState("");
-  const [fromCurrency, setFromCurrency] = useState(currentCurrency || "UAH");
+  const [fromCurrency, setFromCurrency] = useState("UAH");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAddBalance = async () => {
-    if (!amount || isNaN(amount)) {
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       alert("Введите корректную сумму!");
       return;
     }
 
     try {
+      setIsLoading(true);
       let convertedAmount = parseFloat(amount);
 
-      // Если валюта пополнения отличается от валюты цели
+      // 🔄 Если пополняем не в той же валюте, делаем конвертацию
       if (fromCurrency !== currentCurrency) {
         convertedAmount = await fetchConvertedAmount(
           fromCurrency,
@@ -23,10 +31,12 @@ const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
         );
       }
 
-      console.log("Отправка данных:", {
-        amount: convertedAmount,
+      console.log("➡️ Исходные данные:", {
+        amount: parseFloat(amount),
         fromCurrency,
+        currentCurrency,
       });
+      console.log("🔄 Конвертированная сумма:", convertedAmount);
 
       const response = await fetch(`/api/goals/${goalId}/add-balance`, {
         method: "POST",
@@ -34,7 +44,10 @@ const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ amount: convertedAmount, fromCurrency }),
+        body: JSON.stringify({
+          amount: convertedAmount,
+          fromCurrency,
+        }),
       });
 
       if (!response.ok) {
@@ -42,9 +55,17 @@ const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
       }
 
       const data = await response.json();
+      console.log("✅ Сервер ответил:", data);
+
+      // 🔄 Обновляем баланс кошелька
+      refreshWallet();
+
       onSave(data.updatedBalance);
+      setIsLoading(false);
+      onClose();
     } catch (error) {
-      console.error("Ошибка при добавлении баланса:", error);
+      console.error("❌ Ошибка при добавлении баланса:", error);
+      setIsLoading(false);
     }
   };
 
@@ -70,59 +91,96 @@ const AddBalanceForm = ({ goalId, currentCurrency, onClose, onSave }) => {
           padding: "20px",
           borderRadius: "8px",
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+          width: "400px",
+          textAlign: "center",
         }}
         onSubmit={(e) => {
           e.preventDefault();
           handleAddBalance();
         }}
       >
-        <h3>Добавить сумму в баланс</h3>
-        <label>Сумма</label>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        />
-        <label>Валюта</label>
-        <select
-          value={fromCurrency}
-          onChange={(e) => setFromCurrency(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px", padding: "8px" }}
-        >
-          <option value="UAH">Гривна (UAH)</option>
-          <option value="USD">Доллар (USD)</option>
-          <option value="EUR">Евро (EUR)</option>
-          <option value="BTC">Биткойн (BTC)</option>
-        </select>
-        <button
-          type="submit"
+        <h3 style={{ marginBottom: "20px" }}>Пополнение цели</h3>
+
+        {/* Поле ввода с валютой справа */}
+        <div
           style={{
-            backgroundColor: "#28a745",
-            color: "#fff",
-            padding: "10px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginRight: "10px",
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "15px",
           }}
         >
-          Добавить
-        </button>
-        <button
-          type="button"
-          onClick={onClose}
-          style={{
-            backgroundColor: "#dc3545",
-            color: "#fff",
-            padding: "10px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Отмена
-        </button>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Введите сумму"
+            required
+            style={{
+              flex: 1,
+              padding: "10px",
+              backgroundColor: "#333",
+              color: "#fff",
+              border: "1px solid #555",
+              borderRadius: "5px 0 0 5px",
+              textAlign: "center",
+              fontSize: "1rem",
+            }}
+          />
+          <select
+            value={fromCurrency}
+            onChange={(e) => setFromCurrency(e.target.value)}
+            required
+            style={{
+              backgroundColor: "#333",
+              color: "#ffd700",
+              padding: "10px",
+              border: "1px solid #555",
+              borderRadius: "0 5px 5px 0",
+              fontSize: "1rem",
+              minWidth: "80px",
+            }}
+          >
+            <option value="UAH">UAH</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="BTC">BTC</option>
+          </select>
+        </div>
+
+        {/* Кнопки */}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              backgroundColor: "#28a745",
+              color: "#fff",
+              padding: "10px",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginRight: "10px",
+            }}
+          >
+            {isLoading ? "Добавление..." : "Добавить"}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              flex: 1,
+              backgroundColor: "#dc3545",
+              color: "#fff",
+              padding: "10px",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Отмена
+          </button>
+        </div>
       </form>
     </div>
   );

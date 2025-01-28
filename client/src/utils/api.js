@@ -5,21 +5,31 @@ export const fetchConvertedAmount = async (
 ) => {
   try {
     const response = await fetch(
-      `/api/crypto-convert?fromCurrency=${fromCurrency}&toCurrency=${toCurrency}&amount=${encodeURIComponent(
-        amount
-      )}`
+      `/api/exchange-rates?from=${fromCurrency}&to=${toCurrency}`
     );
 
     if (!response.ok) {
-      throw new Error("Ошибка при запросе конвертации");
+      throw new Error("Ошибка получения курса валют");
     }
 
     const data = await response.json();
-    console.log("Результат конвертации:", data);
-    return data.convertedAmount;
+    const rate = parseFloat(data.rate); // Получаем курс обмена
+
+    if (!rate || isNaN(rate) || rate <= 0) {
+      console.error("❌ Ошибка: Некорректный курс обмена", rate);
+      return parseFloat(amount); // Возвращаем ту же сумму, если курс неверный
+    }
+
+    console.log(
+      `💱 Курс ${fromCurrency} → ${toCurrency}: ${rate}, Сумма: ${amount}, Итог: ${
+        parseFloat(amount) * rate
+      }`
+    );
+
+    return parseFloat(amount) * rate; // Конвертация суммы
   } catch (error) {
-    console.error("Ошибка при запросе конвертации:", error);
-    throw error;
+    console.error("❌ Ошибка конвертации:", error);
+    return parseFloat(amount); // Если ошибка, возвращаем ту же сумму (чтобы не обнулять)
   }
 };
 

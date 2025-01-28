@@ -57,6 +57,25 @@ const Goals = ({ goals = [], setGoals }) => {
     setShowConfirm(true);
   };
 
+  const fetchBalances = async () => {
+    try {
+      const response = await fetch("/api/balances", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при загрузке баланса кошелька");
+      }
+
+      const data = await response.json();
+      console.log("🔄 Баланс кошелька обновлен:", data);
+    } catch (error) {
+      console.error("❌ Ошибка обновления кошелька:", error);
+    }
+  };
+
   const handleSaveGoal = async () => {
     const { name, description, amount, currency, deadline, priority } = newGoal;
 
@@ -418,6 +437,7 @@ const Goals = ({ goals = [], setGoals }) => {
         <AddBalanceForm
           goalId={currentGoal?.id}
           currentCurrency={currentGoal?.currency}
+          refreshWallet={fetchBalances} // ✅ Передаем функцию для обновления кошелька
           onClose={() => setShowAddBalanceForm(false)}
           onSave={(updatedBalance) => {
             setGoals((prevGoals) =>
