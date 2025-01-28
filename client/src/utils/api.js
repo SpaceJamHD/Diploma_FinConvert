@@ -35,6 +35,8 @@ export const fetchConvertedAmount = async (
 
 export const withdrawFromGoal = async (goalId, amount) => {
   try {
+    console.log("🔹 Отправка запроса на возврат:", { goalId, amount });
+
     const response = await fetch(`/api/goals/${goalId}/withdraw`, {
       method: "POST",
       headers: {
@@ -50,7 +52,7 @@ export const withdrawFromGoal = async (goalId, amount) => {
 
     return await response.json();
   } catch (error) {
-    console.error("Ошибка при снятии средств:", error);
+    console.error("❌ Ошибка при возврате средств:", error);
     throw error;
   }
 };

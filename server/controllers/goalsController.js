@@ -136,58 +136,108 @@ const addBalanceToGoal = async (req, res) => {
 
 const withdrawFromGoal = async (req, res) => {
   const { id } = req.params; // ID цели
-  const { amount } = req.body; // Сумма для снятия
+  const { amount } = req.body; // Сумма для возврата
   const userId = req.user.id;
 
   try {
-    // Получаем цель
-    const goal = await pool.query(
+    // ✅ Получаем данные о цели
+    const goalResult = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [id, userId]
     );
 
-    if (!goal.rows.length) {
+    if (!goalResult.rows.length) {
       return res.status(404).json({ message: "Цель не найдена" });
     }
 
-    const currentBalance = parseFloat(goal.rows[0].balance);
-    if (currentBalance < amount) {
+    const goal = goalResult.rows[0];
+    const goalCurrency = goal.currency;
+    const currentBalance = parseFloat(goal.balance);
+    const withdrawAmount = parseFloat(amount);
+
+    // 🔹 Проверка, хватает ли денег в цели
+    if (currentBalance < withdrawAmount) {
       return res.status(400).json({ message: "Недостаточно средств в цели" });
     }
 
-    const newBalance = currentBalance - amount;
-
-    // ✅ Добавляем деньги в кошелек
-    await updateBalance(userId, goal.rows[0].currency, amount, "deposit");
-
-    // ❌ Обновляем баланс цели
+    // ✅ Обновляем баланс цели (вычитаем деньги)
+    const newGoalBalance = currentBalance - withdrawAmount;
     await pool.query(
       "UPDATE goals SET balance = $1 WHERE id = $2 RETURNING balance",
-      [newBalance, id]
+      [newGoalBalance, id]
     );
 
-    res.json({ message: "Деньги успешно сняты", newGoalBalance: newBalance });
+    // ✅ Получаем текущий баланс пользователя
+    const balanceResult = await pool.query(
+      "SELECT currency, amount FROM balances WHERE user_id = $1",
+      [userId]
+    );
+
+    let balances = {};
+    balanceResult.rows.forEach(({ currency, amount }) => {
+      balances[currency] = parseFloat(amount);
+    });
+
+    // 🔄 **Конвертируем деньги в валюту кошелька (если надо)**
+    let depositAmount = withdrawAmount;
+    let walletCurrency = goalCurrency;
+
+    // Если в кошельке нет баланса в валюте цели, конвертируем в UAH
+    if (!balances[goalCurrency]) {
+      console.log("⚠️ Валюта цели не найдена в кошельке, конвертируем в UAH");
+      const exchangeRate = await getExchangeRate(goalCurrency, "UAH");
+      if (!exchangeRate) {
+        return res.status(400).json({ message: "Ошибка конвертации валюты" });
+      }
+      depositAmount = withdrawAmount * exchangeRate;
+      walletCurrency = "UAH"; // Записываем в гривны
+    }
+
+    // ✅ **Пополняем баланс пользователя в нужной валюте**
+    await updateBalance(userId, walletCurrency, depositAmount, "deposit");
+
+    // ✅ Записываем транзакцию возврата
+    await pool.query(
+      "INSERT INTO transactions (user_id, goal_id, amount, type, date, description) VALUES ($1, $2, $3, $4, NOW(), $5)",
+      [userId, id, withdrawAmount, "withdraw", "Возврат из цели"]
+    );
+
+    res.json({
+      message: "Деньги успешно возвращены",
+      newGoalBalance,
+    });
   } catch (error) {
-    console.error("❌ Ошибка снятия средств:", error);
+    console.error("❌ Ошибка возврата средств:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
 
 const updateBalance = async (userId, currency, amount, operation) => {
   try {
-    const balance = await pool.query(
+    console.log(`🔄 Обновление баланса: ${operation} ${amount} ${currency}`);
+
+    const balanceResult = await pool.query(
       "SELECT amount FROM balances WHERE user_id = $1 AND currency = $2",
       [userId, currency]
     );
 
-    if (balance.rows.length === 0) {
-      throw new Error("Баланс не найден");
+    let newAmount;
+    if (balanceResult.rows.length === 0) {
+      // Если валюты нет в кошельке, создаем запись
+      console.log(`💰 Валюта ${currency} отсутствует, создаем новую запись.`);
+      await pool.query(
+        "INSERT INTO balances (user_id, currency, amount) VALUES ($1, $2, $3)",
+        [userId, currency, operation === "withdraw" ? -amount : amount]
+      );
+      return;
     }
 
-    let newAmount =
+    let currentAmount = parseFloat(balanceResult.rows[0].amount);
+
+    newAmount =
       operation === "withdraw"
-        ? balance.rows[0].amount - amount // ✅ Уменьшаем баланс
-        : balance.rows[0].amount + amount; // ✅ Увеличиваем баланс
+        ? currentAmount - amount
+        : currentAmount + amount;
 
     if (newAmount < 0) {
       throw new Error("Недостаточно средств на балансе");
@@ -197,6 +247,8 @@ const updateBalance = async (userId, currency, amount, operation) => {
       "UPDATE balances SET amount = $1 WHERE user_id = $2 AND currency = $3",
       [newAmount, userId, currency]
     );
+
+    console.log(`✅ Новый баланс: ${newAmount} ${currency}`);
   } catch (error) {
     console.error("❌ Ошибка обновления баланса:", error);
     throw error;

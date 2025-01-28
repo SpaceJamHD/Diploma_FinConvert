@@ -3,6 +3,8 @@ import { withdrawFromGoal } from "../../../utils/api";
 
 const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
   const [amount, setAmount] = useState("");
+  const [fromCurrency, setFromCurrency] = useState(goal.currency || "UAH"); // Валюта цели по умолчанию
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleWithdraw = async () => {
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
@@ -11,27 +13,32 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
     }
 
     try {
-      const response = await fetch(`/api/goals/${goal.id}/withdraw-balance`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ amount: parseFloat(amount) }), // ✅ Исправлено
+      setIsLoading(true);
+      console.log("🔹 Отправка запроса на возврат:", {
+        goalId: goal.id,
+        amount,
+        fromCurrency,
       });
 
-      if (!response.ok) {
-        throw new Error("Ошибка при снятии средств");
+      const response = await withdrawFromGoal(
+        goal.id,
+        parseFloat(amount),
+        fromCurrency
+      );
+
+      if (response.error) {
+        throw new Error(response.error);
       }
 
-      onWithdraw(data.newGoalBalance);
-      fetchBalances(); // ✅ Теперь кошелек обновится сразу!
+      console.log("✅ Ответ сервера:", response);
 
-      const data = await response.json();
-      onWithdraw(data.newGoalBalance);
+      onWithdraw(response.newGoalBalance);
+      setIsLoading(false);
+      onClose();
     } catch (error) {
-      alert("Ошибка при снятии средств!");
-      console.error(error);
+      console.error("❌ Ошибка при возврате средств:", error);
+      alert("Ошибка при возврате средств!");
+      setIsLoading(false);
     }
   };
 
@@ -61,9 +68,9 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
           textAlign: "center",
         }}
       >
-        <h3 style={{ marginBottom: "20px" }}>Снятие денег</h3>
+        <h3 style={{ marginBottom: "20px" }}>Возврат средств</h3>
 
-        {/* Поле ввода с валютой справа */}
+        {/* Поле ввода суммы без выбора валюты */}
         <div
           style={{
             display: "flex",
@@ -75,6 +82,8 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+            placeholder="Введите сумму"
+            required
             style={{
               flex: 1,
               padding: "10px",
@@ -97,17 +106,18 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
               minWidth: "50px",
             }}
           >
-            {goal.currency}
+            {goal.currency} {/* Автоматически отображаем валюту цели */}
           </span>
         </div>
 
-        {/* Кнопки в одну строку */}
+        {/* Кнопки */}
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
             onClick={handleWithdraw}
+            disabled={isLoading}
             style={{
               flex: 1,
-              backgroundColor: "#dc3545",
+              backgroundColor: "#28a745",
               color: "#fff",
               padding: "10px",
               border: "none",
@@ -116,13 +126,13 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
               marginRight: "10px",
             }}
           >
-            Снять
+            {isLoading ? "Обработка..." : "Вернуть"}
           </button>
           <button
             onClick={onClose}
             style={{
               flex: 1,
-              backgroundColor: "#6c757d",
+              backgroundColor: "#dc3545",
               color: "#fff",
               padding: "10px",
               border: "none",

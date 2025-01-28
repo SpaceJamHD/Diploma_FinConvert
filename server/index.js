@@ -9,6 +9,7 @@ const balancesRoutes = require("./routes/balancesRoutes");
 const goalsRoutes = require("./routes/goalsRoutes");
 const cryptoRoutes = require("./routes/cryptoRoutes");
 const transactionsRoutes = require("./routes/transactionsRoutes");
+const exchangeRatesRoutes = require("./routes/exchangeRatesRoutes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api/balances", balancesRoutes);
 app.use("/api/goals", goalsRoutes);
 app.use("/api", cryptoRoutes);
 app.use("/api/transactions", transactionsRoutes);
+app.use("/api/exchange-rates", exchangeRatesRoutes);
 
 const PORT = 5000;
 
