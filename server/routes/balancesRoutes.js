@@ -5,11 +5,15 @@ const authenticateToken = require("../middleware/authenticateToken"); // Про�
 
 router.get("/", authenticateToken, async (req, res) => {
   const userId = req.user.id;
-  console.log("🔹 Получаем баланс пользователя:", userId); // ✅ Лог для проверки
+  console.log("🔹 Получаем баланс пользователя:", userId);
 
   try {
     const result = await pool.query(
-      "SELECT currency, amount FROM balances WHERE user_id = $1",
+      `SELECT 
+        currency, 
+        amount, 
+        COALESCE(amount_btc, 0) AS amount_btc
+      FROM balances WHERE user_id = $1`,
       [userId]
     );
 
@@ -18,10 +22,11 @@ router.get("/", authenticateToken, async (req, res) => {
     }
 
     const balances = {};
-    result.rows.forEach(({ currency, amount }) => {
-      balances[currency] = amount;
+    result.rows.forEach(({ currency, amount, amount_btc }) => {
+      balances[currency] = currency === "BTC" ? amount_btc : amount;
     });
 
+    console.log("🎯 Баланс, отправленный клиенту:", balances);
     res.json(balances);
   } catch (error) {
     console.error("❌ Ошибка получения баланса:", error);

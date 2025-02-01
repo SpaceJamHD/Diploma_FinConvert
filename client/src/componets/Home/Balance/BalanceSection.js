@@ -30,9 +30,20 @@ const BalanceSection = ({ hideViewAll = false }) => {
       }
 
       const data = await response.json();
-      console.log("🎯 Баланс получен с сервера:", data); // ✅ Логируем для проверки
 
-      setBalances(data);
+      // ✅ Проверяем BTC, если он есть — отображаем с 8 знаками
+      const btcBalance = data.BTC
+        ? parseFloat(data.BTC).toFixed(8)
+        : "0.00000000";
+
+      setBalances({
+        UAH: data.UAH || 0,
+        USD: data.USD || 0,
+        EUR: data.EUR || 0,
+        BTC: btcBalance, // 🎯 Показываем 8 знаков после запятой
+      });
+
+      console.log("🎯 Баланс получен с сервера:", data);
     } catch (error) {
       console.error("❌ Ошибка загрузки баланса:", error);
     } finally {
