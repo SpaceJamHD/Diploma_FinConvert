@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Goals from "./Goals";
+import BalanceSection from "../Balance/BalanceSection"; // 👈 Добавил импорт!
 
 const GoalsPage = () => {
   const [goals, setGoals] = useState([]); // Состояние для целей
@@ -39,7 +40,15 @@ const GoalsPage = () => {
     fetchGoals();
   }, []);
 
-  return <Goals goals={goals} setGoals={setGoals} fetchGoals={fetchGoals} />;
+  return (
+    <section className="container">
+      {/* Кошелек */}
+      <BalanceSection />
+
+      {/* Цели */}
+      <Goals goals={goals} setGoals={setGoals} fetchGoals={fetchGoals} />
+    </section>
+  );
 };
 
 export default GoalsPage;

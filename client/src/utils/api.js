@@ -17,19 +17,31 @@ export const fetchConvertedAmount = async (
 
     if (!rate || isNaN(rate) || rate <= 0) {
       console.error("❌ Ошибка: Некорректный курс обмена", rate);
-      return parseFloat(amount); // Возвращаем ту же сумму, если курс неверный
+      return amount; // Возвращаем исходную сумму без изменений
     }
 
+    const convertedAmount = parseFloat((parseFloat(amount) * rate).toFixed(6));
+
     console.log(
-      `💱 Курс ${fromCurrency} → ${toCurrency}: ${rate}, Сумма: ${amount}, Итог: ${
-        parseFloat(amount) * rate
-      }`
+      `💱 ${amount} ${fromCurrency} → ${convertedAmount} ${toCurrency} (Курс: ${rate})`
     );
 
-    return parseFloat(amount) * rate; // Конвертация суммы
+    console.log(
+      `💱 Курс ${fromCurrency} → ${toCurrency}: ${rate}, Сумма: ${amount}, Итог: ${convertedAmount}`
+    );
+
+    console.log("🟡 КЛИЕНТСКАЯ КОНВЕРТАЦИЯ:", {
+      fromCurrency,
+      toCurrency,
+      исходная_сумма: amount,
+      курс: rate,
+      итоговая_сумма: convertedAmount,
+    });
+
+    return convertedAmount; // Возвращаем уже пересчитанную сумму
   } catch (error) {
     console.error("❌ Ошибка конвертации:", error);
-    return parseFloat(amount); // Если ошибка, возвращаем ту же сумму (чтобы не обнулять)
+    return amount; // Если ошибка, возвращаем ту же сумму
   }
 };
 

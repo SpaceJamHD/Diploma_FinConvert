@@ -100,7 +100,7 @@ const BalanceSection = ({ hideViewAll = false }) => {
                   <h5 className="card-title mb-2">{item.label}</h5>
                   <p className="balance-value fs-4">
                     {item.label.includes("BTC")
-                      ? `${balances.BTC} BTC`
+                      ? `${Number(balances.BTC).toFixed(6)} BTC`
                       : formatCurrency(
                           item.value,
                           item.label.includes("USD") ? "USD" : "UAH"

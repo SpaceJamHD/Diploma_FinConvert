@@ -1,78 +1,88 @@
 const fetch = require("node-fetch");
 
 const getExchangeRate = async (fromCurrency, toCurrency) => {
-  const apiKey = process.env.FIXER_API_KEY;
-  const url = `http://data.fixer.io/api/latest?access_key=${apiKey}&symbols=${fromCurrency},${toCurrency}`;
-
   try {
-    const response = await fetch(url);
+    console.log(`🌍 Запрос курса: ${fromCurrency} → ${toCurrency}`);
+
+    const apiKey = process.env.FIXER_API_KEY;
+    const fixerUrl = `http://data.fixer.io/api/latest?access_key=${apiKey}`;
+
+    const response = await fetch(fixerUrl);
     const data = await response.json();
 
     if (!data.success) {
-      throw new Error("Ошибка API Fixer");
+      console.error("❌ Ошибка Fixer API:", data.error);
+      return null;
     }
 
-    const fromRate = data.rates[fromCurrency];
-    const toRate = data.rates[toCurrency];
-
-    if (!fromRate || !toRate) {
-      throw new Error("Не удалось найти курс валют");
+    const rates = data.rates;
+    if (!rates[fromCurrency] || !rates[toCurrency]) {
+      console.error("❌ Ошибка: Не найден курс валют", {
+        fromCurrency,
+        toCurrency,
+      });
+      return null;
     }
 
-    return toRate / fromRate;
+    // ✅ Новый метод конвертации
+    const finalRate = rates[toCurrency] / rates[fromCurrency];
+
+    console.log(`💱 Курс ${fromCurrency} → ${toCurrency}: ${finalRate}`);
+    return parseFloat(finalRate.toFixed(6));
   } catch (error) {
-    console.error("Ошибка получения курса валют:", error);
-    throw error;
+    console.error("❌ Ошибка при получении курса валют:", error);
+    return null;
   }
 };
 
 const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
-  const coinGeckoApiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,uah`;
-  const fixerApiUrl = `http://data.fixer.io/api/latest?access_key=${process.env.FIXER_API_KEY}&symbols=USD,EUR,UAH`;
+  const fixerApiUrl = `http://data.fixer.io/api/latest?access_key=${process.env.FIXER_API_KEY}`;
+  const coinGeckoApiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,eur,uah`;
 
   try {
-    let cryptoRates, fiatRates;
-
-    // Получаем курсы для криптовалют и фиатных валют
     const [cryptoResponse, fiatResponse] = await Promise.all([
       fetch(coinGeckoApiUrl),
       fetch(fixerApiUrl),
     ]);
 
-    cryptoRates = await cryptoResponse.json();
-    fiatRates = await fiatResponse.json();
+    const cryptoRates = await cryptoResponse.json();
+    const fiatRates = await fiatResponse.json();
 
-    console.log("Данные от CoinGecko:", cryptoRates);
-    console.log("Данные от Fixer:", fiatRates);
+    if (!cryptoRates || !fiatRates) {
+      throw new Error("Ошибка загрузки курсов криптовалют и фиатных валют");
+    }
 
     if (fromCurrency === "BTC" || toCurrency === "BTC") {
-      // Работа с криптовалютами
       if (fromCurrency === "BTC") {
         const rate = cryptoRates.bitcoin[toCurrency.toLowerCase()];
         if (!rate) throw new Error(`Нет данных для валюты: ${toCurrency}`);
         return parseFloat(amount) * rate;
-      } else if (toCurrency === "BTC") {
+      } else {
         const rate = cryptoRates.bitcoin[fromCurrency.toLowerCase()];
         if (!rate) throw new Error(`Нет данных для валюты: ${fromCurrency}`);
         return parseFloat(amount) / rate;
       }
     } else {
-      // Работа с фиатными валютами через Fixer
       const fromRate = fiatRates.rates[fromCurrency];
       const toRate = fiatRates.rates[toCurrency];
+      const eurBaseRate = fiatRates.rates["EUR"];
 
-      if (!fromRate || !toRate) {
+      if (!fromRate || !toRate || !eurBaseRate) {
         throw new Error(
-          `Нет данных для фиатных валют: ${fromCurrency} или ${toCurrency}`
+          `Ошибка: Курсы ${fromCurrency} или ${toCurrency} не найдены`
         );
       }
 
-      const conversionRate = toRate / fromRate;
-      return parseFloat(amount) * conversionRate;
+      // Конвертация через EUR
+      const fromToEur = fromRate / eurBaseRate;
+      const toToEur = toRate / eurBaseRate;
+      const finalRate = toToEur / fromToEur;
+
+      return parseFloat(amount) * finalRate;
     }
   } catch (error) {
     console.error("Ошибка при запросе курсов валют:", error);
-    throw error;
+    return null;
   }
 };
 

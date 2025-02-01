@@ -12,32 +12,46 @@ const AddBalanceForm = ({
   const [fromCurrency, setFromCurrency] = useState("UAH");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Функція для нормалізації введеної користувачем суми
+  const normalizeAmount = (value) => {
+    // Прибираємо зайві пробіли
+    // Замінюємо кому (,) на крапку (.)
+    // І лише потім парсимо в число
+    const cleaned = value.replace(/\s+/g, "").replace(",", ".");
+    return parseFloat(cleaned);
+  };
+
   const handleAddBalance = async () => {
-    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
-      alert("Введите корректную сумму!");
+    if (isLoading) return;
+    setIsLoading(true);
+
+    // Використовуємо normalizAmount, щоб коректно зчитати число
+    const numericAmount = normalizeAmount(amount);
+
+    if (!numericAmount || numericAmount <= 0 || isNaN(numericAmount)) {
+      alert("Введіть, будь ласка, коректну суму!");
+      setIsLoading(false);
       return;
     }
 
     try {
-      setIsLoading(true);
-      let convertedAmount = parseFloat(amount);
+      let convertedAmount = numericAmount;
+      let isConverted = false; // false, якщо конвертація не потрібна
 
-      // 🔄 Если пополняем не в той же валюте, делаем конвертацию
+      // Якщо валюта відрізняється, викликаємо API для конвертації
       if (fromCurrency !== currentCurrency) {
+        console.log(
+          `🌍 Конвертація: ${numericAmount} ${fromCurrency} → ${currentCurrency}`
+        );
         convertedAmount = await fetchConvertedAmount(
           fromCurrency,
           currentCurrency,
-          amount
+          numericAmount
         );
+        isConverted = true;
       }
 
-      console.log("➡️ Исходные данные:", {
-        amount: parseFloat(amount),
-        fromCurrency,
-        currentCurrency,
-      });
-      console.log("🔄 Конвертированная сумма:", convertedAmount);
-
+      // Далі надсилаємо на сервер
       const response = await fetch(`/api/goals/${goalId}/add-balance`, {
         method: "POST",
         headers: {
@@ -45,26 +59,27 @@ const AddBalanceForm = ({
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          amount: convertedAmount,
+          originalAmount: numericAmount, // 1000 (те, що ввів користувач)
+          convertedAmount: convertedAmount, // 23.987 (результат клієнтської конвертації, якщо вона була)
           fromCurrency,
+          converted: isConverted,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Ошибка при обновлении баланса");
+        throw new Error("Помилка при оновленні балансу");
       }
 
       const data = await response.json();
-      console.log("✅ Сервер ответил:", data);
+      console.log("✅ Сервер відповів:", data);
 
-      // 🔄 Обновляем баланс кошелька
+      // Оновити дані на фронті
       refreshWallet();
-
       onSave(data.updatedBalance);
       setIsLoading(false);
       onClose();
     } catch (error) {
-      console.error("❌ Ошибка при добавлении баланса:", error);
+      console.error("❌ Помилка при додаванні балансу:", error);
       setIsLoading(false);
     }
   };
@@ -99,9 +114,8 @@ const AddBalanceForm = ({
           handleAddBalance();
         }}
       >
-        <h3 style={{ marginBottom: "20px" }}>Пополнение цели</h3>
+        <h3 style={{ marginBottom: "20px" }}>Поповнення цілі</h3>
 
-        {/* Поле ввода с валютой справа */}
         <div
           style={{
             display: "flex",
@@ -110,10 +124,10 @@ const AddBalanceForm = ({
           }}
         >
           <input
-            type="number"
+            type="text"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Введите сумму"
+            placeholder="Введіть суму"
             required
             style={{
               flex: 1,
@@ -147,7 +161,6 @@ const AddBalanceForm = ({
           </select>
         </div>
 
-        {/* Кнопки */}
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
             type="submit"
@@ -163,7 +176,7 @@ const AddBalanceForm = ({
               marginRight: "10px",
             }}
           >
-            {isLoading ? "Добавление..." : "Добавить"}
+            {isLoading ? "Додаємо..." : "Додати"}
           </button>
           <button
             type="button"
@@ -178,7 +191,7 @@ const AddBalanceForm = ({
               cursor: "pointer",
             }}
           >
-            Отмена
+            Відміна
           </button>
         </div>
       </form>
