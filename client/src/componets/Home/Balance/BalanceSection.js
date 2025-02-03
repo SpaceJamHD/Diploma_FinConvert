@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
+import useWebSocket from "../../../hooks/useWebSocket";
 
 const BalanceSection = ({ hideViewAll = false }) => {
   const [balances, setBalances] = useState({
     UAH: 0,
     USD: 0,
+    EUR: 0,
     BTC: 0,
   });
+
+  useWebSocket(setBalances);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,16 +68,16 @@ const BalanceSection = ({ hideViewAll = false }) => {
   };
 
   return (
-    <section id="account-balance" className="mb-5">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="text-light mb-0">Баланс ваших рахунків</h2>
+    <section id="account-balance" className="mb-3">
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <h2 className="text-light mb-0 fw-bold">Баланс ваших рахунків</h2>
         {!hideViewAll && (
           <button
             className="btn btn-link text-warning text-decoration-none d-flex align-items-center"
             onClick={() => console.log("Navigate to full view")}
           >
             Переглянути всі{" "}
-            <i className="bi bi-arrow-right-circle ms-2 fs-4"></i>
+            <i className="bi bi-arrow-right-circle ms-2 fs-5"></i>
           </button>
         )}
       </div>
@@ -81,41 +85,48 @@ const BalanceSection = ({ hideViewAll = false }) => {
       {isLoading ? (
         <p className="text-light">⏳ Завантаження...</p>
       ) : (
-        <div className="row gy-5 shadow-lg">
+        <div className="row gy-3 gx-2">
           {[
             {
               label: "Гривня (UAH)",
               value: balances.UAH,
               icon: "bi bi-currency-exchange",
               color: "text-warning",
+              currency: "UAH",
             },
             {
               label: "Долар США (USD)",
               value: balances.USD,
               icon: "bi bi-cash-coin",
               color: "text-primary",
+              currency: "USD",
+            },
+            {
+              label: "Євро (EUR)",
+              value: balances.EUR,
+              icon: "bi bi-currency-euro",
+              color: "text-info",
+              currency: "EUR",
             },
             {
               label: "Біткойн (BTC)",
               value: balances.BTC,
               icon: "bi bi-coin",
               color: "text-success",
+              currency: "BTC",
             },
           ].map((item, index) => (
-            <div key={index} className="col-md-4">
-              <div className="card balance-card bg-dark text-light shadow">
-                <div className="card-body text-center py-4">
-                  <div className={`balance-icon mb-3 ${item.color}`}>
-                    <i className={`${item.icon} fs-2`}></i>
+            <div key={index} className="col-6 col-md-3">
+              <div className="card balance-card bg-dark text-light shadow-sm">
+                <div className="card-body text-center py-2">
+                  <div className={`balance-icon mb-2 ${item.color}`}>
+                    <i className={`${item.icon} fs-3`}></i>
                   </div>
-                  <h5 className="card-title mb-2">{item.label}</h5>
-                  <p className="balance-value fs-4">
-                    {item.label.includes("BTC")
+                  <h6 className="card-title mb-1 fw-bold">{item.label}</h6>
+                  <p className="balance-value fs-3 fw-bold">
+                    {item.currency === "BTC"
                       ? `${Number(balances.BTC).toFixed(6)} BTC`
-                      : formatCurrency(
-                          item.value,
-                          item.label.includes("USD") ? "USD" : "UAH"
-                        )}
+                      : formatCurrency(item.value, item.currency)}
                   </p>
                   <small className="text-muted">Оновлено: сьогодні</small>
                 </div>
