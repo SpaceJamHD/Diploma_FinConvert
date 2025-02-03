@@ -3,6 +3,7 @@ const {
   getExchangeRate,
   getCryptoToFiatRate,
 } = require("../utils/exchangeRates");
+const { broadcastBalanceUpdate } = require("../webSocket");
 
 const getGoals = async (req, res) => {
   try {
@@ -86,11 +87,6 @@ const addBalanceToGoal = async (req, res) => {
     const goal = goalResult.rows[0];
     const goalCurrency = goal.currency;
 
-    console.log("🎯 Детали цели:", {
-      goalCurrency,
-      currentGoalBalance: goal.balance,
-    });
-
     let originAmt = parseFloat(originalAmount);
     let finalAmount = parseFloat(convertedAmount);
 
@@ -114,14 +110,14 @@ const addBalanceToGoal = async (req, res) => {
         .json({ message: `Недостаточно средств в ${fromCurrency}` });
     }
 
-    // ✅ Списываем деньги из кошелька (BTC-кошелек теперь создастся в `updateBalance`, если его нет)
+    // ✅ Списываем деньги из кошелька
     console.log(`🔄 Списываем ${originAmt} ${fromCurrency} с кошелька`);
     await updateBalance(userId, fromCurrency, originAmt, "withdraw");
 
     // ✅ Конвертируем (если надо)
     if (!converted && fromCurrency !== goalCurrency) {
       console.log(
-        `🌍 Нужно конвертировать: ${originAmt} ${fromCurrency} → ${goalCurrency}`
+        `🌍 Конвертация: ${originAmt} ${fromCurrency} → ${goalCurrency}`
       );
       const exchangeRate = await getExchangeRate(fromCurrency, goalCurrency);
       if (!exchangeRate) {
@@ -129,15 +125,7 @@ const addBalanceToGoal = async (req, res) => {
           .status(400)
           .json({ message: "Ошибка получения курса валют" });
       }
-
       finalAmount = parseFloat((originAmt * exchangeRate).toFixed(6));
-      console.log(
-        `💱 Конвертация: ${originAmt} ${fromCurrency} → ${finalAmount} ${goalCurrency}`
-      );
-    } else {
-      console.log(
-        `✅ Клиент уже конвертировал сумму: ${originAmt} ${fromCurrency} → ${finalAmount} ${goalCurrency}`
-      );
     }
 
     // ✅ Обновляем баланс цели
@@ -155,6 +143,9 @@ const addBalanceToGoal = async (req, res) => {
       "INSERT INTO transactions (user_id, goal_id, amount, type, date, description) VALUES ($1, $2, $3, $4, NOW(), $5)",
       [userId, id, finalAmount, "income", "Пополнение цели"]
     );
+
+    // ✅ Отправляем обновленный баланс через WebSocket
+    await broadcastBalanceUpdate(userId);
 
     res.json({ updatedBalance: updatedGoal.rows[0].balance });
   } catch (error) {
@@ -224,6 +215,8 @@ const withdrawFromGoal = async (req, res) => {
 
     // ✅ **Пополняем баланс пользователя в нужной валюте**
     await updateBalance(userId, walletCurrency, depositAmount, "deposit");
+
+    await broadcastBalanceUpdate(userId);
 
     // ✅ Записываем транзакцию возврата
     await pool.query(
