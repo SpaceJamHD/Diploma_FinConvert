@@ -40,7 +40,7 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/conversion">
+              <Link className="nav-link" to="/transactions">
                 Конвертація
               </Link>
             </li>
