@@ -96,29 +96,30 @@ export const createTransaction = async (
   toCurrency,
   type
 ) => {
-  try {
-    const token = localStorage.getItem("token");
-    const response = await fetch("http://localhost:5000/api/transactions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        amount,
-        fromCurrency,
-        toCurrency,
-        type,
-      }),
-    });
+  const token = localStorage.getItem("token");
 
-    if (!response.ok) {
-      throw new Error("Ошибка создания транзакции");
-    }
+  console.log("📡 Отправка транзакции:", {
+    amount,
+    fromCurrency,
+    toCurrency,
+    type,
+  });
 
-    return await response.json();
-  } catch (error) {
-    console.error("❌ Ошибка при создании транзакции:", error);
-    throw error;
+  const response = await fetch("http://localhost:5000/api/transactions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ amount, fromCurrency, toCurrency, type }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error(" Ошибка при создании транзакции:", data);
+    throw new Error("Ошибка создания транзакции");
   }
+
+  return data;
 };

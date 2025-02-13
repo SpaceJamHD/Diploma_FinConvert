@@ -69,7 +69,7 @@ const AddBalanceForm = ({
       setIsLoading(false);
       onClose();
     } catch (error) {
-      console.error("❌ Помилка при додаванні балансу:", error);
+      console.error(" Помилка при додаванні балансу:", error);
       setIsLoading(false);
     }
   };

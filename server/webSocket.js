@@ -19,19 +19,20 @@ const setupWebSocket = (server) => {
 
 const broadcastBalanceUpdate = async (userId) => {
   if (!wss) {
-    console.error(" WebSocket сервер не инициализирован");
+    console.error("❌ WebSocket сервер не инициализирован");
     return;
   }
 
   try {
     const balanceResult = await pool.query(
-      "SELECT currency, amount FROM balances WHERE user_id = $1",
+      `SELECT currency, amount, COALESCE(amount_btc, 0) AS amount_btc 
+       FROM balances WHERE user_id = $1`,
       [userId]
     );
 
     const balances = {};
-    balanceResult.rows.forEach(({ currency, amount }) => {
-      balances[currency] = amount;
+    balanceResult.rows.forEach(({ currency, amount, amount_btc }) => {
+      balances[currency] = currency === "BTC" ? amount_btc : amount;
     });
 
     const message = JSON.stringify({ type: "BALANCE_UPDATE", data: balances });
@@ -42,9 +43,9 @@ const broadcastBalanceUpdate = async (userId) => {
       }
     });
 
-    console.log(" Баланс обновлен и отправлен клиентам:", balances);
+    console.log("📡 Баланс обновлен и отправлен клиентам:", balances);
   } catch (error) {
-    console.error(" Ошибка обновления WebSocket баланса:", error);
+    console.error("❌ Ошибка обновления WebSocket баланса:", error);
   }
 };
 

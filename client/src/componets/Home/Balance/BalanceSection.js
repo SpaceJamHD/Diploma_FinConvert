@@ -9,7 +9,11 @@ const BalanceSection = ({ hideViewAll = false }) => {
     BTC: 0,
   });
 
-  useWebSocket(setBalances);
+  useWebSocket((updatedBalances) => {
+    console.log(" Обновленный баланс:", updatedBalances);
+    setBalances(updatedBalances);
+    fetchBalances();
+  });
 
   const [isLoading, setIsLoading] = useState(true);
 

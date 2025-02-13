@@ -283,14 +283,28 @@ const Goals = ({ goals = [], setGoals }) => {
                                 className="fin-progress-fill"
                                 style={{
                                   width: `${progress}%`,
+                                  backgroundColor:
+                                    progress >= 100
+                                      ? "#28a745"
+                                      : progress >= 50
+                                      ? "#ffc107"
+                                      : "#dc3545",
                                 }}
                               ></div>
                             </div>
-                            <span className="fin-progress-text">
+                            <span
+                              className="fin-progress-text"
+                              style={{
+                                color: progress >= 100 ? "#ffffff" : "#000000",
+                                fontWeight: "bold",
+                                textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
+                              }}
+                            >
                               {progress}%
                             </span>
                           </div>
                         </td>
+
                         <td className="fin-td text-center align-middle">
                           {goal.currency === "USD"
                             ? "$"
