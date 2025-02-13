@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const pool = require("./models/userModel"); // Доступ к базе данных
+const pool = require("./models/userModel");
 
 let wss;
 
@@ -17,7 +17,7 @@ const setupWebSocket = (server) => {
   });
 };
 
-// Функция для отправки обновленного баланса всем клиентам
+// Отправка обновленного баланса после транзакции
 const broadcastBalanceUpdate = async (userId) => {
   if (!wss) {
     console.error("❌ WebSocket сервер не инициализирован");
@@ -26,13 +26,13 @@ const broadcastBalanceUpdate = async (userId) => {
 
   try {
     const balanceResult = await pool.query(
-      `SELECT currency, amount, COALESCE(amount_btc, 0) AS amount_btc FROM balances WHERE user_id = $1`,
+      "SELECT currency, amount FROM balances WHERE user_id = $1",
       [userId]
     );
 
     const balances = {};
-    balanceResult.rows.forEach(({ currency, amount, amount_btc }) => {
-      balances[currency] = currency === "BTC" ? amount_btc : amount;
+    balanceResult.rows.forEach(({ currency, amount }) => {
+      balances[currency] = amount;
     });
 
     const message = JSON.stringify({ type: "BALANCE_UPDATE", data: balances });
