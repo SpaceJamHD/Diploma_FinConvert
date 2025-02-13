@@ -68,3 +68,57 @@ export const withdrawFromGoal = async (goalId, amount) => {
     throw error;
   }
 };
+
+export const fetchTransactions = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:5000/api/transactions", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка получения транзакций");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Ошибка загрузки транзакций:", error);
+    return [];
+  }
+};
+
+export const createTransaction = async (
+  amount,
+  fromCurrency,
+  toCurrency,
+  type
+) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("http://localhost:5000/api/transactions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        amount,
+        fromCurrency,
+        toCurrency,
+        type,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка создания транзакции");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Ошибка при создании транзакции:", error);
+    throw error;
+  }
+};
