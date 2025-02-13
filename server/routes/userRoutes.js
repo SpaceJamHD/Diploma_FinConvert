@@ -9,17 +9,14 @@ const {
 } = require("../controllers/userController");
 const pool = require("../models/userModel");
 
-// Маршрут для регистрации
 router.post("/register", registerUser);
 
-// Маршрут для авторизации
 router.post("/login", loginUser);
 
 router.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "Доступ открыт", user: req.user });
 });
 
-// routes/userRoutes.js
 router.get("/validate/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -37,10 +34,8 @@ router.get("/validate/:id", async (req, res) => {
   }
 });
 
-// Получение профиля
 router.get("/profile", authenticateToken, getUserProfile);
 
-// Обновление профиля
 router.put("/profile", authenticateToken, updateUserProfile);
 
 module.exports = router;

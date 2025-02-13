@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Goals from "./Goals";
-import BalanceSection from "../Balance/BalanceSection"; // 👈 Добавил импорт!
+import BalanceSection from "../Balance/BalanceSection";
 
 const GoalsPage = () => {
-  const [goals, setGoals] = useState([]); // Состояние для целей
-  const [isLoading, setIsLoading] = useState(true); // Состояние загрузки
+  const [goals, setGoals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchGoals = async () => {
     try {
@@ -42,10 +42,8 @@ const GoalsPage = () => {
 
   return (
     <section className="container">
-      {/* Кошелек */}
       <BalanceSection />
 
-      {/* Цели */}
       <Goals goals={goals} setGoals={setGoals} fetchGoals={fetchGoals} />
     </section>
   );

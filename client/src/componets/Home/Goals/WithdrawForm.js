@@ -3,7 +3,7 @@ import { withdrawFromGoal } from "../../../utils/api";
 
 const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
   const [amount, setAmount] = useState("");
-  const [fromCurrency, setFromCurrency] = useState(goal.currency || "UAH"); // Валюта цели по умолчанию
+  const [fromCurrency, setFromCurrency] = useState(goal.currency || "UAH");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleWithdraw = async () => {
@@ -30,13 +30,13 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
         throw new Error(response.error);
       }
 
-      console.log("✅ Ответ сервера:", response);
+      console.log(" Ответ сервера:", response);
 
       onWithdraw(response.newGoalBalance);
       setIsLoading(false);
       onClose();
     } catch (error) {
-      console.error("❌ Ошибка при возврате средств:", error);
+      console.error(" Ошибка при возврате средств:", error);
       alert("Ошибка при возврате средств!");
       setIsLoading(false);
     }
@@ -70,7 +70,6 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
       >
         <h3 style={{ marginBottom: "20px" }}>Возврат средств</h3>
 
-        {/* Поле ввода суммы без выбора валюты */}
         <div
           style={{
             display: "flex",
@@ -106,11 +105,10 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
               minWidth: "50px",
             }}
           >
-            {goal.currency} {/* Автоматически отображаем валюту цели */}
+            {goal.currency}
           </span>
         </div>
 
-        {/* Кнопки */}
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
             onClick={handleWithdraw}

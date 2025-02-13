@@ -17,7 +17,6 @@ const GoalDetails = () => {
       try {
         const token = localStorage.getItem("token");
 
-        // Fetch goal data
         const goalResponse = await fetch(`/api/goals/${goalId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -29,7 +28,6 @@ const GoalDetails = () => {
         const goalData = await goalResponse.json();
         setGoal(goalData);
 
-        // Fetch transactions
         const transactionsResponse = await fetch(
           `/api/transactions/${goalId}`,
           {
@@ -42,7 +40,6 @@ const GoalDetails = () => {
         }
 
         const transactionsData = await transactionsResponse.json();
-        // Преобразуем amount в число
         const formattedTransactions = transactionsData.map((t) => ({
           ...t,
           amount: parseFloat(t.amount),
@@ -83,7 +80,7 @@ const GoalDetails = () => {
     datasets: [
       {
         data: [income, expense],
-        backgroundColor: ["#28a745", "#dc3545"], // Зеленый и красный
+        backgroundColor: ["#28a745", "#dc3545"],
       },
     ],
   };
@@ -147,14 +144,14 @@ const GoalDetails = () => {
                     <td>{t.description || "Без описания"}</td>
                     <td
                       style={{
-                        color: t.type === "income" ? "#28a745" : "#dc3545", // Зелёный для доходов, красный для расходов
+                        color: t.type === "income" ? "#28a745" : "#dc3545",
                       }}
                     >
                       {t.type === "income" ? "Доход" : "Расход"}
                     </td>
                     <td
                       style={{
-                        color: t.type === "income" ? "#28a745" : "#dc3545", // Цвет суммы
+                        color: t.type === "income" ? "#28a745" : "#dc3545",
                       }}
                     >
                       {t.amount.toFixed(2)} {goal.currency}

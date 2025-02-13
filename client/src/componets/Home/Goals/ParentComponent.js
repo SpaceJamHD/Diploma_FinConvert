@@ -4,7 +4,6 @@ import Goals from "./Goals";
 const ParentComponent = () => {
   const [goals, setGoals] = useState([]);
 
-  // Загрузка данных из API при загрузке компонента
   useEffect(() => {
     const fetchGoals = async () => {
       try {

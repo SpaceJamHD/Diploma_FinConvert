@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 
 const getExchangeRate = async (fromCurrency, toCurrency) => {
   try {
-    console.log(`🌍 Запрос курса: ${fromCurrency} → ${toCurrency}`);
+    console.log(` Запрос курса: ${fromCurrency} → ${toCurrency}`);
 
     const apiKey = process.env.FIXER_API_KEY;
     const fixerUrl = `http://data.fixer.io/api/latest?access_key=${apiKey}`;
@@ -11,26 +11,25 @@ const getExchangeRate = async (fromCurrency, toCurrency) => {
     const data = await response.json();
 
     if (!data.success) {
-      console.error("❌ Ошибка Fixer API:", data.error);
+      console.error(" Ошибка Fixer API:", data.error);
       return null;
     }
 
     const rates = data.rates;
     if (!rates[fromCurrency] || !rates[toCurrency]) {
-      console.error("❌ Ошибка: Не найден курс валют", {
+      console.error(" Ошибка: Не найден курс валют", {
         fromCurrency,
         toCurrency,
       });
       return null;
     }
 
-    // ✅ Новый метод конвертации
     const finalRate = rates[toCurrency] / rates[fromCurrency];
 
     console.log(`💱 Курс ${fromCurrency} → ${toCurrency}: ${finalRate}`);
     return parseFloat(finalRate.toFixed(6));
   } catch (error) {
-    console.error("❌ Ошибка при получении курса валют:", error);
+    console.error(" Ошибка при получении курса валют:", error);
     return null;
   }
 };
@@ -73,7 +72,6 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
         );
       }
 
-      // Конвертация через EUR
       const fromToEur = fromRate / eurBaseRate;
       const toToEur = toRate / eurBaseRate;
       const finalRate = toToEur / fromToEur;

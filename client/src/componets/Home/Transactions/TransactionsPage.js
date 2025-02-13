@@ -1,5 +1,3 @@
-// 📌 Файл: client/src/components/Home/Transactions/TransactionsPage.js
-
 import React, { useState } from "react";
 import TransactionsBlock from "./TransactionsBlock";
 import BalanceSection from "../Balance/BalanceSection";
@@ -20,7 +18,7 @@ const TransactionsPage = () => {
         toCurrency,
         "перевод"
       );
-      setAmount(""); // ✅ Очищаем поле суммы без подтверждающего окна
+      setAmount("");
     } catch (error) {
       alert("❌ Ошибка при создании транзакции!");
     }
@@ -38,7 +36,7 @@ const TransactionsPage = () => {
       if (!response.ok) {
         throw new Error("Ошибка при очистке истории");
       }
-      window.location.reload(); // ✅ Перезагружаем страницу после очистки
+      window.location.reload();
     } catch (error) {
       alert("❌ Ошибка при очистке истории транзакций!");
     }
@@ -51,7 +49,7 @@ const TransactionsPage = () => {
 
       <div className="transaction-box mx-auto">
         <div className="transaction-header">
-          <h4 className="text-light">🔄 Конвертация</h4>
+          <h4 className="text-light"> Конвертация</h4>
         </div>
         <div className="transaction-body">
           <div className="transaction-row">
@@ -92,7 +90,7 @@ const TransactionsPage = () => {
             </select>
           </div>
           <button className="transaction-button" onClick={handleTransaction}>
-            ✅ Конвертировать
+            Конвертировать
           </button>
         </div>
       </div>

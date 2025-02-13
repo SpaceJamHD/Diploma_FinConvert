@@ -16,7 +16,6 @@ const Login = () => {
     console.log("Форма отправлена с данными:", { email, password }); // Отладка
 
     try {
-      // Отправка данных на сервер
       const response = await axios.post(
         "http://localhost:5000/api/users/login",
         {
@@ -25,26 +24,23 @@ const Login = () => {
         }
       );
 
-      console.log("Ответ от сервера:", response.data); // Отладка
+      console.log("Ответ от сервера:", response.data);
 
       const { token } = response.data;
 
-      // Сохранение токена в localStorage
       localStorage.setItem("token", token);
 
-      // Расшифровка токена
       const decoded = jwtDecode(token);
       const userRole = decoded.role;
 
-      console.log("Роль пользователя:", userRole); // Отладка
+      console.log("Роль пользователя:", userRole);
 
-      // Перенаправление на страницу в зависимости от роли
       if (userRole === "user") {
         navigate("/user-dashboard");
       } else if (userRole === "business") {
         navigate("/business-dashboard");
       } else {
-        navigate("/"); // Дефолтное перенаправление
+        navigate("/");
       }
     } catch (error) {
       console.error(
@@ -57,7 +53,6 @@ const Login = () => {
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
       <div className="row rounded-5 p-3 box-area">
-        {/* Left Box */}
         <div className="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box">
           <div className="featured-image mb-3">
             <img
@@ -86,7 +81,6 @@ const Login = () => {
           </small>
         </div>
 
-        {/* Right Box */}
         <div className="col-md-6 right-box">
           <div className="row align-items-center">
             <div className="header-text mb-4">

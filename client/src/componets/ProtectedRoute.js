@@ -12,7 +12,6 @@ const ProtectedRoute = ({ children }) => {
   try {
     const decoded = jwtDecode(token);
 
-    // Дополнительная проверка (если пользователь отсутствует в базе)
     const isValidUser = async () => {
       const response = await fetch(
         `http://localhost:5000/api/users/validate/${decoded.id}`

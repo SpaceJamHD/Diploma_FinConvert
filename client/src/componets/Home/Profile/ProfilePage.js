@@ -17,7 +17,7 @@ const ProfilePage = () => {
     country: "",
     postal_code: "",
   });
-  const [isEditing, setIsEditing] = useState(false); // Переключатель между режимами
+  const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);

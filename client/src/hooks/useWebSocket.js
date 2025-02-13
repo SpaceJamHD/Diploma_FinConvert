@@ -12,7 +12,7 @@ const useWebSocket = (updateBalance) => {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log("🔌 WebSocket подключен");
+      console.log(" WebSocket подключен");
     };
 
     ws.onmessage = (event) => {
@@ -23,12 +23,12 @@ const useWebSocket = (updateBalance) => {
           updateBalance(message.data);
         }
       } catch (error) {
-        console.error("❌ Ошибка обработки WebSocket сообщения:", error);
+        console.error(" Ошибка обработки WebSocket сообщения:", error);
       }
     };
 
     ws.onclose = () => {
-      console.log("❌ WebSocket отключен. Переподключение через 3 сек...");
+      console.log(" WebSocket отключен. Переподключение через 3 сек...");
       setTimeout(() => {
         wsRef.current = new WebSocket("ws://localhost:5000/ws");
       }, 3000);

@@ -26,7 +26,7 @@ const TransactionsBlock = () => {
 
   return (
     <div className="transactions-block mt-4">
-      <h2 className="text-light">📜 История транзакций</h2>
+      <h2 className="text-light"> История транзакций</h2>
       {loading ? (
         <p className="text-light">Загрузка...</p>
       ) : transactions.length === 0 ? (

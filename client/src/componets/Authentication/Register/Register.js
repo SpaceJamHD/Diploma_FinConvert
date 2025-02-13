@@ -11,7 +11,7 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("");
-  const [passwordStrength, setPasswordStrength] = useState(0); // Состояние для сложности пароля
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -43,26 +43,24 @@ const Register = () => {
     }
   };
 
-  // Функция для оценки сложности пароля
   const evaluatePasswordStrength = (password) => {
     let strength = 0;
-    if (password.length >= 8) strength++; // Длина 8 символов или больше
-    if (/[A-Z]/.test(password)) strength++; // Заглавная буква
-    if (/[0-9]/.test(password)) strength++; // Цифра
-    if (/[^A-Za-z0-9]/.test(password)) strength++; // Специальный символ
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
     return strength;
   };
 
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
-    setPasswordStrength(evaluatePasswordStrength(newPassword)); // Оценка сложности
+    setPasswordStrength(evaluatePasswordStrength(newPassword));
   };
 
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100">
       <div className="row rounded-5 p-3 box-area">
-        {/* Left Box */}
         <div className="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box">
           <div className="featured-image mb-3">
             <img
@@ -91,7 +89,6 @@ const Register = () => {
           </small>
         </div>
 
-        {/* Right Box */}
         <div className="col-md-6 right-box">
           <div className="row align-items-center">
             <div className="header-text mb-4">
@@ -144,7 +141,6 @@ const Register = () => {
                   required
                 />
               </div>
-              {/* Полоска сложности пароля */}
               <div className="mb-3">
                 <div
                   className="progress"

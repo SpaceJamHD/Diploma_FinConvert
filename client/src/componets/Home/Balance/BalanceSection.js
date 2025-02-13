@@ -18,7 +18,7 @@ const BalanceSection = ({ hideViewAll = false }) => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        console.error("❌ Ошибка: Токен отсутствует");
+        console.error(" Ошибка: Токен отсутствует");
         return;
       }
 
@@ -35,7 +35,6 @@ const BalanceSection = ({ hideViewAll = false }) => {
 
       const data = await response.json();
 
-      // ✅ Проверяем BTC, если он есть — отображаем с 8 знаками
       const btcBalance = data.BTC
         ? parseFloat(data.BTC).toFixed(8)
         : "0.00000000";
@@ -44,12 +43,12 @@ const BalanceSection = ({ hideViewAll = false }) => {
         UAH: data.UAH || 0,
         USD: data.USD || 0,
         EUR: data.EUR || 0,
-        BTC: btcBalance, // 🎯 Показываем 8 знаков после запятой
+        BTC: btcBalance,
       });
 
-      console.log("🎯 Баланс получен с сервера:", data);
+      console.log(" Баланс получен с сервера:", data);
     } catch (error) {
-      console.error("❌ Ошибка загрузки баланса:", error);
+      console.error(" Ошибка загрузки баланса:", error);
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +82,7 @@ const BalanceSection = ({ hideViewAll = false }) => {
       </div>
 
       {isLoading ? (
-        <p className="text-light">⏳ Завантаження...</p>
+        <p className="text-light"> Завантаження...</p>
       ) : (
         <div className="row gy-3 gx-2">
           {[
@@ -128,7 +127,14 @@ const BalanceSection = ({ hideViewAll = false }) => {
                       ? `${Number(balances.BTC).toFixed(6)} BTC`
                       : formatCurrency(item.value, item.currency)}
                   </p>
-                  <small className="text-muted">Оновлено: сьогодні</small>
+
+                  <small className="text-muted">
+                    Оновлено:{" "}
+                    {new Date().toLocaleTimeString("uk-UA", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </small>
                 </div>
               </div>
             </div>

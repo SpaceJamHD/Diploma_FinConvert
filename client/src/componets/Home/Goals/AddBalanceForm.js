@@ -12,11 +12,7 @@ const AddBalanceForm = ({
   const [fromCurrency, setFromCurrency] = useState("UAH");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Функція для нормалізації введеної користувачем суми
   const normalizeAmount = (value) => {
-    // Прибираємо зайві пробіли
-    // Замінюємо кому (,) на крапку (.)
-    // І лише потім парсимо в число
     const cleaned = value.replace(/\s+/g, "").replace(",", ".");
     return parseFloat(cleaned);
   };
@@ -25,7 +21,6 @@ const AddBalanceForm = ({
     if (isLoading) return;
     setIsLoading(true);
 
-    // Використовуємо normalizAmount, щоб коректно зчитати число
     const numericAmount = normalizeAmount(amount);
 
     if (!numericAmount || numericAmount <= 0 || isNaN(numericAmount)) {
@@ -36,12 +31,10 @@ const AddBalanceForm = ({
 
     try {
       let convertedAmount = numericAmount;
-      let isConverted = false; // false, якщо конвертація не потрібна
-
-      // Якщо валюта відрізняється, викликаємо API для конвертації
+      let isConverted = false;
       if (fromCurrency !== currentCurrency) {
         console.log(
-          `🌍 Конвертація: ${numericAmount} ${fromCurrency} → ${currentCurrency}`
+          ` Конвертація: ${numericAmount} ${fromCurrency} → ${currentCurrency}`
         );
         convertedAmount = await fetchConvertedAmount(
           fromCurrency,
@@ -51,7 +44,6 @@ const AddBalanceForm = ({
         isConverted = true;
       }
 
-      // Далі надсилаємо на сервер
       const response = await fetch(`/api/goals/${goalId}/add-balance`, {
         method: "POST",
         headers: {
@@ -59,8 +51,8 @@ const AddBalanceForm = ({
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          originalAmount: numericAmount, // 1000 (те, що ввів користувач)
-          convertedAmount: convertedAmount, // 23.987 (результат клієнтської конвертації, якщо вона була)
+          originalAmount: numericAmount,
+          convertedAmount: convertedAmount,
           fromCurrency,
           converted: isConverted,
         }),
@@ -71,9 +63,7 @@ const AddBalanceForm = ({
       }
 
       const data = await response.json();
-      console.log("✅ Сервер відповів:", data);
 
-      // Оновити дані на фронті
       refreshWallet();
       onSave(data.updatedBalance);
       setIsLoading(false);

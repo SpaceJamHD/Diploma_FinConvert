@@ -4,11 +4,9 @@ const pool = require("../models/userModel");
 
 const JWT_SECRET = "secret007";
 
-// Регистрация пользователя
 const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
 
-  // Проверка входных данных
   if (!name || !email || !password || !role) {
     return res
       .status(400)
@@ -16,7 +14,6 @@ const registerUser = async (req, res) => {
   }
 
   try {
-    // Проверка существующего email
     const userExists = await pool.query(
       "SELECT * FROM users WHERE email = $1",
       [email]
@@ -25,18 +22,15 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Email уже зарегистрирован." });
     }
 
-    // Хэширование пароля
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Сохранение пользователя и получение его ID
     const userResult = await pool.query(
       "INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id",
       [name, email, hashedPassword, role]
     );
 
-    const userId = userResult.rows[0].id; // Получаем ID нового пользователя
+    const userId = userResult.rows[0].id;
 
-    // Создание начального баланса в кошельке
     await pool.query(
       `INSERT INTO balances (user_id, currency, amount, type) VALUES
        ($1, 'UAH', 25000, 'regular'),
@@ -55,12 +49,10 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Авторизация пользователя
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Поиск пользователя
     const user = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
@@ -68,17 +60,15 @@ const loginUser = async (req, res) => {
       return res.status(404).json({ message: "Пользователь не найден." });
     }
 
-    // Проверка пароля
     const validPassword = await bcrypt.compare(password, user.rows[0].password);
     if (!validPassword) {
       return res.status(400).json({ message: "Неверный пароль." });
     }
 
-    // Создание JWT
     const token = jwt.sign(
       { id: user.rows[0].id, role: user.rows[0].role },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "3h" }
     );
 
     res.status(200).json({ token, message: "Успешная авторизация." });
@@ -88,7 +78,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Получение профиля
 const getUserProfile = async (req, res) => {
   const userId = req.user.id;
 
@@ -150,5 +139,4 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-// Экспорт функций
 module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile };

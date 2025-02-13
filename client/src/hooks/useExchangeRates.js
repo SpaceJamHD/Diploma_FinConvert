@@ -36,7 +36,6 @@ const useExchangeRates = () => {
           updateTime: `Оновлено: ${new Date().toLocaleString()}`,
         };
 
-        // Сохранение данных в localStorage
         localStorage.setItem("exchangeRates", JSON.stringify(newRates));
         localStorage.setItem("lastUpdate", Date.now().toString());
 
@@ -64,14 +63,12 @@ const useExchangeRates = () => {
     if (lastUpdate && cachedRates) {
       const timeDiff = Date.now() - parseInt(lastUpdate, 10);
 
-      // Если прошло менее 24 часов, используем кэшированные данные
       if (timeDiff < 24 * 60 * 60 * 1000) {
         setExchangeRates(JSON.parse(cachedRates));
         return;
       }
     }
 
-    // Если прошло больше 24 часов, обновляем данные
     fetchExchangeRates();
   }, []);
 

@@ -7,7 +7,6 @@ body {
 
 
 
-/* Основной стиль для кнопки валют */
 #currencyMenu {
     flex-shrink: 0;
     width: 170px;
@@ -109,7 +108,6 @@ body {
     color: #ffffff;
 }
 
-/* Стиль скрытых транзакций */
 #past-transactions .transaction-item {
     background: linear-gradient(145deg, #2e2e2e, #1e1e1e);
     border-radius: 10px;
@@ -139,7 +137,6 @@ body {
     color: #b3b3b3;
 }
 
-/* Значения валют */
 .exchange-value {
     font-size: 1rem;
     font-weight: bold;
@@ -162,7 +159,6 @@ body {
     gap: 5px;
 }
 
-/* Адаптивность */
 @media (max-width: 576px) {
     .exchange-card {
         padding: 10px;
@@ -260,67 +256,48 @@ body {
     left: 0px;
     width: 65%;
     height: 300px;
-    /* Высота заголовка */
     background-image: url('../../public/img/Abstract\ Design.png');
     background-size: cover;
-    /* Изображение будет адаптировано по размеру */
     background-position: top left;
-    /* Фокус на верхнем левом углу */
     filter: brightness(0.8);
-    /* Темный фильтр для лучшей читабельности текста */
     z-index: -1;
-    /* Отправляем изображение на задний план */
-    /* Эффект разделения */
 }
 
-/* Стили для текста, что меняется */
 .txt-rotate {
     font-size: 2.5rem;
-    /* Увеличенный размер текста */
     font-weight: bold;
     color: #ffd700;
-    /* Жёлтый цвет */
 }
 
-/* Для анимации */
 .txt-rotate>.wrap {
     border-right: 0.08em solid #ffd700;
 }
 
-/* Основной приветственный текст */
 .js-change {
     font-size: 1.8rem;
     font-weight: 300;
     color: #b3b3b3;
-    /* Светло-серый */
 }
 
-/* МОИ ФИНАНСЫ ЦЕЛИ */
-
-/* Кнопка */
 
 
-/* Текст в карточке */
+
 .goal-card p {
     font-size: 0.95rem;
     line-height: 1.5;
     color: #b3b3b3;
-    /* Умеренно-серый цвет */
 }
 
 .goal-card h5 {
     color: #ffd700;
-    /* Золотой акцент */
     font-size: 1.2rem;
     font-weight: bold;
     text-transform: uppercase;
     margin-bottom: 10px;
 }
 
-/* Добавляем мягкий фон для карточки */
 .goal-card {
     background: linear-gradient(135deg, #1e1e1e, #2b2b2b);
-    /* Глубокий градиент */
     border-radius: 15px;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -329,9 +306,7 @@ body {
 
 .goal-card:hover {
     transform: scale(1.02);
-    /* Лёгкое увеличение */
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-    /* Увеличиваем тень */
 }
 
 .progress-ring {
@@ -355,16 +330,12 @@ body {
 
 .ring-background {
     stroke: #2e2e2e;
-    /* Тёмный фон для кольца */
 }
 
 .ring-progress {
     stroke: #28a745;
-    /* По умолчанию зелёный */
     stroke-linecap: round;
-    /* Скругляем концы кольца */
     transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease;
-    /* Добавляем плавность смены цветов */
 }
 
 .ring-text {
@@ -375,14 +346,9 @@ body {
     font-size: 1.4rem;
     font-weight: bold;
     color: #ffd700;
-    /* Цвет текста внутри кольца */
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    /* Лёгкий эффект свечения */
 }
 
-/* ввввввввввввв */
-
-/* Финансовая карточка */
 
 .fin-goal-text {
     margin-top: 120px;
@@ -405,7 +371,6 @@ body {
     padding: 20px;
 }
 
-/* Таблица */
 .fin-table {
     width: 100%;
     border-spacing: 0;
@@ -433,7 +398,6 @@ body {
     border-bottom: 1px solid #333;
 }
 
-/* Прогресс-бары */
 .fin-progress-wrapper {
     text-align: center;
 }
@@ -463,7 +427,6 @@ body {
     background-color: #28a745;
 }
 
-/* Бейджи */
 .badge {
     padding: 10px 15px;
     font-size: 1rem;
@@ -483,7 +446,6 @@ body {
     background-color: #dc3545;
 }
 
-/* Улучшение текста */
 .fin-title {
     font-size: 1.2rem;
     margin: 0;
@@ -495,7 +457,6 @@ body {
     color: #b3b3b3;
 }
 
-/* Для заголовка и стрелки */
 #account-balance .bi-arrow-right-circle,
 #financial-overview .bi-arrow-right-circle,
 #currency-forecast .bi-arrow-right-circle {
@@ -506,7 +467,6 @@ body {
 #currency-forecast a:hover .bi-arrow-right-circle,
 #financial-overview a:hover .bi-arrow-right-circle {
     transform: translateX(5px);
-    /* Двигаем стрелку вправо */
 }
 
 #account-balance a {
@@ -517,12 +477,9 @@ body {
 
 #account-balance a:hover {
     color: #ffd700;
-    /* Меняем цвет при наведении */
 }
 
-/* аааааааааааааааааааааааааа */
 
-/* Общие настройки карты */
 .balance-card {
     border-radius: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -534,40 +491,32 @@ body {
     box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
 }
 
-/* Иконка */
 .balance-icon {
     font-size: 3rem;
 }
 
-/* Название карты */
 .card-title {
     font-size: 1.5rem;
     font-weight: 600;
 }
 
-/* Значение баланса */
 .balance-value {
     font-size: 2rem;
     font-weight: bold;
     color: #ffd700;
-    /* Золотистый цвет */
     margin: 10px 0;
 }
 
-/* Текст под значением */
 .text-muted {
     font-size: 0.9rem;
     color: #b3b3b3;
 }
 
-/* Отступы между карточками */
 .gy-4>div {
     padding: 0 15px;
 }
 
-/* ffffffffffffffffffffffffffffffffffffff */
 
-/* Карточки для финансового обзора */
 .financial-card {
     border-radius: 15px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -579,19 +528,16 @@ body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Иконки финансового обзора */
 .financial-icon i {
     font-size: 3rem;
 }
 
-/* Значения финансового обзора */
 .financial-value {
     font-size: 2rem;
     font-weight: 700;
     margin-top: 5px;
 }
 
-/* Градиенты */
 .bg-gradient-success {
     background: linear-gradient(145deg, #28a745, #1e1e1e);
 }
@@ -604,11 +550,9 @@ body {
     background: linear-gradient(145deg, #007bff, #1e1e1e);
 }
 
-/* вввввввввввввввввввввввввввввв */
 
 .card {
     background-color: #1e1e1e;
-    /* Темный фон */
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
 }
@@ -642,10 +586,8 @@ body {
 }
 
 
-/* ааааааааааааааааааа */
 
 
-/* Ізольовані стилі для секції прогнозування */
 #currency-forecast .forecast-card {
     background-color: #1e1e1e;
     border-radius: 10px;
@@ -665,7 +607,6 @@ body {
 #currency-forecast .forecast-icon {
     font-size: 2.5rem;
     color: #ffd700;
-    /* Золотий акцент */
 }
 
 #currency-forecast .forecast-title {
@@ -706,7 +647,6 @@ body {
     font-weight: bold;
 }
 
-/* Кнопка */
 #currency-forecast .btn-warning {
     background-color: #ffd700;
     color: #1e1e1e;
@@ -722,7 +662,6 @@ body {
     transform: scale(1.05);
 }
 
-/* аааааааааааааааааааа ФУТЕЕЕЕЕЕЕЕЕЕЕЕР */
 
 #site-footer {
     background-color: #1e1e1e;

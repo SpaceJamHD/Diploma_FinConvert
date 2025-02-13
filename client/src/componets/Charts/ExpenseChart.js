@@ -9,10 +9,9 @@ import {
   Tooltip,
   Legend,
   Title,
-  Filler, // Оставляем Filler только здесь
+  Filler,
 } from "chart.js";
 
-// Регистрируем все компоненты, включая Filler
 ChartJS.register(
   LineController,
   LineElement,
@@ -27,12 +26,11 @@ ChartJS.register(
 
 const ExpenseChart = () => {
   const chartRef = useRef(null);
-  const chartInstanceRef = useRef(null); // Для хранения ссылки на созданный график
+  const chartInstanceRef = useRef(null);
 
   useEffect(() => {
     const ctx = chartRef.current.getContext("2d");
 
-    // Если график уже существует, уничтожаем его перед созданием нового
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
     }
@@ -136,7 +134,6 @@ const ExpenseChart = () => {
       },
     });
 
-    // Уничтожаем график при размонтировании компонента
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy();

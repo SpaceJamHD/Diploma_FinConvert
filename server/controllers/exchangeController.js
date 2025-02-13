@@ -4,7 +4,7 @@ const getExchangeRates = async (req, res) => {
   const { from, to } = req.query;
 
   try {
-    console.log(`💱 Запрос курса: ${from} → ${to}`);
+    console.log(` Запрос курса: ${from} → ${to}`);
     const rate = await getExchangeRate(from, to);
 
     if (!rate) {
@@ -13,7 +13,7 @@ const getExchangeRates = async (req, res) => {
 
     res.json({ rate });
   } catch (error) {
-    console.error("❌ Ошибка запроса курса валют:", error);
+    console.error(" Ошибка запроса курса валют:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };

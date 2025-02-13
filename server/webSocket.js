@@ -13,14 +13,13 @@ const setupWebSocket = (server) => {
   });
 
   wss.on("connection", (ws) => {
-    console.log("🔌 WebSocket клиент подключился");
+    console.log(" WebSocket клиент подключился");
   });
 };
 
-// Отправка обновленного баланса после транзакции
 const broadcastBalanceUpdate = async (userId) => {
   if (!wss) {
-    console.error("❌ WebSocket сервер не инициализирован");
+    console.error(" WebSocket сервер не инициализирован");
     return;
   }
 
@@ -43,9 +42,9 @@ const broadcastBalanceUpdate = async (userId) => {
       }
     });
 
-    console.log("📡 Баланс обновлен и отправлен клиентам:", balances);
+    console.log(" Баланс обновлен и отправлен клиентам:", balances);
   } catch (error) {
-    console.error("❌ Ошибка обновления WebSocket баланса:", error);
+    console.error(" Ошибка обновления WebSocket баланса:", error);
   }
 };
 

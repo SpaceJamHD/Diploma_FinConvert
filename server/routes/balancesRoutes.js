@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../models/userModel"); // Доступ к базе
-const authenticateToken = require("../middleware/authenticateToken"); // Проверка токена
+const pool = require("../models/userModel");
+const authenticateToken = require("../middleware/authenticateToken");
 
 router.get("/", authenticateToken, async (req, res) => {
   const userId = req.user.id;
-  console.log("🔹 Получаем баланс пользователя:", userId);
+  console.log(" Получаем баланс пользователя:", userId);
 
   try {
     const result = await pool.query(
@@ -26,10 +26,10 @@ router.get("/", authenticateToken, async (req, res) => {
       balances[currency] = currency === "BTC" ? amount_btc : amount;
     });
 
-    console.log("🎯 Баланс, отправленный клиенту:", balances);
+    console.log(" Баланс, отправленный клиенту:", balances);
     res.json(balances);
   } catch (error) {
-    console.error("❌ Ошибка получения баланса:", error);
+    console.error(" Ошибка получения баланса:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 });

@@ -1,13 +1,10 @@
-/* === ОСНОВНЫЕ СТИЛИ === */
 body {
     font-family: 'Roboto', sans-serif;
     background: #1a1a1a;
-    /* Тёмный фон */
     color: #ffffff;
 
 }
 
-/* === История транзакций === */
 .transaction-table {
     width: 100%;
     border-collapse: collapse;
@@ -44,7 +41,6 @@ body {
     color: #ffffff;
 }
 
-/* Цвет для доходов и расходов */
 .transaction-table .income {
     color: #28a745;
     font-weight: bold;
@@ -56,7 +52,6 @@ body {
 }
 
 
-/* === График анализа транзакций === */
 .analysis-chart {
     margin: 20px auto;
     max-width: 400px;
@@ -76,28 +71,21 @@ body {
 
 .fin-td:hover .tooltip {
     display: block;
-    /* Показываем текст при наведении */
 }
 
 .tooltip {
     display: none;
-    /* Скрываем текст по умолчанию */
     position: absolute;
     top: 100%;
-    /* Располагаем ниже ячейки */
     left: 0;
     background-color: #333;
-    /* Темный фон */
     color: #fff;
-    /* Белый текст */
     padding: 10px;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     white-space: pre-wrap;
-    /* Сохраняем перенос строк */
     max-width: 300px;
-    /* Максимальная ширина */
 }
 
 
@@ -123,7 +111,6 @@ body {
 }
 
 
-/* === НАВБАР === */
 .goal-card {
     border-radius: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -156,10 +143,6 @@ body {
     border-radius: 10px;
 }
 
-
-/*  */
-/* Улучшенные кнопки */
-/* Заголовок и кнопка */
 .d-flex>h2 {
     font-size: 1.8rem;
     font-weight: bold;
@@ -196,14 +179,11 @@ body {
     transform: scale(1.05);
 }
 
-/* Таблица */
 .fin-table {
     width: 100%;
     border-collapse: collapse;
     background: #222222;
-    /* Фон таблицы */
     color: #ffffff;
-    /* Цвет текста */
     border-radius: 8px;
     overflow: hidden;
     margin-top: 20px;
@@ -216,14 +196,11 @@ body {
     padding: 12px 15px;
     text-align: center;
     border-bottom: 1px solid #444444;
-    /* Разделительные линии */
 }
 
 .fin-table th {
     background: #333333;
-    /* Фон заголовка таблицы */
     color: #ffd700;
-    /* Золотистый текст заголовка */
     text-transform: uppercase;
     font-weight: bold;
     font-size: 0.95rem;
@@ -231,20 +208,15 @@ body {
 
 .fin-table td {
     background: #1e1e1e;
-    /* Темный фон для ячеек */
     color: #dddddd;
-    /* Мягкий белый текст */
     font-size: 0.9rem;
 }
 
 .fin-table tr:hover td {
     background: #292929;
-    /* Цвет при наведении */
     color: #ffffff;
-    /* Яркий текст */
 }
 
-/* Стили для прогресс-бара */
 .fin-progress-wrapper {
     display: flex;
     align-items: center;
@@ -253,7 +225,6 @@ body {
     height: 10px;
     width: 100%;
     background: #444444;
-    /* Цвет полосы фона */
     border-radius: 5px;
     overflow: hidden;
 }
@@ -278,7 +249,6 @@ body {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Цвета прогресс-бара по приоритету */
 .fin-progress-fill[style*="background-color: #ffc107;"] {
     background: linear-gradient(145deg, #ffc107, #e6a700);
 }
@@ -308,7 +278,6 @@ body {
 }
 
 
-/* Бейджи */
 .badge {
     padding: 5px 10px;
     border-radius: 5px;
@@ -331,7 +300,3 @@ body {
     background: #28a745;
     color: #ffffff;
 }
-
-
-
-/* Таблица */

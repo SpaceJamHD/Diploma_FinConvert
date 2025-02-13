@@ -10,9 +10,8 @@ import ExpenseChart from "../../Charts/ExpenseChart.js";
 
 const HomePage = () => {
   const [showPastTransactions, setShowPastTransactions] = useState(false);
-  const role = useUserRole(); // Получаем роль пользователя
+  const role = useUserRole();
 
-  // Текстовая анимация
   useEffect(() => {
     class TxtRotate {
       constructor(el, toRotate, period) {

@@ -70,9 +70,9 @@ const Goals = ({ goals = [], setGoals }) => {
       }
 
       const data = await response.json();
-      console.log("🔄 Баланс кошелька обновлен:", data);
+      console.log(" Баланс кошелька обновлен:", data);
     } catch (error) {
-      console.error("❌ Ошибка обновления кошелька:", error);
+      console.error(" Ошибка обновления кошелька:", error);
     }
   };
 
@@ -103,7 +103,7 @@ const Goals = ({ goals = [], setGoals }) => {
         },
         body: JSON.stringify({
           ...newGoal,
-          balance: 0, // Баланс всегда 0 при создании новой цели
+          balance: 0,
         }),
       });
 
@@ -127,7 +127,7 @@ const Goals = ({ goals = [], setGoals }) => {
         setGoals((prevGoals) => [...prevGoals, updatedGoal]);
       }
 
-      setShowForm(false); // Закрываем форму
+      setShowForm(false);
       setNewGoal({
         name: "",
         description: "",
@@ -172,7 +172,7 @@ const Goals = ({ goals = [], setGoals }) => {
     const goalToEdit = goals.find((goal) => goal.id === id);
     if (goalToEdit) {
       setNewGoal(goalToEdit);
-      setShowForm(true); // Открываем форму для редактирования
+      setShowForm(true);
     }
   };
 
@@ -197,13 +197,6 @@ const Goals = ({ goals = [], setGoals }) => {
               </p>
             </div>
             <div className="col-lg-6 col-md-5 text-end">
-              {/* <button
-                className="btn btn-warning btn-sm"
-                onClick={() => setShowForm(true)}
-              >
-                <i className="bi bi-plus-circle"></i> Додати нову ціль
-              </button> */}
-
               <button
                 onClick={() => {
                   setNewGoal({
@@ -212,8 +205,8 @@ const Goals = ({ goals = [], setGoals }) => {
                     amount: "",
                     deadline: "",
                     priority: "",
-                  }); // Очищаем форму
-                  setShowForm(true); // Показываем форму
+                  });
+                  setShowForm(true);
                 }}
                 style={{
                   background: "transparent",
@@ -254,11 +247,11 @@ const Goals = ({ goals = [], setGoals }) => {
                   </tr>
                 ) : (
                   goals.map((goal, index) => {
-                    const balance = parseFloat(goal.balance) || 0; // Баланс (всегда 0 для новых целей)
-                    const amount = parseFloat(goal.amount) || 0; // Сумма цели
-                    const remaining = amount; // Остаток равен сумме цели
+                    const balance = parseFloat(goal.balance) || 0;
+                    const amount = parseFloat(goal.amount) || 0;
+                    const remaining = amount;
                     const progress =
-                      amount > 0 ? ((balance / amount) * 100).toFixed(2) : 0; // Прогресс всегда 0%
+                      amount > 0 ? ((balance / amount) * 100).toFixed(2) : 0;
 
                     return (
                       <tr key={index}>
@@ -376,7 +369,6 @@ const Goals = ({ goals = [], setGoals }) => {
                             ></i>
                           </button>
 
-                          {/* Иконка редактирования */}
                           <button
                             onClick={() => handleEditGoal(goal.id)}
                             style={{
@@ -391,7 +383,6 @@ const Goals = ({ goals = [], setGoals }) => {
                             ></i>
                           </button>
 
-                          {/* Иконка удаления */}
                           <button
                             onClick={() => confirmDeleteGoal(goal.id)}
                             style={{
@@ -437,7 +428,7 @@ const Goals = ({ goals = [], setGoals }) => {
         <AddBalanceForm
           goalId={currentGoal?.id}
           currentCurrency={currentGoal?.currency}
-          refreshWallet={fetchBalances} // ✅ Передаем функцию для обновления кошелька
+          refreshWallet={fetchBalances}
           onClose={() => setShowAddBalanceForm(false)}
           onSave={(updatedBalance) => {
             setGoals((prevGoals) =>
@@ -513,8 +504,6 @@ const Goals = ({ goals = [], setGoals }) => {
         </div>
       )}
 
-      {/* Форма добавления */}
-      {/* Форма добавления */}
       {showForm && (
         <div
           style={{
@@ -523,7 +512,7 @@ const Goals = ({ goals = [], setGoals }) => {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.7)", // Увеличен прозрачный фон
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -532,16 +521,16 @@ const Goals = ({ goals = [], setGoals }) => {
         >
           <form
             onSubmit={(e) => {
-              e.preventDefault(); // Предотвращаем перезагрузку страницы
+              e.preventDefault();
               handleSaveGoal();
             }}
             style={{
-              backgroundColor: "#1e1e1e", // Темный фон
-              color: "#fff", // Белый текст
+              backgroundColor: "#1e1e1e",
+              color: "#fff",
               padding: "20px",
               borderRadius: "12px",
               width: "400px",
-              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.8)", // Усилен эффект тени
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.8)",
               animation: "fadeIn 0.3s ease-in-out",
             }}
           >
