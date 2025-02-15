@@ -370,7 +370,7 @@ const Goals = ({ goals = [], setGoals }) => {
                                 border: "none",
                                 cursor: "pointer",
                                 background:
-                                  "linear-gradient(90deg, #ffd700, #ff4500)",
+                                  "linear-gradient(90deg,rgb(54, 54, 54),rgb(54, 52, 52),rgb(59, 56, 56))",
                                 color: "#fff",
                                 fontWeight: "bold",
                                 borderRadius: "8px",
