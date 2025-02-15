@@ -32,11 +32,11 @@ const registerUser = async (req, res) => {
     const userId = userResult.rows[0].id;
 
     await pool.query(
-      `INSERT INTO balances (user_id, currency, amount, type) VALUES
-       ($1, 'UAH', 25000, 'regular'),
-       ($1, 'USD', 1200, 'regular'),
-       ($1, 'EUR', 800, 'regular'),
-       ($1, 'BTC', 0.005, 'regular')`,
+      `INSERT INTO balances (user_id, currency, amount, amount_btc, type) VALUES
+       ($1, 'UAH', 25000, NULL, 'regular'),
+       ($1, 'USD', 1200, NULL, 'regular'),
+       ($1, 'EUR', 800, NULL, 'regular'),
+       ($1, 'BTC', 0, 0.005, 'crypto')`,
       [userId]
     );
 

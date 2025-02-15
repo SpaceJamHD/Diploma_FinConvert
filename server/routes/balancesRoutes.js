@@ -23,7 +23,8 @@ router.get("/", authenticateToken, async (req, res) => {
 
     const balances = {};
     result.rows.forEach(({ currency, amount, amount_btc }) => {
-      balances[currency] = currency === "BTC" ? amount_btc : amount;
+      balances[currency] =
+        currency === "BTC" ? parseFloat(amount_btc) : parseFloat(amount);
     });
 
     console.log(" Баланс, отправленный клиенту:", balances);

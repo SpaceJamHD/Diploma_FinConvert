@@ -66,7 +66,7 @@ const addBalanceToGoal = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    console.log("🔹 Запрос пополнения:", {
+    console.log(" Запрос пополнения:", {
       goalId: id,
       userId,
       originalAmount,
@@ -91,13 +91,15 @@ const addBalanceToGoal = async (req, res) => {
     let finalAmount = parseFloat(convertedAmount);
 
     const balanceResult = await pool.query(
-      "SELECT currency, amount FROM balances WHERE user_id = $1",
+      `SELECT currency, amount, COALESCE(amount_btc, 0) AS amount_btc 
+       FROM balances WHERE user_id = $1`,
       [userId]
     );
 
     const balances = {};
-    balanceResult.rows.forEach(({ currency, amount }) => {
-      balances[currency] = parseFloat(amount);
+    balanceResult.rows.forEach(({ currency, amount, amount_btc }) => {
+      balances[currency] =
+        currency === "BTC" ? parseFloat(amount_btc) : parseFloat(amount);
     });
 
     console.log("Баланс пользователя перед списанием:", balances);
@@ -131,7 +133,7 @@ const addBalanceToGoal = async (req, res) => {
     );
 
     console.log(
-      `✅ Новый баланс цели: ${updatedGoal.rows[0].balance} ${goalCurrency}`
+      ` Новый баланс цели: ${updatedGoal.rows[0].balance} ${goalCurrency}`
     );
 
     await pool.query(
@@ -139,12 +141,11 @@ const addBalanceToGoal = async (req, res) => {
       [userId, id, finalAmount, "income", "Пополнение цели"]
     );
 
-    // ✅ Отправляем обновленный баланс через WebSocket
     await broadcastBalanceUpdate(userId);
 
     res.json({ updatedBalance: updatedGoal.rows[0].balance });
   } catch (error) {
-    console.error("❌ Ошибка пополнения цели:", error);
+    console.error(" Ошибка пополнения цели:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
@@ -224,7 +225,7 @@ const withdrawFromGoal = async (req, res) => {
 const updateBalance = async (userId, currency, amount, operation) => {
   try {
     console.log(
-      `🔄 ${operation.toUpperCase()} ${amount} ${currency} для пользователя ${userId}`
+      ` ${operation.toUpperCase()} ${amount} ${currency} для пользователя ${userId}`
     );
 
     let column = currency === "BTC" ? "amount_btc" : "amount";
