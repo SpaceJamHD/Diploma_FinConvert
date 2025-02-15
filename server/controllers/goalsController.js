@@ -123,8 +123,9 @@ const addBalanceToGoal = async (req, res) => {
 
     const goal = goalResult.rows[0];
     const goalCurrency = goal.currency;
-    const goalAmount = parseFloat(goal.amount);
-    const currentBalance = parseFloat(goal.balance);
+    let goalBalance = parseFloat(goal.balance);
+    let goalAmount = parseFloat(goal.amount);
+
     let originAmt = parseFloat(originalAmount);
     let finalAmount = parseFloat(convertedAmount);
 
@@ -149,51 +150,77 @@ const addBalanceToGoal = async (req, res) => {
         .json({ message: `Недостаточно средств в ${fromCurrency}` });
     }
 
-    const spaceLeft = goalAmount - currentBalance;
-
-    if (spaceLeft <= 0) {
-      return res
-        .status(400)
-        .json({ message: "Цель уже полностью достигнута!" });
-    }
-
-    let amountToAdd = Math.min(finalAmount, spaceLeft);
-    let amountToReturn = finalAmount - amountToAdd;
-
-    console.log(
-      `Пополняем: ${amountToAdd} ${goalCurrency}, излишек: ${amountToReturn} (останется в кошельке)`
-    );
-
+    console.log(` Списываем ${originAmt} ${fromCurrency} с кошелька`);
     await updateBalance(userId, fromCurrency, originAmt, "withdraw");
 
+    if (!converted && fromCurrency !== goalCurrency) {
+      console.log(
+        ` Конвертация: ${originAmt} ${fromCurrency} → ${goalCurrency}`
+      );
+      const exchangeRate = await getExchangeRate(fromCurrency, goalCurrency);
+      if (!exchangeRate) {
+        return res
+          .status(400)
+          .json({ message: "Ошибка получения курса валют" });
+      }
+      finalAmount = parseFloat((originAmt * exchangeRate).toFixed(6));
+    }
+
+    // Проверка на переплату
+    let actualDeposit = finalAmount;
+    let excessAmount = 0;
+
+    if (goalBalance + finalAmount > goalAmount) {
+      excessAmount = goalBalance + finalAmount - goalAmount;
+      actualDeposit = finalAmount - excessAmount;
+    }
+
     const updatedGoal = await pool.query(
-      "UPDATE goals SET balance = balance + $1 WHERE id = $2 RETURNING balance, currency",
-      [amountToAdd, id]
+      "UPDATE goals SET balance = balance + $1 WHERE id = $2 RETURNING balance",
+      [actualDeposit, id]
     );
 
     console.log(
-      ` Цель обновлена: ${amountToAdd} добавлено, новый баланс цели: ${updatedGoal.rows[0].balance} ${updatedGoal.rows[0].currency}`
+      ` Новый баланс цели: ${updatedGoal.rows[0].balance} ${goalCurrency}`
     );
-
-    if (amountToReturn > 0) {
-      await updateBalance(userId, fromCurrency, amountToReturn, "deposit");
-      console.log(` Вернули ${amountToReturn} ${fromCurrency} в кошелек!`);
-    }
 
     await pool.query(
       "INSERT INTO transactions (user_id, goal_id, amount, type, date, description) VALUES ($1, $2, $3, $4, NOW(), $5)",
-      [userId, id, amountToAdd, "income", "Пополнение цели"]
+      [userId, id, actualDeposit, "income", "Пополнение цели"]
     );
+
+    // Исправление ошибки: возвращаем излишек в **исходную валюту**
+    if (excessAmount > 0) {
+      console.log(
+        ` Остаток ${excessAmount} ${goalCurrency} возвращается в ${fromCurrency}`
+      );
+
+      let refundAmount = excessAmount;
+      if (fromCurrency !== goalCurrency) {
+        const reverseExchangeRate = await getExchangeRate(
+          goalCurrency,
+          fromCurrency
+        );
+        if (!reverseExchangeRate) {
+          return res
+            .status(400)
+            .json({ message: "Ошибка конвертации излишка" });
+        }
+        refundAmount = parseFloat(
+          (excessAmount * reverseExchangeRate).toFixed(6)
+        );
+      }
+
+      console.log(
+        ` Конвертируем остаток ${excessAmount} ${goalCurrency} → ${refundAmount} ${fromCurrency}`
+      );
+
+      await updateBalance(userId, fromCurrency, refundAmount, "deposit");
+    }
 
     await broadcastBalanceUpdate(userId);
 
-    res.json({
-      message: "Цель пополнена!",
-      addedAmount: amountToAdd,
-      returnedAmount: amountToReturn,
-      updatedBalance: updatedGoal.rows[0].balance,
-      goalCurrency: updatedGoal.rows[0].currency,
-    });
+    res.json({ updatedBalance: updatedGoal.rows[0].balance });
   } catch (error) {
     console.error(" Ошибка пополнения цели:", error);
     res.status(500).json({ message: "Ошибка сервера" });
@@ -294,6 +321,11 @@ const updateBalance = async (userId, currency, amount, operation) => {
         throw new Error("Недостаточно средств");
       }
       newAmount = currentAmount - amount;
+
+      // Обнуляем, если баланс стал отрицательным
+      if (newAmount < 0) {
+        newAmount = 0;
+      }
     } else {
       newAmount = currentAmount + amount;
     }
