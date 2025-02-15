@@ -32,7 +32,7 @@ app.use("/api/transactions", transactionsRoutes);
 const PORT = 5000;
 
 server.listen(PORT, () => {
-  console.log(`🚀 Сервер запущен на http://localhost:${PORT}`);
+  console.log(` Сервер запущен на http://localhost:${PORT}`);
 });
 
 setupWebSocket(server);

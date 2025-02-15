@@ -123,3 +123,26 @@ export const createTransaction = async (
 
   return data;
 };
+
+export const withdrawFullGoalBalance = async (goalId) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`/api/goals/${goalId}/withdraw-full`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка при снятии всех средств");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("❌ Ошибка при снятии средств:", error);
+    throw error;
+  }
+};

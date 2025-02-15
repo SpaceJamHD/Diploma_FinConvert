@@ -279,6 +279,61 @@ const updateBalance = async (userId, currency, amount, operation) => {
   }
 };
 
+const withdrawFullGoal = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const goalResult = await pool.query(
+      "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
+      [id, userId]
+    );
+
+    if (!goalResult.rows.length) {
+      return res.status(404).json({ message: "Цель не найдена" });
+    }
+
+    const goal = goalResult.rows[0];
+
+    if (parseFloat(goal.balance) === 0) {
+      return res
+        .status(400)
+        .json({ message: "На цели нет средств для вывода" });
+    }
+
+    const goalBalance = parseFloat(goal.balance);
+    const goalCurrency = goal.currency;
+
+    await pool.query(
+      "UPDATE goals SET balance = 0 WHERE id = $1 RETURNING balance",
+      [id]
+    );
+
+    await pool.query(
+      `INSERT INTO transactions (user_id, goal_id, amount, type, date, description, from_currency, to_currency)
+       VALUES ($1, $2, $3, 'withdraw', NOW(), 'Перевод с достигнутой цели', $4, $4)`,
+      [userId, id, goalBalance, goalCurrency]
+    );
+
+    await pool.query(
+      `UPDATE balances 
+       SET amount = amount + $1
+       WHERE user_id = $2 AND currency = $3`,
+      [goalBalance, userId, goalCurrency]
+    );
+
+    await broadcastBalanceUpdate(userId);
+
+    res.json({
+      message: "Средства успешно переведены",
+      newGoalBalance: 0,
+    });
+  } catch (error) {
+    console.error(" Ошибка при выводе средств:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
 const getGoalById = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
@@ -309,4 +364,5 @@ module.exports = {
   withdrawFromGoal,
   updateBalance,
   getGoalById,
+  withdrawFullGoal,
 };

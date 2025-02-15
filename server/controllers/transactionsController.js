@@ -37,7 +37,7 @@ const createTransaction = async (req, res) => {
   const { amount, fromCurrency, toCurrency, type } = req.body;
   const userId = req.user.id;
 
-  console.log("🔹 Получен запрос на транзакцию:", {
+  console.log(" Получен запрос на транзакцию:", {
     userId,
     amount,
     fromCurrency,
@@ -50,7 +50,6 @@ const createTransaction = async (req, res) => {
       return res.status(400).json({ message: "Некорректные данные" });
     }
 
-    // Проверяем баланс перед списанием
     const balanceResult = await pool.query(
       "SELECT amount FROM balances WHERE user_id = $1 AND currency = $2",
       [userId, fromCurrency]
@@ -66,7 +65,7 @@ const createTransaction = async (req, res) => {
     if (fromCurrency !== toCurrency) {
       const exchangeRate = await getExchangeRate(fromCurrency, toCurrency);
 
-      console.log(`💱 Курс ${fromCurrency} → ${toCurrency}:`, exchangeRate);
+      console.log(` Курс ${fromCurrency} → ${toCurrency}:`, exchangeRate);
 
       if (!exchangeRate || isNaN(exchangeRate) || exchangeRate <= 0) {
         return res
@@ -78,7 +77,7 @@ const createTransaction = async (req, res) => {
     }
 
     console.log(
-      `💰 Итоговая сумма после конвертации: ${finalAmount} ${toCurrency}`
+      ` Итоговая сумма после конвертации: ${finalAmount} ${toCurrency}`
     );
 
     // Обновляем баланс: списание
@@ -112,7 +111,7 @@ const createTransaction = async (req, res) => {
 
     res.json(newTransaction.rows[0]);
   } catch (error) {
-    console.error("❌ Ошибка при создании транзакции:", error);
+    console.error(" Ошибка при создании транзакции:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };

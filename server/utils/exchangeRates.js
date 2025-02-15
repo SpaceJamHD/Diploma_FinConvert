@@ -58,8 +58,8 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
       throw new Error("Ошибка загрузки курсов криптовалют и фиатных валют");
     }
 
-    console.log("💱 Данные по курсам криптовалют:", cryptoRates);
-    console.log("💰 Данные по фиатным курсам:", fiatRates);
+    console.log(" Данные по курсам криптовалют:", cryptoRates);
+    console.log(" Данные по фиатным курсам:", fiatRates);
 
     if (fromCurrency === "BTC") {
       const rate = cryptoRates.bitcoin[toCurrency.toLowerCase()];
@@ -74,7 +74,7 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
       }
 
       const finalRate = fiatToUsd / btcRate;
-      console.log(`🔄 Конвертация ${fromCurrency} → BTC: ${finalRate}`);
+      console.log(` Конвертация ${fromCurrency} → BTC: ${finalRate}`);
       return parseFloat(amount) * finalRate;
     } else {
       const fromRate = fiatRates.rates[fromCurrency];
@@ -94,7 +94,7 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
       return parseFloat(amount) * finalRate;
     }
   } catch (error) {
-    console.error("❌ Ошибка при запросе курсов валют:", error);
+    console.error(" Ошибка при запросе курсов валют:", error);
     return null;
   }
 };

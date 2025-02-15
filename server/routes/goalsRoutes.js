@@ -7,6 +7,7 @@ const {
   deleteGoal,
   addBalanceToGoal,
   withdrawFromGoal,
+  withdrawFullGoal,
   getGoalById,
 } = require("../controllers/goalsController");
 const authenticateToken = require("../middleware/authenticateToken");
@@ -21,5 +22,7 @@ router.post("/:id/withdraw", authenticateToken, withdrawFromGoal);
 router.post("/:id/withdraw-balance", authenticateToken, withdrawFromGoal);
 
 router.get("/:id", authenticateToken, getGoalById);
+
+router.post("/:id/withdraw-full", authenticateToken, withdrawFullGoal);
 
 module.exports = router;

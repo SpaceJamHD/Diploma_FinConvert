@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AddBalanceForm from "./AddBalanceForm";
 import WithdrawForm from "./WithdrawForm";
+import { withdrawFullGoalBalance } from "../../../utils/api";
 
 import "../../../styles/HomePage.css";
 import "../../../styles/goal.css";
@@ -176,6 +177,22 @@ const Goals = ({ goals = [], setGoals }) => {
     }
   };
 
+  const handleWithdrawFullGoal = async (goalId) => {
+    try {
+      const response = await withdrawFullGoalBalance(goalId);
+      console.log("Средства успешно переведены:", response);
+
+      setGoals((prevGoals) =>
+        prevGoals.map((goal) =>
+          goal.id === goalId ? { ...goal, balance: 0 } : goal
+        )
+      );
+    } catch (error) {
+      console.error(" Ошибка при снятии всех средств:", error);
+      alert("Ошибка при переводе средств в кошелек!");
+    }
+  };
+
   return (
     <main className="container mb-5">
       <h2 className="text-light mb-2 text-start fin-goal-text">
@@ -249,22 +266,36 @@ const Goals = ({ goals = [], setGoals }) => {
                   goals.map((goal, index) => {
                     const balance = parseFloat(goal.balance) || 0;
                     const amount = parseFloat(goal.amount) || 0;
-                    const remaining = amount;
                     const progress =
                       amount > 0 ? ((balance / amount) * 100).toFixed(2) : 0;
+                    const goalCompleted = progress >= 100; // Флаг, что цель достигнута
 
                     return (
-                      <tr key={index}>
+                      <tr
+                        key={index}
+                        className={`fin-td ${
+                          goalCompleted ? "goal-completed" : ""
+                        }`}
+                        style={
+                          goalCompleted
+                            ? {
+                                background:
+                                  "linear-gradient(90deg, #0f0, #ff0, #f00)", // Градиентный фон
+                                color: "#fff",
+                                fontWeight: "bold",
+                                textAlign: "center",
+                              }
+                            : {}
+                        }
+                      >
                         <td className="fin-td text-start">{goal.name}</td>
                         <td
                           className="fin-td text-start"
-                          style={{ position: "relative" }}
                           title={goal.description}
                         >
                           {goal.description.length > 30
                             ? `${goal.description.slice(0, 30)}...`
                             : goal.description}
-                          <div className="tooltip">{goal.description}</div>
                         </td>
 
                         <td className="fin-td text-center align-middle">
@@ -292,14 +323,7 @@ const Goals = ({ goals = [], setGoals }) => {
                                 }}
                               ></div>
                             </div>
-                            <span
-                              className="fin-progress-text"
-                              style={{
-                                color: progress >= 100 ? "#ffffff" : "#000000",
-                                fontWeight: "bold",
-                                textShadow: "1px 1px 2px rgba(0, 0, 0, 0.5)",
-                              }}
-                            >
+                            <span className="fin-progress-text">
                               {progress}%
                             </span>
                           </div>
@@ -311,8 +335,9 @@ const Goals = ({ goals = [], setGoals }) => {
                             : goal.currency === "EUR"
                             ? "€"
                             : "₴"}
-                          {remaining.toFixed(2)}
+                          {Math.max(amount - balance, 0).toFixed(2)}
                         </td>
+
                         <td className="fin-td text-center align-middle">
                           {goal.deadline
                             ? new Date(goal.deadline).toLocaleDateString(
@@ -320,6 +345,7 @@ const Goals = ({ goals = [], setGoals }) => {
                               )
                             : "—"}
                         </td>
+
                         <td className="fin-td text-center align-middle">
                           <span
                             className={`badge bg-${
@@ -333,83 +359,106 @@ const Goals = ({ goals = [], setGoals }) => {
                             {goal.priority}
                           </span>
                         </td>
+
                         <td className="fin-td text-center align-middle">
-                          <button
-                            onClick={() =>
-                              (window.location.href = `/goals/${goal.id}`)
-                            }
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-eye"
-                              style={{ color: "#007bff", fontSize: "1.2rem" }}
-                              title="Посмотреть цель"
-                            ></i>
-                          </button>
-                          <button
-                            onClick={() => {
-                              setCurrentGoal(goal);
-                              setShowAddBalanceForm(true);
-                            }}
-                            style={{
-                              marginLeft: "10px",
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-plus-circle"
-                              style={{ color: "#28a745" }}
-                            ></i>
-                          </button>
+                          {goalCompleted ? (
+                            <button
+                              onClick={() => handleWithdrawFullGoal(goal.id)}
+                              style={{
+                                width: "100%",
+                                padding: "10px",
+                                border: "none",
+                                cursor: "pointer",
+                                background:
+                                  "linear-gradient(90deg, #ffd700, #ff4500)",
+                                color: "#fff",
+                                fontWeight: "bold",
+                                borderRadius: "8px",
+                              }}
+                            >
+                              Достигнута цель! Забрать деньги
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() =>
+                                  (window.location.href = `/goals/${goal.id}`)
+                                }
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                }}
+                              >
+                                <i
+                                  className="bi bi-eye"
+                                  style={{
+                                    color: "#007bff",
+                                    fontSize: "1.2rem",
+                                  }}
+                                ></i>
+                              </button>
 
-                          <button
-                            onClick={() => openWithdrawForm(goal)}
-                            style={{
-                              marginLeft: "10px",
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-dash-circle"
-                              style={{ color: "#dc3545" }}
-                            ></i>
-                          </button>
+                              <button
+                                onClick={() => openAddBalanceForm(goal)}
+                                style={{
+                                  marginLeft: "10px",
+                                  background: "transparent",
+                                  border: "none",
+                                }}
+                              >
+                                <i
+                                  className="bi bi-plus-circle"
+                                  style={{ color: "#28a745" }}
+                                ></i>
+                              </button>
 
-                          <button
-                            onClick={() => handleEditGoal(goal.id)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-pencil"
-                              style={{ color: "#ffc107", fontSize: "1.2rem" }}
-                            ></i>
-                          </button>
+                              <button
+                                onClick={() => openWithdrawForm(goal)}
+                                style={{
+                                  marginLeft: "10px",
+                                  background: "transparent",
+                                  border: "none",
+                                }}
+                              >
+                                <i
+                                  className="bi bi-dash-circle"
+                                  style={{ color: "#dc3545" }}
+                                ></i>
+                              </button>
 
-                          <button
-                            onClick={() => confirmDeleteGoal(goal.id)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-trash"
-                              style={{ color: "#dc3545", fontSize: "1.2rem" }}
-                            ></i>
-                          </button>
+                              <button
+                                onClick={() => handleEditGoal(goal.id)}
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                }}
+                              >
+                                <i
+                                  className="bi bi-pencil"
+                                  style={{
+                                    color: "#ffc107",
+                                    fontSize: "1.2rem",
+                                  }}
+                                ></i>
+                              </button>
+
+                              <button
+                                onClick={() => confirmDeleteGoal(goal.id)}
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                }}
+                              >
+                                <i
+                                  className="bi bi-trash"
+                                  style={{
+                                    color: "#dc3545",
+                                    fontSize: "1.2rem",
+                                  }}
+                                ></i>
+                              </button>
+                            </>
+                          )}
                         </td>
                       </tr>
                     );
