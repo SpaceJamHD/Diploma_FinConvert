@@ -87,7 +87,6 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
               flex: 1,
               padding: "10px",
               backgroundColor: "#333",
-              color: "#fff",
               border: "1px solid #555",
               borderRadius: "5px 0 0 5px",
               textAlign: "center",

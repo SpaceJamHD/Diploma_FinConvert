@@ -12,6 +12,11 @@
     margin: 0 auto;
 }
 
+
+input {
+    color: #ffcc00;
+}
+
 /* Заголовок цели */
 .goal-title {
     text-align: center;

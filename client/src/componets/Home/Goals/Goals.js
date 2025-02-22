@@ -258,7 +258,7 @@ const Goals = ({ goals = [], setGoals }) => {
               <tbody>
                 {goals.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center text-light">
+                    <td colSpan="8" className="text-center text-light">
                       Цілі відсутні.
                     </td>
                   </tr>

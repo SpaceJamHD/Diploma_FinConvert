@@ -19,6 +19,10 @@
     color: #ffd700;
 }
 
+input {
+    color: #ffcc00;
+}
+
 .transaction-body {
     display: flex;
     flex-direction: column;

@@ -5,6 +5,10 @@ body {
 
 }
 
+input {
+    color: #ffcc00;
+}
+
 .transaction-table {
     width: 100%;
     border-collapse: collapse;

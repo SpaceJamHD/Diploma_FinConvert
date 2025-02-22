@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import "../../../styles/authorization.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
-import "../../../styles/authorization.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
