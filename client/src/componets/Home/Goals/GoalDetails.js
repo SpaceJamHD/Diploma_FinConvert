@@ -1,50 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Line, Doughnut } from "react-chartjs-2";
-import "chart.js/auto";
-import "../../../styles/goal.css";
+import ChartTabs from "../Charts/ChartTabs";
+import "../../../styles/goalDetails.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 
 const GoalDetails = () => {
   const { goalId } = useParams();
   const [goal, setGoal] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [balances, setBalances] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  console.log("🔍 Проверка перед передачей в ChartTabs:");
+  console.log("🎯 Цель:", goal);
+  console.log("📜 Транзакции:", transactions);
+  console.log("💰 Баланс:", balances);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
         const token = localStorage.getItem("token");
 
-        const goalResponse = await fetch(`/api/goals/${goalId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const [goalResponse, transactionsResponse, balancesResponse] =
+          await Promise.all([
+            fetch(`/api/goals/${goalId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`/api/transactions/${goalId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`/api/balances`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
 
-        if (!goalResponse.ok) {
-          throw new Error("Failed to load goal data");
+        if (
+          !goalResponse.ok ||
+          !transactionsResponse.ok ||
+          !balancesResponse.ok
+        ) {
+          throw new Error("Ошибка загрузки данных");
         }
 
         const goalData = await goalResponse.json();
-        setGoal(goalData);
-
-        const transactionsResponse = await fetch(
-          `/api/transactions/${goalId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (!transactionsResponse.ok) {
-          throw new Error("Failed to load transactions");
-        }
-
         const transactionsData = await transactionsResponse.json();
-        const formattedTransactions = transactionsData.map((t) => ({
-          ...t,
-          amount: parseFloat(t.amount),
-        }));
-        setTransactions(formattedTransactions);
+        const balancesData = await balancesResponse.json();
+
+        setGoal(goalData);
+        setTransactions(
+          transactionsData.map((t) => ({
+            ...t,
+            amount: parseFloat(t.amount),
+          }))
+        );
+        setBalances(balancesData); // Загружаем баланс пользователя
       } catch (err) {
         console.error(err);
         setError("Не удалось загрузить данные цели.");
@@ -68,60 +78,31 @@ const GoalDetails = () => {
     return <div style={{ color: "#fff" }}>Цель не найдена.</div>;
   }
 
-  const income = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const expense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const analysisData = {
-    labels: ["Доходы", "Расходы"],
-    datasets: [
-      {
-        data: [income, expense],
-        backgroundColor: ["#28a745", "#dc3545"],
-      },
-    ],
-  };
-
-  const chartData = {
-    labels: transactions.map((t) =>
-      new Date(t.date).toLocaleDateString("ru-RU")
-    ),
-    datasets: [
-      {
-        label: "Сумма транзакций",
-        data: transactions.map((t) => t.amount),
-        borderColor: "#007bff",
-        backgroundColor: "rgba(0, 123, 255, 0.2)",
-        fill: true,
-      },
-    ],
-  };
-
   return (
     <main className="container mb-5">
-      <div style={{ padding: "20px", color: "#fff" }}>
-        <h1>{goal.name}</h1>
-        <p>{goal.description}</p>
-        <p>
+      <section className="goal-details-grid">
+        <div className="goal-field">
           Цель: {goal.amount} {goal.currency}
-        </p>
-        <p>
-          Баланс: {goal.balance} {goal.currency}
-        </p>
-
-        <h2>Анализ транзакций</h2>
-        <div
-          style={{ maxWidth: "400px", margin: "0 auto", paddingBottom: "20px" }}
-        >
-          <Doughnut data={analysisData} />
         </div>
+        <h1 className="goal-title">{goal.name}</h1>
+        <div className="goal-field">
+          Баланс: {goal.balance} {goal.currency}
+        </div>
+        <p className="goal-description">{goal.description}</p>
+      </section>
 
+      <section className="chart-section mt-4">
+        <ChartTabs
+          transactions={transactions}
+          goal={goal}
+          balances={balances}
+        />
+      </section>
+
+      <section className="transaction-history mt-4">
         <h3>История транзакций</h3>
-        <div style={{ overflowX: "auto" }}>
-          <table className="fin-table table mb-0">
+        <div className="transaction-table-wrapper">
+          <table className="table table-dark table-striped">
             <thead>
               <tr>
                 <th>Дата</th>
@@ -139,21 +120,18 @@ const GoalDetails = () => {
                 </tr>
               ) : (
                 transactions.map((t) => (
-                  <tr key={t.id}>
+                  <tr
+                    key={t.id}
+                    className={
+                      t.type === "income" ? "table-success" : "table-danger"
+                    }
+                  >
                     <td>{new Date(t.date).toLocaleDateString("ru-RU")}</td>
-                    <td>{t.description || "Без описания"}</td>
-                    <td
-                      style={{
-                        color: t.type === "income" ? "#28a745" : "#dc3545",
-                      }}
-                    >
-                      {t.type === "income" ? "Доход" : "Расход"}
+                    <td className="text-truncate">
+                      {t.description || "Без описания"}
                     </td>
-                    <td
-                      style={{
-                        color: t.type === "income" ? "#28a745" : "#dc3545",
-                      }}
-                    >
+                    <td>{t.type === "income" ? "Доход" : "Расход"}</td>
+                    <td>
                       {t.amount.toFixed(2)} {goal.currency}
                     </td>
                   </tr>
@@ -162,7 +140,7 @@ const GoalDetails = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
     </main>
   );
 };
