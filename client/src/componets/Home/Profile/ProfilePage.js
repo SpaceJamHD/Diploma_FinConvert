@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../Navbar/Navbar";
-import Footer from "../Footer/Footer";
 import "../../../styles/profile.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
@@ -101,6 +99,7 @@ const ProfilePage = () => {
                   value={profile.first_name || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
               <div className="col-md-6">
@@ -111,6 +110,7 @@ const ProfilePage = () => {
                   value={profile.last_name || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
               <div className="col-md-6">
@@ -121,6 +121,7 @@ const ProfilePage = () => {
                   value={profile.phone || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
               <div className="col-md-6">
@@ -130,6 +131,7 @@ const ProfilePage = () => {
                   name="email"
                   value={profile.email || ""}
                   disabled
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
               <div className="col-md-6">
@@ -140,6 +142,7 @@ const ProfilePage = () => {
                   value={profile.address || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
               <div className="col-md-6">
@@ -150,6 +153,7 @@ const ProfilePage = () => {
                   value={profile.city || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
               <div className="col-md-6">
@@ -160,6 +164,7 @@ const ProfilePage = () => {
                   value={profile.country || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
               <div className="col-md-6">
@@ -170,6 +175,7 @@ const ProfilePage = () => {
                   value={profile.postal_code || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
                 />
               </div>
             </div>

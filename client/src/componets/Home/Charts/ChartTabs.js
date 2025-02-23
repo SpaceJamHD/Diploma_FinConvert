@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Tabs, Tab } from "react-bootstrap";
 import ExpenseCategoryChart from "./ExpenseCategoryChart";
-// import CurrencyDistributionChart from "./CurrencyDistributionChart";
+import GoalProgressChart from "./GoalProgressChart";
 import "../../../styles/goal.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 
@@ -30,13 +30,14 @@ ChartJS.register(
   PointElement
 );
 
-const ChartTabs = ({ transactions, goal, balances }) => {
+const ChartTabs = ({ transactions, goal, balances, exchangeRates }) => {
   const [key, setKey] = useState("categories");
 
   console.log(" Данные переданы в ChartTabs:");
   console.log(" Транзакции:", transactions);
   console.log(" Цель:", goal);
   console.log(" Баланс:", balances);
+  console.log(" Курсы валют:", exchangeRates);
 
   return (
     <div className="chart-tabs-container">
@@ -53,14 +54,16 @@ const ChartTabs = ({ transactions, goal, balances }) => {
         >
           <ExpenseCategoryChart transactions={transactions} />
         </Tab>
-
-        {/* <Tab eventKey="distribution" title=" Распределение валют">
-          <CurrencyDistributionChart
-            transactions={transactions}
+        <Tab
+          eventKey="goalProgress"
+          title={<span className="tab-title"> Прогресс цели</span>}
+        >
+          <GoalProgressChart
             goal={goal}
-            balances={balances}
+            transactions={transactions}
+            exchangeRates={exchangeRates}
           />
-        </Tab> */}
+        </Tab>
       </Tabs>
     </div>
   );

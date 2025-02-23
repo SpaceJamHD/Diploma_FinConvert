@@ -44,7 +44,6 @@ const TransactionsPage = () => {
 
   return (
     <div className="container mt-4">
-      <h2 className="text-light text-center">Binance-Style Convert</h2>
       <BalanceSection hideViewAll={true} />
 
       <div className="transaction-box mx-auto">
