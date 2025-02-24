@@ -21,7 +21,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Форма отправлена с данными:", { email, password }); // Отладка
+    console.log("Форма отправлена с данными:", { email, password });
 
     try {
       const response = await axios.post(

@@ -33,12 +33,6 @@ ChartJS.register(
 const ChartTabs = ({ transactions, goal, balances, exchangeRates }) => {
   const [key, setKey] = useState("categories");
 
-  console.log(" Данные переданы в ChartTabs:");
-  console.log(" Транзакции:", transactions);
-  console.log(" Цель:", goal);
-  console.log(" Баланс:", balances);
-  console.log(" Курсы валют:", exchangeRates);
-
   return (
     <div className="chart-tabs-container">
       <Tabs
@@ -50,13 +44,13 @@ const ChartTabs = ({ transactions, goal, balances, exchangeRates }) => {
       >
         <Tab
           eventKey="categories"
-          title={<span className="tab-title"> Категории трат</span>}
+          title={<span className="tab-title"> Категорії витрат</span>}
         >
           <ExpenseCategoryChart transactions={transactions} />
         </Tab>
         <Tab
           eventKey="goalProgress"
-          title={<span className="tab-title"> Прогресс цели</span>}
+          title={<span className="tab-title"> Прогрес цілі</span>}
         >
           <GoalProgressChart
             goal={goal}

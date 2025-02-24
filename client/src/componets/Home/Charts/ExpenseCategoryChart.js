@@ -22,14 +22,18 @@ ChartJS.register(
 
 const ExpenseCategoryChart = ({ transactions }) => {
   if (!transactions || transactions.length === 0) {
-    return <p className="text-light">Нет данных для отображения</p>;
+    return <p className="text-light">Немає даних для відображення</p>;
   }
 
   const groupedData = {};
   const currencySet = new Set();
 
   transactions.forEach(({ amount, description, currency, date }) => {
-    const category = description || "Без категории";
+    const category =
+      description === "Пополнение цели"
+        ? "Поповнення цілі"
+        : description || "Без категорії";
+
     const formattedDate = new Date(date).toLocaleDateString("ru-RU");
 
     if (!groupedData[formattedDate]) {
@@ -50,8 +54,15 @@ const ExpenseCategoryChart = ({ transactions }) => {
     (a, b) => new Date(a) - new Date(b)
   );
   const categoryList = [
-    ...new Set(transactions.map((t) => t.description || "Без категории")),
+    ...new Set(
+      transactions.map((t) =>
+        t.description === "Пополнение цели"
+          ? "Поповнення цілі"
+          : t.description || "Без категорії"
+      )
+    ),
   ];
+
   const currencyList = [...currencySet];
 
   const datasets = categoryList.flatMap((category, catIndex) =>
@@ -121,7 +132,9 @@ const ExpenseCategoryChart = ({ transactions }) => {
 
   return (
     <div className="chart-container">
-      <h3 className="chart-title">Динамика расходов по категориям и валютам</h3>
+      <h3 className="chart-title">
+        Динаміка витрат за категоріями та валютами
+      </h3>
       <div style={{ height: "450px", overflowX: "auto" }}>
         <Bar data={data} options={options} />
       </div>

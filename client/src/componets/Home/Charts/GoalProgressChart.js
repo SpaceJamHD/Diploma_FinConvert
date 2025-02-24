@@ -48,14 +48,14 @@ const GoalProgressChart = ({ goal, transactions, exchangeRates = {} }) => {
     ),
     datasets: [
       {
-        label: `Прогресс накоплений (${goal.currency})`,
+        label: `Прогрес накопичень (${goal.currency})`,
         data: cumulativeAmounts,
         borderColor: "#4CAF50",
         backgroundColor: "rgba(76, 175, 80, 0.2)",
         fill: true,
       },
       {
-        label: `Целевая сумма (${goal.currency})`,
+        label: `Цільова сума (${goal.currency})`,
         data: Array(sortedTransactions.length).fill(goal.amount),
         borderColor: "#FF9800",
         borderDash: [5, 5],
@@ -67,7 +67,7 @@ const GoalProgressChart = ({ goal, transactions, exchangeRates = {} }) => {
     <div className="container text-light">
       <div className="row mb-4">
         <div className="col-md-12">
-          <h3 className="chart-title text-center">Динамика накоплений</h3>
+          <h3 className="chart-title text-center">Динаміка накопичень</h3>
           <div className="card p-3 bg-dark">
             <Line
               data={lineData}

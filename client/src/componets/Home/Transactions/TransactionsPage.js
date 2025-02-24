@@ -20,7 +20,7 @@ const TransactionsPage = () => {
       );
       setAmount("");
     } catch (error) {
-      alert("❌ Ошибка при создании транзакции!");
+      alert(" Ошибка при создании транзакции!");
     }
   };
 
@@ -38,7 +38,7 @@ const TransactionsPage = () => {
       }
       window.location.reload();
     } catch (error) {
-      alert("❌ Ошибка при очистке истории транзакций!");
+      alert(" Ошибка при очистке истории транзакций!");
     }
   };
 
@@ -48,11 +48,11 @@ const TransactionsPage = () => {
 
       <div className="transaction-box mx-auto">
         <div className="transaction-header">
-          <h4 className="text-light"> Конвертация</h4>
+          <h4 className="text-light">Конвертація </h4>
         </div>
         <div className="transaction-body">
           <div className="transaction-row">
-            <span className="transaction-label">Из</span>
+            <span className="transaction-label">З</span>
             <select
               value={fromCurrency}
               onChange={(e) => setFromCurrency(e.target.value)}
@@ -65,7 +65,7 @@ const TransactionsPage = () => {
             </select>
           </div>
           <div className="transaction-row">
-            <span className="transaction-label">Сумма</span>
+            <span className="transaction-label">Сума</span>
             <input
               type="number"
               placeholder="Введите сумму"
@@ -89,14 +89,14 @@ const TransactionsPage = () => {
             </select>
           </div>
           <button className="transaction-button" onClick={handleTransaction}>
-            Конвертировать
+            Конвертувати
           </button>
         </div>
       </div>
 
       <div className="text-end mt-3">
         <button className="btn btn-danger" onClick={clearTransactionHistory}>
-          🗑 Очистить историю
+          🗑 Очистити історію
         </button>
       </div>
 

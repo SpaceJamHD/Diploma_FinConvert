@@ -1,5 +1,3 @@
-// 📌 Файл: client/src/components/Home/Transactions/TransactionsBlock.js
-
 import React, { useState, useEffect } from "react";
 import { fetchTransactions } from "../../../utils/api";
 import "../../../styles/HomePage.css";
@@ -26,7 +24,7 @@ const TransactionsBlock = () => {
 
   return (
     <div className="transactions-block mt-4">
-      <h2 className="text-light"> История транзакций</h2>
+      <h2 className="text-light"> Історія транзакцій</h2>
       {loading ? (
         <p className="text-light">Загрузка...</p>
       ) : transactions.length === 0 ? (
@@ -36,9 +34,9 @@ const TransactionsBlock = () => {
           <thead>
             <tr>
               <th>Дата</th>
-              <th>Сумма</th>
-              <th>Откуда</th>
-              <th>Куда</th>
+              <th>Сума</th>
+              <th>Звідки</th>
+              <th>Куди</th>
               <th>Тип</th>
             </tr>
           </thead>
