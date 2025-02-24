@@ -10,9 +10,16 @@ body {
     padding: 20px;
 }
 
-input {
-    color: #292929;
+.auth-page input {
+    color: black !important;
+    caret-color: black !important;
 }
+
+.auth-page .form-control {
+    background-color: white !important;
+    color: black !important;
+}
+
 
 .box-area {
     width: 930px;

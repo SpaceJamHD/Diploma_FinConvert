@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../../styles/authorization.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
@@ -13,6 +13,14 @@ const Register = () => {
   const [role, setRole] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.body.classList.add("auth-page");
+
+    return () => {
+      document.body.classList.remove("auth-page");
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
