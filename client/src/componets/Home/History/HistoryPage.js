@@ -188,11 +188,16 @@ const HistoryPage = () => {
                             <button
                               className="btn btn-outline-info mx-1"
                               onClick={() => {
-                                console.log(
-                                  " Переход на цель с ID:",
-                                  goal.goal_id
-                                );
-                                navigate(`/goals/${goal.goal_id}`);
+                                if (goal.goal_id) {
+                                  window.location.href = `/goals/${goal.goal_id}`;
+                                } else {
+                                  console.error(
+                                    "❌ Ошибка: goal_id не найден для цели:",
+                                    goal
+                                  );
+                                }
+
+                                window.location.href = `/goals/${goal.goal_id}`;
                               }}
                             >
                               <i className="bi bi-eye"></i> Переглянути

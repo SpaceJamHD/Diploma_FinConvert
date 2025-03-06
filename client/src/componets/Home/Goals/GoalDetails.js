@@ -69,6 +69,7 @@ const GoalDetails = () => {
       console.error("❌ Ошибка: `goalId` пустой при загрузке!");
       return;
     }
+    console.log("🔎 Проверяем `goalId` перед запросом:", goalId);
 
     fetchDetails();
   }, [goalId]);
