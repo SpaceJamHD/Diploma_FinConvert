@@ -35,8 +35,8 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/accounts">
-                Рахунки
+              <Link className="nav-link" to="/history">
+                Історія
               </Link>
             </li>
             <li className="nav-item">

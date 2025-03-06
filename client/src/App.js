@@ -16,6 +16,7 @@ import ProfilePage from "./componets/Home/Profile/ProfilePage";
 import GoalsPage from "./componets/Home/Goals/GoalsPage";
 import GoalDetails from "./componets/Home/Goals/GoalDetails";
 import TransactionsPage from "./componets/Home/Transactions/TransactionsPage";
+import HistoryPage from "./componets/Home/History/HistoryPage";
 
 const AppContent = () => {
   const location = useLocation();
@@ -69,6 +70,15 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <TransactionsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <HistoryPage />
             </ProtectedRoute>
           }
         />

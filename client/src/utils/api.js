@@ -146,3 +146,82 @@ export const withdrawFullGoalBalance = async (goalId) => {
     throw error;
   }
 };
+
+export const fetchTransactionsHistory = async (startDate, endDate) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `/api/transactions/history?start=${startDate}&end=${endDate}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Ошибка получения истории транзакций");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка загрузки истории транзакций:", error);
+    return [];
+  }
+};
+
+export const fetchGoalsHistory = async (startDate, endDate) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `/api/goals/history?start=${startDate}&end=${endDate}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Ошибка получения истории целей");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка загрузки истории целей:", error);
+    return [];
+  }
+};
+
+export const repeatGoal = async (goal) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("/api/goals", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: `${goal.name} (повтор)`,
+        description: goal.description,
+        amount: goal.amount,
+        deadline: goal.deadline,
+        priority: goal.priority,
+        currency: goal.currency,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка при повторении цели");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка при повторении цели:", error);
+    throw error;
+  }
+};

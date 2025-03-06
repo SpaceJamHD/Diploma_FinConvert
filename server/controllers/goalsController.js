@@ -166,7 +166,6 @@ const addBalanceToGoal = async (req, res) => {
       finalAmount = parseFloat((originAmt * exchangeRate).toFixed(6));
     }
 
-    // Проверка на переплату
     let actualDeposit = finalAmount;
     let excessAmount = 0;
 
@@ -176,7 +175,10 @@ const addBalanceToGoal = async (req, res) => {
     }
 
     const updatedGoal = await pool.query(
-      "UPDATE goals SET balance = balance + $1 WHERE id = $2 RETURNING balance",
+      `UPDATE goals 
+       SET balance = balance + $1, 
+           completed_at = CASE WHEN balance + $1 >= amount THEN NOW() ELSE completed_at END
+       WHERE id = $2 RETURNING balance, completed_at`,
       [actualDeposit, id]
     );
 
@@ -189,7 +191,6 @@ const addBalanceToGoal = async (req, res) => {
       [userId, id, actualDeposit, "income", "Пополнение цели"]
     );
 
-    // Исправление ошибки: возвращаем излишек в **исходную валюту**
     if (excessAmount > 0) {
       console.log(
         ` Остаток ${excessAmount} ${goalCurrency} возвращается в ${fromCurrency}`
