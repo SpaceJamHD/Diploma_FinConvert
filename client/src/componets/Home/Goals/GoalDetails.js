@@ -18,6 +18,8 @@ const GoalDetails = () => {
   console.log("💰 Баланс:", balances);
 
   useEffect(() => {
+    console.log("🔍 Загружаем цель с ID:", goalId);
+
     const fetchDetails = async () => {
       try {
         const token = localStorage.getItem("token");

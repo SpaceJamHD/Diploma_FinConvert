@@ -350,6 +350,9 @@ const withdrawFullGoal = async (req, res) => {
   const userId = req.user.id;
 
   try {
+    console.log(`📌 Вывод всех средств из цели ID: ${id}, User ID: ${userId}`);
+
+    // 1️⃣ Проверяем, есть ли цель у пользователя
     const goalResult = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [id, userId]
@@ -360,6 +363,8 @@ const withdrawFullGoal = async (req, res) => {
     }
 
     const goal = goalResult.rows[0];
+    console.log("🎯 Найдена цель:", goal);
+
     const goalBalance = parseFloat(goal.balance);
     const goalCurrency = goal.currency;
 
@@ -367,14 +372,10 @@ const withdrawFullGoal = async (req, res) => {
       return res.status(400).json({ message: "Цель уже пустая!" });
     }
 
-    if (!goal.id) {
-      console.error(" Ошибка: `goal.id` отсутствует при сохранении в историю!");
-      return res.status(500).json({ message: "Ошибка: `goal.id` не найден" });
-    }
-
-    await pool.query(
-      `INSERT INTO goals_history (goal_id, user_id, name, description, amount, currency, deadline, priority, achieved_at, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
+    // 2️⃣ Сохраняем цель в историю (убираем created_at)
+    const historyInsert = await pool.query(
+      `INSERT INTO goals_history (goal_id, user_id, name, description, amount, currency, deadline, priority, achieved_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) RETURNING id`, // Убрали created_at
       [
         goal.id,
         userId,
@@ -387,17 +388,26 @@ const withdrawFullGoal = async (req, res) => {
       ]
     );
 
+    console.log("📜 Цель сохранена в истории:", historyInsert.rows[0]);
+
+    // 3️⃣ Создаем транзакцию возврата денег
     await pool.query(
       `INSERT INTO transactions (user_id, goal_id, amount, type, date, description, from_currency, to_currency)
        VALUES ($1, $2, $3, 'withdraw', NOW(), 'Перевод с достигнутой цели', $4, $4)`,
       [userId, id, goalBalance, goalCurrency]
     );
 
+    // 4️⃣ Добавляем деньги обратно в кошелек
     await pool.query(
       `UPDATE balances SET amount = amount + $1 WHERE user_id = $2 AND currency = $3`,
       [goalBalance, userId, goalCurrency]
     );
 
+    console.log(
+      `💰 Средства возвращены в кошелек: ${goalBalance} ${goalCurrency}`
+    );
+
+    // 5️⃣ Удаляем цель
     const deleteResult = await pool.query(
       "DELETE FROM goals WHERE id = $1 RETURNING id",
       [id]
@@ -407,16 +417,18 @@ const withdrawFullGoal = async (req, res) => {
       throw new Error("Ошибка удаления цели!");
     }
 
+    console.log(`✅ Цель ID: ${id} удалена`);
+
+    // 6️⃣ Обновляем баланс по WebSocket
     await broadcastBalanceUpdate(userId);
 
-    console.log(`Цель ${id} удалена, но сохранена в истории!`);
-
+    // 7️⃣ Отправляем успешный ответ
     res.json({
       message: "Цель удалена и сохранена в истории",
       deletedGoalId: id,
     });
   } catch (error) {
-    console.error("Ошибка при выводе средств:", error);
+    console.error("❌ Ошибка при выводе средств:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };

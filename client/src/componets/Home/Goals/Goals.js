@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AddBalanceForm from "./AddBalanceForm";
 import WithdrawForm from "./WithdrawForm";
-import { withdrawFullGoalBalance } from "../../../utils/api";
+import { withdrawFullGoalBalance, fetchGoalsHistory } from "../../../utils/api";
 
 import "../../../styles/HomePage.css";
 import "../../../styles/goal.css";
@@ -188,12 +188,13 @@ const Goals = ({ goals = [], setGoals }) => {
       if (response.deletedGoalId) {
         setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== goalId));
 
-        fetchGoalsHistory();
+        const updatedGoals = await fetchGoalsHistory();
+        setGoals(updatedGoals);
       } else {
-        console.warn(" Сервер не вернул ID удаленной цели!");
+        console.warn("Сервер не вернул ID удаленной цели!");
       }
     } catch (error) {
-      console.error(" Ошибка при снятии всех средств:", error);
+      console.error("Ошибка при снятии всех средств:", error);
     }
   };
 
