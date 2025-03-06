@@ -360,19 +360,31 @@ const withdrawFullGoal = async (req, res) => {
     }
 
     const goal = goalResult.rows[0];
-
-    if (parseFloat(goal.balance) === 0) {
-      return res
-        .status(400)
-        .json({ message: "На цели нет средств для вывода" });
-    }
-
     const goalBalance = parseFloat(goal.balance);
     const goalCurrency = goal.currency;
 
+    if (goalBalance === 0) {
+      return res.status(400).json({ message: "Цель уже пустая!" });
+    }
+
+    if (!goal.id) {
+      console.error(" Ошибка: `goal.id` отсутствует при сохранении в историю!");
+      return res.status(500).json({ message: "Ошибка: `goal.id` не найден" });
+    }
+
     await pool.query(
-      "UPDATE goals SET balance = 0 WHERE id = $1 RETURNING balance",
-      [id]
+      `INSERT INTO goals_history (goal_id, user_id, name, description, amount, currency, deadline, priority, achieved_at, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
+      [
+        goal.id,
+        userId,
+        goal.name,
+        goal.description,
+        goal.amount,
+        goal.currency,
+        goal.deadline,
+        goal.priority,
+      ]
     );
 
     await pool.query(
@@ -382,20 +394,58 @@ const withdrawFullGoal = async (req, res) => {
     );
 
     await pool.query(
-      `UPDATE balances 
-       SET amount = amount + $1
-       WHERE user_id = $2 AND currency = $3`,
+      `UPDATE balances SET amount = amount + $1 WHERE user_id = $2 AND currency = $3`,
       [goalBalance, userId, goalCurrency]
     );
 
+    const deleteResult = await pool.query(
+      "DELETE FROM goals WHERE id = $1 RETURNING id",
+      [id]
+    );
+
+    if (deleteResult.rowCount === 0) {
+      throw new Error("Ошибка удаления цели!");
+    }
+
     await broadcastBalanceUpdate(userId);
 
+    console.log(`Цель ${id} удалена, но сохранена в истории!`);
+
     res.json({
-      message: "Средства успешно переведены",
-      newGoalBalance: 0,
+      message: "Цель удалена и сохранена в истории",
+      deletedGoalId: id,
     });
   } catch (error) {
-    console.error(" Ошибка при выводе средств:", error);
+    console.error("Ошибка при выводе средств:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+const getGoalsHistory = async (req, res) => {
+  const userId = req.user.id;
+  const { start, end } = req.query;
+
+  try {
+    let query = `
+      SELECT * FROM goals_history 
+      WHERE user_id = $1 
+    `;
+    let params = [userId];
+
+    if (start && end) {
+      query += ` AND achieved_at BETWEEN $2 AND $3`;
+      params.push(start, end);
+    }
+
+    query += ` ORDER BY achieved_at DESC`;
+
+    const result = await pool.query(query, params);
+
+    console.log("Отправляем историю целей:", result.rows);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Ошибка при получении истории целей:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
@@ -429,6 +479,7 @@ module.exports = {
   addBalanceToGoal,
   withdrawFromGoal,
   updateBalance,
+  getGoalsHistory,
   getGoalById,
   withdrawFullGoal,
 };

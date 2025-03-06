@@ -9,33 +9,13 @@ const {
   addBalanceToGoal,
   withdrawFromGoal,
   withdrawFullGoal,
+  getGoalsHistory,
   getGoalById,
 } = require("../controllers/goalsController");
 const authenticateToken = require("../middleware/authenticateToken");
 
 router.get("/", authenticateToken, getGoals);
-router.get("/history", authenticateToken, async (req, res) => {
-  const userId = req.user.id;
-  const { start, end } = req.query;
-
-  try {
-    let query = `SELECT * FROM goals WHERE user_id = $1 AND completed_at IS NOT NULL`;
-    let params = [userId];
-
-    if (start && end) {
-      query += ` AND completed_at BETWEEN $2 AND $3`;
-      params.push(start, end);
-    }
-
-    query += ` ORDER BY completed_at DESC`;
-
-    const result = await pool.query(query, params);
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Ошибка при получении истории целей:", error);
-    res.status(500).json({ message: "Ошибка сервера" });
-  }
-});
+router.get("/history", authenticateToken, getGoalsHistory);
 
 router.post("/", authenticateToken, addGoal);
 router.put("/:id", authenticateToken, updateGoal);

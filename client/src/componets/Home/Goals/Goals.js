@@ -180,16 +180,20 @@ const Goals = ({ goals = [], setGoals }) => {
   const handleWithdrawFullGoal = async (goalId) => {
     try {
       const response = await withdrawFullGoalBalance(goalId);
-      console.log("Средства успешно переведены:", response);
-
-      setGoals((prevGoals) =>
-        prevGoals.map((goal) =>
-          goal.id === goalId ? { ...goal, balance: 0 } : goal
-        )
+      console.log(
+        " Средства переведены, цель удалена и сохранена в истории:",
+        response
       );
+
+      if (response.deletedGoalId) {
+        setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== goalId));
+
+        fetchGoalsHistory();
+      } else {
+        console.warn(" Сервер не вернул ID удаленной цели!");
+      }
     } catch (error) {
       console.error(" Ошибка при снятии всех средств:", error);
-      alert("Ошибка при переводе средств в кошелек!");
     }
   };
 
@@ -268,7 +272,7 @@ const Goals = ({ goals = [], setGoals }) => {
                     const amount = parseFloat(goal.amount) || 0;
                     const progress =
                       amount > 0 ? ((balance / amount) * 100).toFixed(2) : 0;
-                    const goalCompleted = progress >= 100; // Флаг, что цель достигнута
+                    const goalCompleted = progress >= 100;
 
                     return (
                       <tr

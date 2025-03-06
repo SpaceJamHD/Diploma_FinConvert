@@ -155,8 +155,13 @@ const HistoryPage = () => {
                       return (
                         <tr key={goal.id} className="goal-completed">
                           <td>
-                            {new Date(goal.created_at).toLocaleDateString()}
+                            {goal.achieved_at
+                              ? new Date(
+                                  goal.achieved_at.replace(" ", "T")
+                                ).toLocaleDateString("uk-UA")
+                              : "—"}
                           </td>
+
                           <td>{goal.name}</td>
                           <td>
                             {goal.description.length > 30
@@ -182,10 +187,17 @@ const HistoryPage = () => {
                           <td>
                             <button
                               className="btn btn-outline-info mx-1"
-                              onClick={() => navigate(`/goals/${goal.id}`)}
+                              onClick={() => {
+                                console.log(
+                                  " Переход на цель с ID:",
+                                  goal.goal_id
+                                );
+                                navigate(`/goals/${goal.goal_id}`);
+                              }}
                             >
                               <i className="bi bi-eye"></i> Переглянути
                             </button>
+
                             <button
                               className="btn btn-outline-success mx-1"
                               onClick={() => handleRepeatGoal(goal)}

@@ -142,7 +142,7 @@ export const withdrawFullGoalBalance = async (goalId) => {
 
     return await response.json();
   } catch (error) {
-    console.error("❌ Ошибка при снятии средств:", error);
+    console.error(" Ошибка при снятии средств:", error);
     throw error;
   }
 };
@@ -188,9 +188,11 @@ export const fetchGoalsHistory = async (startDate, endDate) => {
       throw new Error("Ошибка получения истории целей");
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log("📜 Загружена история целей:", data);
+    return data;
   } catch (error) {
-    console.error("Ошибка загрузки истории целей:", error);
+    console.error("❌ Ошибка загрузки истории целей:", error);
     return [];
   }
 };
