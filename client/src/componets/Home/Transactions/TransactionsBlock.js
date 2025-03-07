@@ -44,7 +44,12 @@ const TransactionsBlock = () => {
             {transactions.map((txn) => (
               <tr key={txn.id}>
                 <td>{new Date(txn.date).toLocaleString()}</td>
-                <td>{txn.amount}</td>
+                <td>
+                  {txn.from_currency === "BTC"
+                    ? parseFloat(txn.amount).toFixed(8)
+                    : parseFloat(txn.amount).toFixed(2)}
+                </td>
+
                 <td>{txn.from_currency}</td>
                 <td>{txn.to_currency}</td>
                 <td>{txn.type}</td>

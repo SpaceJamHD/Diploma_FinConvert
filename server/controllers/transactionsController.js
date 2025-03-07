@@ -7,9 +7,13 @@ const getUserTransactions = async (req, res) => {
 
   try {
     const result = await pool.query(
-      "SELECT * FROM currency_transactions WHERE user_id = $1 ORDER BY date DESC",
+      `SELECT id, user_id, amount, from_currency, to_currency, type, date 
+       FROM currency_transactions 
+       WHERE user_id = $1 
+       ORDER BY date DESC`,
       [userId]
     );
+
     res.json(result.rows);
   } catch (error) {
     console.error("Ошибка при получении валютных транзакций:", error);
@@ -24,15 +28,17 @@ const getTransactionsByGoalId = async (req, res) => {
   try {
     console.log(`🔍 Ищем транзакции по goal_id: ${goalId}`);
 
-    let result = await pool.query(
-      "SELECT * FROM transactions WHERE goal_id = $1 AND user_id = $2 ORDER BY date DESC",
+    const result = await pool.query(
+      `SELECT id, user_id, amount, from_currency, to_currency, type, date 
+       FROM transactions 
+       WHERE goal_id = $1 AND user_id = $2 
+       ORDER BY date DESC`,
       [goalId, userId]
     );
 
     if (result.rows.length === 0) {
       console.warn(`⚠ Транзакции не найдены. Проверяем goals_history...`);
 
-      // 🔍 Ищем историческую цель
       const historyGoal = await pool.query(
         "SELECT id FROM goals_history WHERE goal_id = $1 AND user_id = $2",
         [goalId, userId]
@@ -42,11 +48,12 @@ const getTransactionsByGoalId = async (req, res) => {
         const historyGoalId = historyGoal.rows[0].id;
         console.log(`📜 Найден goal_history_id: ${historyGoalId}`);
 
-        // ✅ Загружаем транзакции из `goals_history_transactions`
-        result = await pool.query(
-          "SELECT * FROM goals_history_transactions WHERE goal_history_id = $1 AND user_id = $2 ORDER BY date DESC",
+        const historyTransactions = await pool.query(
+          "SELECT id, user_id, amount, from_currency, to_currency, type, date FROM goals_history_transactions WHERE goal_history_id = $1 AND user_id = $2 ORDER BY date DESC",
           [historyGoalId, userId]
         );
+
+        return res.json(historyTransactions.rows);
       }
     }
 
@@ -75,17 +82,21 @@ const createTransaction = async (req, res) => {
     }
 
     const balanceResult = await pool.query(
-      `SELECT amount, COALESCE(amount_btc, 0) AS amount_btc FROM balances 
+      `SELECT amount, COALESCE(amount_btc, 0) AS btc_balance FROM balances 
        WHERE user_id = $1 AND currency = $2`,
       [userId, fromCurrency]
     );
 
+    if (!balanceResult.rows.length) {
+      return res.status(400).json({ message: "Баланс не найден" });
+    }
+
     let currentBalance =
       fromCurrency === "BTC"
-        ? parseFloat(balanceResult.rows[0].amount_btc)
+        ? parseFloat(balanceResult.rows[0].btc_balance)
         : parseFloat(balanceResult.rows[0].amount);
 
-    if (!balanceResult.rows.length || currentBalance < amount) {
+    if (currentBalance < amount) {
       return res.status(400).json({ message: "Недостаточно средств" });
     }
 
@@ -93,7 +104,6 @@ const createTransaction = async (req, res) => {
 
     if (fromCurrency !== toCurrency) {
       const exchangeRate = await getExchangeRate(fromCurrency, toCurrency);
-
       console.log(` Курс ${fromCurrency} → ${toCurrency}:`, exchangeRate);
 
       if (!exchangeRate || isNaN(exchangeRate) || exchangeRate <= 0) {
@@ -129,7 +139,7 @@ const createTransaction = async (req, res) => {
 
     const newTransaction = await pool.query(
       "INSERT INTO currency_transactions (user_id, amount, from_currency, to_currency, type, date) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
-      [userId, amount, fromCurrency, toCurrency, type]
+      [userId, finalAmount, fromCurrency, toCurrency, type]
     );
 
     await broadcastBalanceUpdate(userId);
