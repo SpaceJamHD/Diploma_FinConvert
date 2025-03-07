@@ -350,9 +350,8 @@ const withdrawFullGoal = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    console.log(`📌 Вывод всех средств из цели ID: ${id}, User ID: ${userId}`);
+    console.log(`Вывод всех средств из цели ID: ${id}, User ID: ${userId}`);
 
-    // 1️⃣ Проверяем, есть ли цель у пользователя
     const goalResult = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [id, userId]
@@ -363,7 +362,7 @@ const withdrawFullGoal = async (req, res) => {
     }
 
     const goal = goalResult.rows[0];
-    console.log("🎯 Найдена цель:", goal);
+    console.log("✅ Найдена цель:", goal);
 
     const goalBalance = parseFloat(goal.balance);
     const goalCurrency = goal.currency;
@@ -372,10 +371,10 @@ const withdrawFullGoal = async (req, res) => {
       return res.status(400).json({ message: "Цель уже пустая!" });
     }
 
-    // 2️⃣ Сохраняем цель в историю (убираем created_at)
+    // ✅ 1️⃣ Добавляем цель в `goals_history`
     const historyInsert = await pool.query(
       `INSERT INTO goals_history (goal_id, user_id, name, description, amount, currency, deadline, priority, achieved_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) RETURNING id`, // Убрали created_at
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) RETURNING id`,
       [
         goal.id,
         userId,
@@ -388,16 +387,34 @@ const withdrawFullGoal = async (req, res) => {
       ]
     );
 
+    const historyGoalId = historyInsert.rows[0].id;
     console.log("📜 Цель сохранена в истории:", historyInsert.rows[0]);
 
-    // 3️⃣ Создаем транзакцию возврата денег
-    await pool.query(
-      `INSERT INTO transactions (user_id, goal_id, amount, type, date, description, from_currency, to_currency)
-       VALUES ($1, $2, $3, 'withdraw', NOW(), 'Перевод с достигнутой цели', $4, $4)`,
-      [userId, id, goalBalance, goalCurrency]
+    // ✅ 2️⃣ Копируем все транзакции из `transactions` в `goals_history_transactions`
+    const transactionsCopy = await pool.query(
+      `INSERT INTO goals_history_transactions (goal_history_id, user_id, amount, type, date, description, from_currency, to_currency)
+       SELECT $1, user_id, amount, type, date, description, from_currency, to_currency
+       FROM transactions WHERE goal_id = $2`,
+      [historyGoalId, id]
     );
 
-    // 4️⃣ Добавляем деньги обратно в кошелек
+    console.log(
+      `📜 Сохранено ${transactionsCopy.rowCount} транзакций в истории`
+    );
+
+    // ✅ 3️⃣ Добавляем возврат средств как отдельную запись
+    await pool.query(
+      `INSERT INTO goals_history_transactions (goal_history_id, user_id, amount, type, date, description, from_currency, to_currency)
+       VALUES ($1, $2, $3, 'withdraw', NOW(), 'Возврат средств из достигнутой цели', $4, $4)`,
+      [historyGoalId, userId, goalBalance, goalCurrency]
+    );
+
+    console.log("📜 Возврат средств записан в history_transactions");
+
+    // ✅ 4️⃣ Удаляем транзакции из `transactions`
+    await pool.query("DELETE FROM transactions WHERE goal_id = $1", [id]);
+
+    // ✅ 5️⃣ Возвращаем средства в кошелек
     await pool.query(
       `UPDATE balances SET amount = amount + $1 WHERE user_id = $2 AND currency = $3`,
       [goalBalance, userId, goalCurrency]
@@ -407,7 +424,7 @@ const withdrawFullGoal = async (req, res) => {
       `💰 Средства возвращены в кошелек: ${goalBalance} ${goalCurrency}`
     );
 
-    // 5️⃣ Удаляем цель
+    // ✅ 6️⃣ Удаляем цель из `goals`
     const deleteResult = await pool.query(
       "DELETE FROM goals WHERE id = $1 RETURNING id",
       [id]
@@ -419,10 +436,8 @@ const withdrawFullGoal = async (req, res) => {
 
     console.log(`✅ Цель ID: ${id} удалена`);
 
-    // 6️⃣ Обновляем баланс по WebSocket
     await broadcastBalanceUpdate(userId);
 
-    // 7️⃣ Отправляем успешный ответ
     res.json({
       message: "Цель удалена и сохранена в истории",
       deletedGoalId: id,
@@ -438,12 +453,10 @@ const getGoalsHistory = async (req, res) => {
   const { start, end } = req.query;
 
   try {
-    let query = `
-      SELECT * FROM goals_history 
-      WHERE user_id = $1 
-    `;
+    let query = `SELECT * FROM goals_history WHERE user_id = $1 AND achieved_at IS NOT NULL`;
     let params = [userId];
 
+    // ✅ Добавляем `BETWEEN` только если start и end заданы
     if (start && end) {
       query += ` AND achieved_at BETWEEN $2 AND $3`;
       params.push(start, end);
@@ -451,13 +464,12 @@ const getGoalsHistory = async (req, res) => {
 
     query += ` ORDER BY achieved_at DESC`;
 
+    console.log("🔍 SQL-запрос к истории целей:", query, params);
+
     const result = await pool.query(query, params);
-
-    console.log("Отправляем историю целей:", result.rows);
-
     res.json(result.rows);
   } catch (error) {
-    console.error("Ошибка при получении истории целей:", error);
+    console.error("❌ Ошибка при получении истории целей:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
@@ -467,18 +479,35 @@ const getGoalById = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const result = await pool.query(
+    console.log(`🔎 Запрашиваем цель ID: ${id}, User ID: ${userId}`);
+
+    // 🔍 1. Ищем в `goals`
+    let result = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [id, userId]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Цель не найдена" });
+      console.log("⚠ Цель не найдена в `goals`, проверяем `goals_history`");
+
+      // 🔍 2. Если нет в `goals`, ищем в `goals_history`
+      result = await pool.query(
+        "SELECT * FROM goals_history WHERE (goal_id = $1 OR id = $1) AND user_id = $2",
+        [id, userId]
+      );
+
+      if (result.rows.length === 0) {
+        console.log("❌ Цель не найдена нигде!");
+        return res.status(404).json({ message: "Цель не найдена" });
+      }
     }
 
-    res.json(result.rows[0]);
+    const goal = result.rows[0];
+    console.log("✅ Найдена цель:", goal);
+
+    res.json(goal);
   } catch (error) {
-    console.error("Ошибка при получении цели:", error);
+    console.error("❌ Ошибка при получении цели:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };

@@ -12,41 +12,40 @@ const GoalDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log("🔍 Проверка перед передачей в ChartTabs:");
-  console.log("🎯 Цель:", goal);
-  console.log("📜 Транзакции:", transactions);
-  console.log("💰 Баланс:", balances);
-
   useEffect(() => {
-    console.log("🔍 Загружаем цель с ID:", goalId);
-
     const fetchDetails = async () => {
       try {
         const token = localStorage.getItem("token");
 
-        const [goalResponse, transactionsResponse, balancesResponse] =
-          await Promise.all([
-            fetch(`/api/goals/${goalId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch(`/api/transactions/${goalId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-            fetch(`/api/balances`, {
-              headers: { Authorization: `Bearer ${token}` },
-            }),
-          ]);
+        const goalResponse = await fetch(`/api/goals/${goalId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        if (
-          !goalResponse.ok ||
-          !transactionsResponse.ok ||
-          !balancesResponse.ok
-        ) {
-          throw new Error("Ошибка загрузки данных");
+        if (!goalResponse.ok) {
+          throw new Error("Цель не найдена.");
         }
 
         const goalData = await goalResponse.json();
-        const transactionsData = await transactionsResponse.json();
+
+        const transactionsResponse = await fetch(
+          `/api/transactions/${goalId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const transactionsData = transactionsResponse.ok
+          ? await transactionsResponse.json()
+          : [];
+
+        const balancesResponse = await fetch(`/api/balances`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!balancesResponse.ok) {
+          throw new Error("Ошибка загрузки данных баланса.");
+        }
+
         const balancesData = await balancesResponse.json();
 
         setGoal(goalData);
@@ -56,9 +55,9 @@ const GoalDetails = () => {
             amount: parseFloat(t.amount),
           }))
         );
-        setBalances(balancesData); // Загружаем баланс пользователя
+        setBalances(balancesData);
       } catch (err) {
-        console.error(err);
+        console.error(" Ошибка загрузки данных:", err);
         setError("Не удалось загрузить данные цели.");
       } finally {
         setIsLoading(false);
@@ -66,10 +65,9 @@ const GoalDetails = () => {
     };
 
     if (!goalId) {
-      console.error("❌ Ошибка: `goalId` пустой при загрузке!");
+      console.error(" Ошибка: `goalId` пустой при загрузке!");
       return;
     }
-    console.log("🔎 Проверяем `goalId` перед запросом:", goalId);
 
     fetchDetails();
   }, [goalId]);
