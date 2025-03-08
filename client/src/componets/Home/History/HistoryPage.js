@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "../../../styles/HomePage.css";
 import "../../../styles/goal.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
@@ -19,6 +19,8 @@ const HistoryPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [selectedCurrency, setSelectedCurrency] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +29,11 @@ const HistoryPage = () => {
     } else {
       fetchGoals();
     }
-  }, [view, startDate, endDate, sortField, sortOrder]);
+  }, [view, startDate, endDate]);
+
+  const handleCurrencyFilter = (currency) => {
+    setSelectedCurrency(currency === selectedCurrency ? "" : currency);
+  };
 
   const fetchTransactions = async () => {
     setLoading(true);
@@ -53,20 +59,39 @@ const HistoryPage = () => {
     }
   };
 
-  const handleRepeatGoal = async (goal) => {
-    try {
-      await repeatGoal(goal);
-      fetchGoals();
-    } catch (error) {
-      console.error("Ошибка при повторении цели", error);
-    }
+  const handleSort = (field) => {
+    setSortOrder(sortField === field && sortOrder === "asc" ? "desc" : "asc");
+    setSortField(field);
   };
 
-  const handleSort = (field) => {
-    const order = sortField === field && sortOrder === "asc" ? "desc" : "asc";
-    setSortField(field);
-    setSortOrder(order);
-  };
+  const filteredTransactions = useMemo(() => {
+    return transactions
+      .filter(
+        (t) =>
+          !selectedCurrency ||
+          t.from_currency === selectedCurrency ||
+          t.to_currency === selectedCurrency
+      )
+      .sort((a, b) =>
+        sortOrder === "asc"
+          ? new Date(a.date) - new Date(b.date)
+          : new Date(b.date) - new Date(a.date)
+      );
+  }, [transactions, selectedCurrency, sortField, sortOrder]);
+
+  const filteredGoals = useMemo(() => {
+    return goals
+      .filter((goal) =>
+        (goal.description || goal.name || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) =>
+        sortOrder === "asc"
+          ? new Date(a.achieved_at) - new Date(b.achieved_at)
+          : new Date(b.achieved_at) - new Date(a.achieved_at)
+      );
+  }, [goals, searchQuery, sortField, sortOrder]);
 
   return (
     <div className="container mt-4">
@@ -94,33 +119,70 @@ const HistoryPage = () => {
         </div>
 
         <div className="fin-card-body px-4 pb-4">
-          <div className="filter-controls d-flex justify-content-between mb-3">
-            <input
-              type="date"
-              className="form-control w-25"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <input
-              type="date"
-              className="form-control w-25"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-            <input
-              type="text"
-              className="form-control w-25"
-              placeholder="Пошук за описом..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="d-flex flex-wrap align-items-center justify-content-between mb-3">
+            {view === "transactions" && (
+              <div className="d-flex align-items-center me-3">
+                <span className="text-light me-2">Фільтр за валютою:</span>
+                <div className="btn-group">
+                  {["UAH", "USD", "EUR", "BTC"].map((currency) => (
+                    <button
+                      key={currency}
+                      className={`btn ${
+                        selectedCurrency === currency
+                          ? "btn-primary"
+                          : "btn-outline-light"
+                      }`}
+                      onClick={() => handleCurrencyFilter(currency)}
+                    >
+                      {currency}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="d-flex align-items-center">
+              <span className="text-light me-2">Період:</span>
+              <div className="btn-group">
+                {[
+                  { label: "7 днів", days: 7 },
+                  { label: "30 днів", days: 30 },
+                  { label: "3 місяці", days: 90 },
+                  { label: "1 рік", days: 365 },
+                ].map((period) => (
+                  <button
+                    key={period.days}
+                    className="btn btn-outline-light"
+                    onClick={() => {
+                      const today = new Date();
+                      const pastDate = new Date();
+                      pastDate.setDate(today.getDate() - period.days);
+                      setStartDate(pastDate.toISOString().split("T")[0]);
+                      setEndDate(today.toISOString().split("T")[0]);
+                    }}
+                  >
+                    {period.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {view === "goals" && (
+              <input
+                type="text"
+                className="form-control w-auto ms-3"
+                placeholder="Пошук за описом..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            )}
           </div>
 
           {loading ? (
             <p className="loading-text text-center text-light">
               Завантаження...
             </p>
-          ) : view === "goals" ? (
+          ) : (
             <div className="table-responsive">
               <table className="fin-table table text-center">
                 <thead>
@@ -136,123 +198,113 @@ const HistoryPage = () => {
                           : "⬇"
                         : ""}
                     </th>
-                    <th>Ціль</th>
-                    <th>Опис</th>
-                    <th>Сума</th>
-                    <th>Пріоритет</th>
-                    <th>Дії</th>
+                    {view === "goals" ? (
+                      <>
+                        <th>Ціль</th>
+                        <th>Опис</th>
+                        <th>Сума</th>
+                        <th>Пріоритет</th>
+                        <th>Дії</th>
+                      </>
+                    ) : (
+                      <>
+                        <th>Сума</th>
+                        <th>Валюта</th>
+                        <th>Тип</th>
+                      </>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
-                  {goals.length === 0 ? (
+                  {(view === "goals" ? filteredGoals : filteredTransactions)
+                    .length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="text-center text-light">
-                        Немає досягнутих цілей
+                      <td
+                        colSpan={view === "goals" ? 6 : 4}
+                        className="text-center text-light"
+                      >
+                        {view === "goals"
+                          ? "Немає досягнутих цілей"
+                          : "Немає транзакцій"}
                       </td>
                     </tr>
                   ) : (
-                    goals.map((goal) => {
-                      return (
-                        <tr key={goal.id} className="goal-completed">
-                          <td>
-                            {goal.achieved_at
-                              ? new Date(
-                                  goal.achieved_at.replace(" ", "T")
-                                ).toLocaleDateString("uk-UA")
-                              : "—"}
-                          </td>
-
-                          <td>{goal.name}</td>
-                          <td>
-                            {goal.description.length > 30
-                              ? `${goal.description.slice(0, 30)}...`
-                              : goal.description}
-                          </td>
-                          <td>
-                            {goal.amount} {goal.currency}
-                          </td>
-                          <td>
-                            <span
-                              className={`badge bg-${
-                                goal.priority === "Високий"
-                                  ? "danger"
-                                  : goal.priority === "Середній"
-                                  ? "warning"
-                                  : "success"
-                              }`}
-                            >
-                              {goal.priority}
-                            </span>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-outline-info mx-1"
-                              onClick={() => {
-                                console.log(
-                                  "goal_id для перехода:",
-                                  goal.goal_id
-                                );
-                                const targetGoalId = goal.goal_id || goal.id;
-                                if (targetGoalId) {
-                                  window.location.href = `/goals/${targetGoalId}`;
-                                } else {
-                                  console.error(
-                                    "Ошибка: goal_id отсутствует!",
-                                    goal
-                                  );
-                                }
-                              }}
-                            >
-                              <i className="bi bi-eye"></i> Переглянути
-                            </button>
-
-                            <button
-                              className="btn btn-outline-success mx-1"
-                              onClick={() => handleRepeatGoal(goal)}
-                            >
-                              <i className="bi bi-arrow-repeat"></i> Повторити
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="table-responsive">
-              <table className="fin-table table text-center">
-                <thead>
-                  <tr>
-                    <th>Дата</th>
-                    <th>Сума</th>
-                    <th>Валюта</th>
-                    <th>Тип</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.length === 0 ? (
-                    <tr>
-                      <td colSpan="4" className="text-center text-light">
-                        Немає транзакцій
-                      </td>
-                    </tr>
-                  ) : (
-                    transactions.map((t) => (
-                      <tr key={t.id}>
-                        <td>{new Date(t.date).toLocaleDateString()}</td>
-                        <td
-                          className={
-                            t.type === "income" ? "text-success" : "text-danger"
-                          }
-                        >
-                          {t.amount}
-                        </td>
+                    (view === "goals"
+                      ? filteredGoals
+                      : filteredTransactions
+                    ).map((item) => (
+                      <tr key={item.id}>
                         <td>
-                          {t.from_currency} → {t.to_currency}
+                          {new Date(
+                            item.date || item.achieved_at
+                          ).toLocaleDateString("uk-UA")}
                         </td>
-                        <td>{t.type}</td>
+                        {view === "goals" ? (
+                          <>
+                            <td>{item.name}</td>
+                            <td>
+                              {item.description.length > 30
+                                ? `${item.description.slice(0, 30)}...`
+                                : item.description}
+                            </td>
+                            <td>
+                              {item.amount} {item.currency}
+                            </td>
+                            <td>
+                              <span
+                                className={`badge bg-${
+                                  item.priority === "Високий"
+                                    ? "danger"
+                                    : item.priority === "Середній"
+                                    ? "warning"
+                                    : "success"
+                                }`}
+                              >
+                                {item.priority}
+                              </span>
+                            </td>
+                            <td>
+                              <button
+                                className="btn btn-outline-info mx-1"
+                                onClick={() => {
+                                  const targetGoalId = item.goal_id || item.id;
+                                  if (targetGoalId) {
+                                    window.location.href = `/goals/${targetGoalId}`;
+                                  } else {
+                                    console.error(
+                                      "Ошибка: goal_id отсутствует!",
+                                      item
+                                    );
+                                  }
+                                }}
+                              >
+                                <i className="bi bi-eye"></i> Переглянути
+                              </button>
+                              <button
+                                className="btn btn-outline-success mx-1"
+                                onClick={() => handleRepeatGoal(item)}
+                              >
+                                <i className="bi bi-arrow-repeat"></i> Повторити
+                              </button>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td
+                              className={
+                                item.type === "income"
+                                  ? "text-success"
+                                  : "text-danger"
+                              }
+                            >
+                              {item.amount}
+                            </td>
+                            <td>
+                              {item.from_currency} → {item.to_currency}
+                            </td>
+                            <td>{item.type}</td>
+                          </>
+                        )}
                       </tr>
                     ))
                   )}
