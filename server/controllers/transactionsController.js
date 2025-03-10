@@ -26,7 +26,7 @@ const getTransactionsByGoalId = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    console.log(`🔍 Ищем транзакции по goal_id: ${goalId}`);
+    console.log(` Ищем транзакции по goal_id: ${goalId}`);
 
     const result = await pool.query(
       `SELECT id, user_id, amount, from_currency, to_currency, type, date 
@@ -37,7 +37,7 @@ const getTransactionsByGoalId = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      console.warn(`⚠ Транзакции не найдены. Проверяем goals_history...`);
+      console.warn(` Транзакции не найдены. Проверяем goals_history...`);
 
       const historyGoal = await pool.query(
         "SELECT id FROM goals_history WHERE goal_id = $1 AND user_id = $2",
@@ -46,7 +46,7 @@ const getTransactionsByGoalId = async (req, res) => {
 
       if (historyGoal.rows.length > 0) {
         const historyGoalId = historyGoal.rows[0].id;
-        console.log(`📜 Найден goal_history_id: ${historyGoalId}`);
+        console.log(` Найден goal_history_id: ${historyGoalId}`);
 
         const historyTransactions = await pool.query(
           "SELECT id, user_id, amount, from_currency, to_currency, type, date FROM goals_history_transactions WHERE goal_history_id = $1 AND user_id = $2 ORDER BY date DESC",
@@ -68,7 +68,7 @@ const createTransaction = async (req, res) => {
   const { amount, fromCurrency, toCurrency, type } = req.body;
   const userId = req.user.id;
 
-  console.log(" Получен запрос на транзакцию:", {
+  console.log("Получен запрос на транзакцию:", {
     userId,
     amount,
     fromCurrency,
@@ -104,7 +104,7 @@ const createTransaction = async (req, res) => {
 
     if (fromCurrency !== toCurrency) {
       const exchangeRate = await getExchangeRate(fromCurrency, toCurrency);
-      console.log(` Курс ${fromCurrency} → ${toCurrency}:`, exchangeRate);
+      console.log(`Курс ${fromCurrency} → ${toCurrency}:`, exchangeRate);
 
       if (!exchangeRate || isNaN(exchangeRate) || exchangeRate <= 0) {
         return res
@@ -113,10 +113,20 @@ const createTransaction = async (req, res) => {
       }
 
       finalAmount = parseFloat((amount * exchangeRate).toFixed(8));
+      console.log(
+        `Итоговая сумма после конвертации: ${finalAmount} ${toCurrency}`
+      );
+    }
+
+    if (toCurrency === "BTC" && finalAmount < 0.00000001) {
+      console.warn(`Очень маленькая сумма BTC: ${finalAmount}`);
+      return res
+        .status(400)
+        .json({ message: "Сумма слишком мала для транзакции" });
     }
 
     console.log(
-      ` Итоговая сумма после конвертации: ${finalAmount} ${toCurrency}`
+      `Обновление баланса пользователя ${userId}: списание ${amount} ${fromCurrency}, зачисление ${finalAmount} ${toCurrency}`
     );
 
     await pool.query(
@@ -137,16 +147,25 @@ const createTransaction = async (req, res) => {
       [userId, toCurrency, finalAmount, toCurrency === "BTC" ? finalAmount : 0]
     );
 
+    console.log(
+      `Запись транзакции в историю для пользователя ${userId}: ${finalAmount} ${toCurrency}`
+    );
+
     const newTransaction = await pool.query(
       "INSERT INTO currency_transactions (user_id, amount, from_currency, to_currency, type, date) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
-      [userId, finalAmount, fromCurrency, toCurrency, type]
+      [userId, finalAmount.toFixed(8), fromCurrency, toCurrency, type]
+    );
+
+    console.log(
+      "Баланс обновлен и транзакция записана:",
+      newTransaction.rows[0]
     );
 
     await broadcastBalanceUpdate(userId);
 
     res.json(newTransaction.rows[0]);
   } catch (error) {
-    console.error(" Ошибка при создании транзакции:", error);
+    console.error("Ошибка при создании транзакции:", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };

@@ -24,7 +24,7 @@ const TransactionsBlock = () => {
 
   return (
     <div className="transactions-block mt-4">
-      <h2 className="text-light"> Історія транзакцій</h2>
+      <h2 className="text-light">Історія транзакцій</h2>
       {loading ? (
         <p className="text-light">Загрузка...</p>
       ) : transactions.length === 0 ? (
@@ -45,11 +45,12 @@ const TransactionsBlock = () => {
               <tr key={txn.id}>
                 <td>{new Date(txn.date).toLocaleString()}</td>
                 <td>
-                  {txn.from_currency === "BTC"
-                    ? parseFloat(txn.amount).toFixed(8)
+                  {txn.from_currency === "BTC" && txn.to_currency !== "BTC"
+                    ? parseFloat(txn.amount).toFixed(2)
+                    : txn.from_currency !== "BTC" && txn.to_currency === "BTC"
+                    ? parseFloat(txn.amount).toFixed(6)
                     : parseFloat(txn.amount).toFixed(2)}
                 </td>
-
                 <td>{txn.from_currency}</td>
                 <td>{txn.to_currency}</td>
                 <td>{txn.type}</td>

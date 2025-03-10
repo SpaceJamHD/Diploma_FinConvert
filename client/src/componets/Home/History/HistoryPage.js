@@ -76,7 +76,14 @@ const HistoryPage = () => {
         sortOrder === "asc"
           ? new Date(a.date) - new Date(b.date)
           : new Date(b.date) - new Date(a.date)
-      );
+      )
+      .map((txn) => ({
+        ...txn,
+        amount:
+          txn.from_currency === "BTC" || txn.to_currency === "BTC"
+            ? parseFloat(txn.amount).toFixed(6)
+            : parseFloat(txn.amount).toFixed(2),
+      }));
   }, [transactions, selectedCurrency, sortField, sortOrder]);
 
   const filteredGoals = useMemo(() => {
@@ -297,8 +304,15 @@ const HistoryPage = () => {
                                   : "text-danger"
                               }
                             >
-                              {item.amount}
+                              {item.from_currency === "BTC" &&
+                              item.to_currency !== "BTC"
+                                ? parseFloat(item.amount).toFixed(2)
+                                : item.from_currency !== "BTC" &&
+                                  item.to_currency === "BTC"
+                                ? parseFloat(item.amount).toFixed(6)
+                                : parseFloat(item.amount).toFixed(2)}
                             </td>
+
                             <td>
                               {item.from_currency} → {item.to_currency}
                             </td>
