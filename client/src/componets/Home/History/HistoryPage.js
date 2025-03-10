@@ -39,6 +39,7 @@ const HistoryPage = () => {
     setLoading(true);
     try {
       const data = await fetchTransactionsHistory(startDate, endDate);
+      console.log("Загруженные транзакции:", data);
       setTransactions(data);
     } catch (error) {
       console.error("Ошибка загрузки истории транзакций", error);
@@ -65,18 +66,37 @@ const HistoryPage = () => {
   };
 
   const filteredTransactions = useMemo(() => {
+    console.log(
+      "Фильтр | Дата:",
+      { startDate, endDate },
+      "Валюта:",
+      selectedCurrency
+    );
+
     return transactions
-      .filter(
-        (t) =>
+      .filter((t) => {
+        const isCurrencyMatch =
           !selectedCurrency ||
           t.from_currency === selectedCurrency ||
-          t.to_currency === selectedCurrency
-      )
-      .sort((a, b) =>
-        sortOrder === "asc"
-          ? new Date(a.date) - new Date(b.date)
-          : new Date(b.date) - new Date(a.date)
-      )
+          t.to_currency === selectedCurrency;
+        const isDateMatch =
+          (!startDate || new Date(t.date) >= new Date(startDate)) &&
+          (!endDate || new Date(t.date) <= new Date(endDate));
+
+        return isCurrencyMatch && isDateMatch;
+      })
+      .sort((a, b) => {
+        if (sortField === "date") {
+          return sortOrder === "asc"
+            ? new Date(a.date) - new Date(b.date)
+            : new Date(b.date) - new Date(a.date);
+        } else if (sortField === "to_currency") {
+          return sortOrder === "asc"
+            ? a.to_currency.localeCompare(b.to_currency)
+            : b.to_currency.localeCompare(a.to_currency);
+        }
+        return 0;
+      })
       .map((txn) => ({
         ...txn,
         amount:
@@ -84,7 +104,16 @@ const HistoryPage = () => {
             ? parseFloat(txn.amount).toFixed(6)
             : parseFloat(txn.amount).toFixed(2),
       }));
-  }, [transactions, selectedCurrency, sortField, sortOrder]);
+  }, [
+    transactions,
+    selectedCurrency,
+    startDate,
+    endDate,
+    sortField,
+    sortOrder,
+  ]);
+
+  console.log("Транзакции после фильтра:", filteredTransactions);
 
   const filteredGoals = useMemo(() => {
     return goals
@@ -164,8 +193,8 @@ const HistoryPage = () => {
                       const today = new Date();
                       const pastDate = new Date();
                       pastDate.setDate(today.getDate() - period.days);
-                      setStartDate(pastDate.toISOString().split("T")[0]);
-                      setEndDate(today.toISOString().split("T")[0]);
+                      setStartDate(new Date(pastDate).toISOString());
+                      setEndDate(new Date(today).toISOString());
                     }}
                   >
                     {period.label}
@@ -190,7 +219,7 @@ const HistoryPage = () => {
               Завантаження...
             </p>
           ) : (
-            <div className="table-responsive">
+            <div className="history-table-container table-responsive">
               <table className="fin-table table text-center">
                 <thead>
                   <tr>
@@ -217,7 +246,17 @@ const HistoryPage = () => {
                       <>
                         <th>Списано</th>
                         <th>Зараховано</th>
-                        <th>Конвертація</th>
+                        <th
+                          onClick={() => handleSort("to_currency")}
+                          style={{ cursor: "pointer" }}
+                        >
+                          Конвертація{" "}
+                          {sortField === "to_currency"
+                            ? sortOrder === "asc"
+                              ? "⬆"
+                              : "⬇"
+                            : ""}
+                        </th>
                       </>
                     )}
                   </tr>
