@@ -215,9 +215,9 @@ const HistoryPage = () => {
                       </>
                     ) : (
                       <>
-                        <th>Сума</th>
-                        <th>Валюта</th>
-                        <th>Тип</th>
+                        <th>Списано</th>
+                        <th>Зараховано</th>
+                        <th>Конвертація</th>
                       </>
                     )}
                   </tr>
@@ -297,11 +297,20 @@ const HistoryPage = () => {
                           </>
                         ) : (
                           <>
+                            <td className="text-danger">
+                              {item.original_amount !== undefined &&
+                              item.original_amount !== null
+                                ? item.from_currency === "BTC"
+                                  ? parseFloat(item.original_amount).toFixed(6)
+                                  : parseFloat(item.original_amount).toFixed(2)
+                                : "—"}
+                            </td>
+
                             <td
                               className={
                                 item.type === "income"
                                   ? "text-success"
-                                  : "text-danger"
+                                  : "text-success"
                               }
                             >
                               {item.from_currency === "BTC" &&
@@ -316,7 +325,6 @@ const HistoryPage = () => {
                             <td>
                               {item.from_currency} → {item.to_currency}
                             </td>
-                            <td>{item.type}</td>
                           </>
                         )}
                       </tr>

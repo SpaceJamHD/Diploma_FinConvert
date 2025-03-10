@@ -152,8 +152,20 @@ const createTransaction = async (req, res) => {
     );
 
     const newTransaction = await pool.query(
-      "INSERT INTO currency_transactions (user_id, amount, from_currency, to_currency, type, date) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *",
-      [userId, finalAmount.toFixed(8), fromCurrency, toCurrency, type]
+      `INSERT INTO currency_transactions (user_id, original_amount, amount, from_currency, to_currency, type, date) 
+       VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *`,
+      [
+        userId,
+        fromCurrency === "BTC"
+          ? parseFloat(amount).toFixed(6)
+          : parseFloat(amount).toFixed(2),
+        fromCurrency === "BTC"
+          ? parseFloat(finalAmount).toFixed(2)
+          : parseFloat(finalAmount).toFixed(2),
+        fromCurrency,
+        toCurrency,
+        type,
+      ]
     );
 
     console.log(
