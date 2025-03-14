@@ -10,6 +10,8 @@ const useExchangeRates = () => {
     updateTime: "Загрузка...",
   });
 
+  const spread = 0.02;
+
   const fetchExchangeRates = async () => {
     const fixerApiKey = "086fb203db5e404e558151a95afac80d";
     const fixerApiUrl = `http://data.fixer.io/api/latest?access_key=${fixerApiKey}&symbols=UAH,USD,EUR,NOK`;
@@ -28,11 +30,13 @@ const useExchangeRates = () => {
         const rates = fixerData.rates;
 
         const newRates = {
-          usdToUah: (rates.UAH / rates.USD).toFixed(2),
-          eurToUah: rates.UAH.toFixed(2),
-          nokToUah: (rates.UAH / rates.NOK).toFixed(2),
-          btcToUah: coinGeckoData.bitcoin?.uah.toFixed(2) || "N/A",
-          ethToUah: coinGeckoData.ethereum?.uah.toFixed(2) || "N/A",
+          usdToUah: ((rates.UAH / rates.USD) * (1 + spread)).toFixed(2),
+          eurToUah: (rates.UAH * (1 + spread)).toFixed(2),
+          nokToUah: ((rates.UAH / rates.NOK) * (1 + spread)).toFixed(2),
+          btcToUah:
+            (coinGeckoData.bitcoin?.uah * (1 + spread)).toFixed(2) || "N/A",
+          ethToUah:
+            (coinGeckoData.ethereum?.uah * (1 + spread)).toFixed(2) || "N/A",
           updateTime: `Оновлено: ${new Date().toLocaleString()}`,
         };
 
@@ -60,16 +64,12 @@ const useExchangeRates = () => {
     const lastUpdate = localStorage.getItem("lastUpdate");
     const cachedRates = localStorage.getItem("exchangeRates");
 
-    if (lastUpdate && cachedRates) {
-      const timeDiff = Date.now() - parseInt(lastUpdate, 10);
-
-      if (timeDiff < 24 * 60 * 60 * 1000) {
-        setExchangeRates(JSON.parse(cachedRates));
-        return;
-      }
+    const timeDiff = lastUpdate ? Date.now() - parseInt(lastUpdate, 10) : 0;
+    if (timeDiff >= 24 * 60 * 60 * 1000) {
+      fetchExchangeRates();
+    } else {
+      setExchangeRates(JSON.parse(cachedRates));
     }
-
-    fetchExchangeRates();
   }, []);
 
   return exchangeRates;
