@@ -128,7 +128,7 @@ const BalanceSection = ({ hideViewAll = false }) => {
                   <h6 className="card-title mb-1 fw-bold">{item.label}</h6>
                   <p className="balance-value fs-3 fw-bold">
                     {item.currency === "BTC"
-                      ? `${Number(balances.BTC).toFixed(6)} BTC`
+                      ? `${Number(balances.BTC).toFixed(8)} BTC`
                       : formatCurrency(item.value, item.currency)}
                   </p>
 

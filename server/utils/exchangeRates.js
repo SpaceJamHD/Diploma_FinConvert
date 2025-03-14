@@ -99,4 +99,30 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
   }
 };
 
-module.exports = { getExchangeRate, getCryptoToFiatRate };
+const getExchangeRateWithSpread = async (
+  fromCurrency,
+  toCurrency,
+  spread = 0.01
+) => {
+  try {
+    const rate = await getExchangeRate(fromCurrency, toCurrency);
+    if (!rate) return 0;
+
+    const adjustedRate =
+      fromCurrency === "BTC" ? rate * (1 - spread) : rate * (1 + spread);
+
+    console.log(
+      `Курс с учетом спреда ${fromCurrency} → ${toCurrency}: ${adjustedRate}`
+    );
+    return adjustedRate;
+  } catch (error) {
+    console.error("Ошибка при расчете курса с учетом спреда:", error);
+    return 0;
+  }
+};
+
+module.exports = {
+  getExchangeRate,
+  getCryptoToFiatRate,
+  getExchangeRateWithSpread,
+};

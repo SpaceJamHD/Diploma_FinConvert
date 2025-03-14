@@ -1,6 +1,9 @@
 const pool = require("../models/userModel");
 const { broadcastBalanceUpdate } = require("../webSocket");
-const { getExchangeRate } = require("../utils/exchangeRates");
+const {
+  getExchangeRate,
+  getExchangeRateWithSpread,
+} = require("../utils/exchangeRates");
 
 const getUserTransactions = async (req, res) => {
   const userId = req.user.id;
@@ -103,18 +106,24 @@ const createTransaction = async (req, res) => {
     let finalAmount = amount;
 
     if (fromCurrency !== toCurrency) {
-      const exchangeRate = await getExchangeRate(fromCurrency, toCurrency);
-      console.log(`Курс ${fromCurrency} → ${toCurrency}:`, exchangeRate);
+      const exchangeRate = await getExchangeRateWithSpread(
+        fromCurrency,
+        toCurrency
+      );
+      console.log(
+        `Курс с учетом спреда ${fromCurrency} → ${toCurrency}:`,
+        exchangeRate
+      );
 
       if (!exchangeRate || isNaN(exchangeRate) || exchangeRate <= 0) {
         return res
           .status(400)
-          .json({ message: "Ошибка получения курса валют" });
+          .json({ message: "Ошибка получения курса валют с учетом спреда" });
       }
 
       finalAmount = parseFloat((amount * exchangeRate).toFixed(8));
       console.log(
-        `Итоговая сумма после конвертации: ${finalAmount} ${toCurrency}`
+        `Итоговая сумма после конвертации с учетом спреда: ${finalAmount} ${toCurrency}`
       );
     }
 
@@ -151,17 +160,20 @@ const createTransaction = async (req, res) => {
       `Запись транзакции в историю для пользователя ${userId}: ${finalAmount} ${toCurrency}`
     );
 
+    const formatAmount = (currency, amount) => {
+      return currency === "BTC"
+        ? parseFloat(amount).toFixed(8)
+        : parseFloat(amount).toFixed(2);
+    };
+
     const newTransaction = await pool.query(
-      `INSERT INTO currency_transactions (user_id, original_amount, amount, from_currency, to_currency, type, date) 
-       VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *`,
+      `INSERT INTO currency_transactions 
+   (user_id, original_amount, amount, from_currency, to_currency, type, date) 
+   VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING *`,
       [
         userId,
-        fromCurrency === "BTC"
-          ? parseFloat(amount).toFixed(6)
-          : parseFloat(amount).toFixed(2),
-        fromCurrency === "BTC"
-          ? parseFloat(finalAmount).toFixed(2)
-          : parseFloat(finalAmount).toFixed(2),
+        formatAmount(fromCurrency, amount),
+        formatAmount(toCurrency, finalAmount),
         fromCurrency,
         toCurrency,
         type,
@@ -172,6 +184,11 @@ const createTransaction = async (req, res) => {
       "Баланс обновлен и транзакция записана:",
       newTransaction.rows[0]
     );
+
+    console.log("✅ Записанная транзакция:", {
+      original_amount: formatAmount(fromCurrency, amount),
+      final_amount: formatAmount(toCurrency, finalAmount),
+    });
 
     await broadcastBalanceUpdate(userId);
 
