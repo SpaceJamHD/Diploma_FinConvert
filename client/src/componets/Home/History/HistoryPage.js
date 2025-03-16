@@ -35,6 +35,17 @@ const HistoryPage = () => {
     setSelectedCurrency(currency === selectedCurrency ? "" : currency);
   };
 
+  const handleRepeatGoal = async (goal) => {
+    try {
+      const repeatedGoal = await repeatGoal(goal);
+      console.log("Цель успешно повторена:", repeatedGoal);
+
+      navigate("/goals");
+    } catch (error) {
+      console.error("Ошибка при повторении цели:", error);
+    }
+  };
+
   const fetchTransactions = async () => {
     setLoading(true);
     try {
@@ -101,7 +112,7 @@ const HistoryPage = () => {
         ...txn,
         amount:
           txn.from_currency === "BTC" || txn.to_currency === "BTC"
-            ? parseFloat(txn.amount).toFixed(6)
+            ? parseFloat(txn.amount).toFixed(8)
             : parseFloat(txn.amount).toFixed(2),
       }));
   }, [
@@ -340,7 +351,7 @@ const HistoryPage = () => {
                               {item.original_amount !== undefined &&
                               item.original_amount !== null
                                 ? item.from_currency === "BTC"
-                                  ? parseFloat(item.original_amount).toFixed(6)
+                                  ? parseFloat(item.original_amount).toFixed(8)
                                   : parseFloat(item.original_amount).toFixed(2)
                                 : "—"}
                             </td>
@@ -357,8 +368,8 @@ const HistoryPage = () => {
                                 ? parseFloat(item.amount).toFixed(2)
                                 : item.from_currency !== "BTC" &&
                                   item.to_currency === "BTC"
-                                ? parseFloat(item.amount).toFixed(6)
-                                : parseFloat(item.amount).toFixed(2)}
+                                ? parseFloat(item.amount).toFixed(8)
+                                : parseFloat(item.amount).toFixed(2)}{" "}
                             </td>
 
                             <td>
