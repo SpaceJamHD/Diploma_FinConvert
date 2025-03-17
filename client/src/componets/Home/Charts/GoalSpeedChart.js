@@ -29,7 +29,7 @@ const GoalSpeedChart = ({ goal, transactions }) => {
   const { amount, balance, deadline, currency } = goal;
   const [zoomLevel, setZoomLevel] = useState("months");
 
-  // 🔥 Генерация временных отрезков (дни, недели, месяцы)
+  // 🔥 Генерация временных отрезков (ограничение по дням)
   const generateTimeline = (scale) => {
     const now = new Date();
     const end = new Date(deadline);
@@ -38,19 +38,19 @@ const GoalSpeedChart = ({ goal, transactions }) => {
 
     switch (scale) {
       case "days":
-        totalPoints = Math.max(
-          Math.ceil((end - now) / (1000 * 60 * 60 * 24)), // Дни
-          1
+        totalPoints = Math.min(
+          Math.max(Math.ceil((end - now) / (1000 * 60 * 60 * 24)), 1),
+          30 // Ограничиваем 30 днями
         );
-        for (let i = 0; i <= totalPoints; i++) {
+        for (let i = totalPoints - 1; i >= 0; i--) {
           const date = new Date(now);
-          date.setDate(now.getDate() + i);
+          date.setDate(now.getDate() - i);
           timeline.push(date.toLocaleDateString("uk-UA"));
         }
         break;
       case "weeks":
         totalPoints = Math.max(
-          Math.ceil((end - now) / (1000 * 60 * 60 * 24 * 7)), // Недели
+          Math.ceil((end - now) / (1000 * 60 * 60 * 24 * 7)),
           1
         );
         for (let i = 0; i <= totalPoints; i++) {
@@ -102,10 +102,7 @@ const GoalSpeedChart = ({ goal, transactions }) => {
     let totalPaid = 0;
     transactions.forEach((txn) => {
       const txnDate = new Date(txn.date);
-      const txnLabel = txnDate.toLocaleString("uk-UA", {
-        month: "long",
-        year: "numeric",
-      });
+      const txnLabel = txnDate.toLocaleDateString("uk-UA");
 
       if (txnLabel === label) {
         totalPaid += txn.amount;
@@ -187,6 +184,28 @@ const GoalSpeedChart = ({ goal, transactions }) => {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    title: {
+                      display: true,
+                      text: "Дата",
+                      color: "#fff",
+                      font: {
+                        size: 14,
+                      },
+                    },
+                  },
+                  y: {
+                    title: {
+                      display: true,
+                      text: `Сума накоплень (${currency})`,
+                      color: "#fff",
+                      font: {
+                        size: 14,
+                      },
+                    },
+                  },
+                },
                 plugins: {
                   tooltip: {
                     callbacks: {
