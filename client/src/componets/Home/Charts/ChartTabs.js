@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Tabs, Tab } from "react-bootstrap";
-import ExpenseCategoryChart from "./ExpenseCategoryChart";
 import GoalProgressChart from "./GoalProgressChart";
+import GoalSpeedChart from "./GoalSpeedChart";
 import "../../../styles/goal.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 
@@ -31,7 +31,7 @@ ChartJS.register(
 );
 
 const ChartTabs = ({ transactions, goal, balances, exchangeRates }) => {
-  const [key, setKey] = useState("categories");
+  const [key, setKey] = useState("histogram");
 
   return (
     <div className="chart-tabs-container">
@@ -42,21 +42,22 @@ const ChartTabs = ({ transactions, goal, balances, exchangeRates }) => {
         variant="pills"
         fill
       >
-        <Tab
-          eventKey="categories"
-          title={<span className="tab-title"> Категорії витрат</span>}
-        >
-          <ExpenseCategoryChart transactions={transactions} />
+        <Tab eventKey="speed" title="Швидкість досягнення">
+          {key === "speed" && (
+            <GoalSpeedChart goal={goal} transactions={transactions} />
+          )}
         </Tab>
         <Tab
-          eventKey="goalProgress"
-          title={<span className="tab-title"> Прогрес цілі</span>}
+          eventKey="chart"
+          title={<span className="tab-title">Прогрес (Лінійний графік)</span>}
         >
-          <GoalProgressChart
-            goal={goal}
-            transactions={transactions}
-            exchangeRates={exchangeRates}
-          />
+          {key === "chart" && (
+            <GoalProgressChart
+              goal={goal}
+              transactions={transactions}
+              exchangeRates={exchangeRates}
+            />
+          )}
         </Tab>
       </Tabs>
     </div>
