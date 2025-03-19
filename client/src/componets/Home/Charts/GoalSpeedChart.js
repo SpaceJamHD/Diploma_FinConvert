@@ -26,10 +26,15 @@ ChartJS.register(
 const GoalSpeedChart = ({ goal, transactions }) => {
   if (!goal) return <p className="text-light text-center">Дані відсутні</p>;
 
-  const { amount, balance, deadline, currency } = goal;
+  const { amount, balance = 0, deadline, currency } = goal || {};
+
   const [zoomLevel, setZoomLevel] = useState("months");
 
-  // 🔥 Генерация временных отрезков (ограничение по дням)
+  useEffect(() => {
+    console.log("GoalSpeedChart -> goal.balance:", balance);
+    console.log("GoalSpeedChart -> transactions:", transactions);
+  }, [goal, transactions]);
+
   const generateTimeline = (scale) => {
     const now = new Date();
     const end = new Date(deadline);
@@ -38,16 +43,16 @@ const GoalSpeedChart = ({ goal, transactions }) => {
 
     switch (scale) {
       case "days":
-        totalPoints = Math.min(
-          Math.max(Math.ceil((end - now) / (1000 * 60 * 60 * 24)), 1),
-          30 // Ограничиваем 30 днями
-        );
-        for (let i = totalPoints - 1; i >= 0; i--) {
-          const date = new Date(now);
-          date.setDate(now.getDate() - i);
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 29);
+
+        for (let i = 0; i < 30; i++) {
+          const date = new Date(startDate);
+          date.setDate(startDate.getDate() + i);
           timeline.push(date.toLocaleDateString("uk-UA"));
         }
         break;
+
       case "weeks":
         totalPoints = Math.max(
           Math.ceil((end - now) / (1000 * 60 * 60 * 24 * 7)),
@@ -79,7 +84,6 @@ const GoalSpeedChart = ({ goal, transactions }) => {
 
   const timeline = generateTimeline(zoomLevel);
 
-  // 🔥 Функция расчёта прогноза накоплений в зависимости от темпа
   const calculateProjection = (tempoFactor) => {
     let projection = [];
     let accumulated = 0;
@@ -92,14 +96,16 @@ const GoalSpeedChart = ({ goal, transactions }) => {
     return projection;
   };
 
-  // 🔥 Генерируем три линии: быстрый, средний и медленный темп накоплений
   const fastTrack = calculateProjection(1.8);
-  const mediumTrack = calculateProjection(1.2);
-  const slowTrack = calculateProjection(0.7);
+  const mediumTrack = calculateProjection(1.4);
+  const slowTrack = calculateProjection(1.0);
 
-  // 🔥 Реальные данные пополнений (пунктирная линия)
-  const actualTrack = timeline.map((label, index) => {
+  const actualTrack = [];
+  let accumulatedBalance = goal?.balance ? parseFloat(goal.balance) : 0;
+
+  timeline.forEach((label) => {
     let totalPaid = 0;
+
     transactions.forEach((txn) => {
       const txnDate = new Date(txn.date);
       const txnLabel = txnDate.toLocaleDateString("uk-UA");
@@ -109,10 +115,10 @@ const GoalSpeedChart = ({ goal, transactions }) => {
       }
     });
 
-    return index === 0 ? balance : balance + totalPaid;
+    accumulatedBalance += totalPaid;
+    actualTrack.push(accumulatedBalance);
   });
 
-  // 📌 Данные для `Chart.js`
   const chartData = {
     labels: timeline,
     datasets: [
@@ -156,7 +162,6 @@ const GoalSpeedChart = ({ goal, transactions }) => {
             Оберіть масштаб графіка та темп накопичення
           </p>
 
-          {/* 🔥 Кнопки для увеличения/уменьшения масштаба */}
           <ButtonGroup className="mb-3 d-flex justify-content-center">
             <Button
               variant={zoomLevel === "days" ? "primary" : "dark"}
