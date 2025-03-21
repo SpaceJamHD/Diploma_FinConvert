@@ -3,6 +3,7 @@ import { Tabs, Tab } from "react-bootstrap";
 import GoalProgressChart from "./GoalProgressChart";
 import GoalSpeedChart from "./GoalSpeedChart";
 import MostUsedCurrenciesChart from "./MostUsedCurrenciesChart";
+import TopUpFrequencyChart from "./TopUpFrequencyChart";
 import "../../../styles/goal.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 
@@ -63,6 +64,11 @@ const ChartTabs = ({ transactions, goal, balances, exchangeRates }) => {
         <Tab eventKey="currencies" title="Найбільш використовувані валюти">
           {key === "currencies" && (
             <MostUsedCurrenciesChart transactions={transactions} />
+          )}
+        </Tab>
+        <Tab eventKey="frequency" title="Частота поповнень">
+          {key === "frequency" && (
+            <TopUpFrequencyChart transactions={transactions} />
           )}
         </Tab>
       </Tabs>
