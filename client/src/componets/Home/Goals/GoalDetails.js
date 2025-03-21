@@ -12,65 +12,69 @@ const GoalDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        const token = localStorage.getItem("token");
+  useEffect(
+    () => {
+      const fetchDetails = async () => {
+        try {
+          const token = localStorage.getItem("token");
 
-        const goalResponse = await fetch(`/api/goals/${goalId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!goalResponse.ok) {
-          throw new Error("Цель не найдена.");
-        }
-
-        const goalData = await goalResponse.json();
-
-        const transactionsResponse = await fetch(
-          `/api/transactions/${goalId}`,
-          {
+          const goalResponse = await fetch(`/api/goals/${goalId}`, {
             headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!goalResponse.ok) {
+            throw new Error("Цель не найдена.");
           }
-        );
 
-        const transactionsData = transactionsResponse.ok
-          ? await transactionsResponse.json()
-          : [];
+          const goalData = await goalResponse.json();
 
-        const balancesResponse = await fetch(`/api/balances`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+          const transactionsResponse = await fetch(
+            `/api/transactions/${goalId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-        if (!balancesResponse.ok) {
-          throw new Error("Ошибка загрузки данных баланса.");
+          const transactionsData = transactionsResponse.ok
+            ? await transactionsResponse.json()
+            : [];
+
+          const balancesResponse = await fetch(`/api/balances`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (!balancesResponse.ok) {
+            throw new Error("Ошибка загрузки данных баланса.");
+          }
+
+          const balancesData = await balancesResponse.json();
+
+          setGoal(goalData);
+          setTransactions(
+            transactionsData.map((t) => ({
+              ...t,
+              amount: parseFloat(t.amount),
+            }))
+          );
+          setBalances(balancesData);
+        } catch (err) {
+          console.error(" Ошибка загрузки данных:", err);
+          setError("Не удалось загрузить данные цели.");
+        } finally {
+          setIsLoading(false);
         }
+      };
 
-        const balancesData = await balancesResponse.json();
-
-        setGoal(goalData);
-        setTransactions(
-          transactionsData.map((t) => ({
-            ...t,
-            amount: parseFloat(t.amount),
-          }))
-        );
-        setBalances(balancesData);
-      } catch (err) {
-        console.error(" Ошибка загрузки данных:", err);
-        setError("Не удалось загрузить данные цели.");
-      } finally {
-        setIsLoading(false);
+      if (!goalId) {
+        console.error(" Ошибка: `goalId` пустой при загрузке!");
+        return;
       }
-    };
-
-    if (!goalId) {
-      console.error(" Ошибка: `goalId` пустой при загрузке!");
-      return;
-    }
-
-    fetchDetails();
-  }, [goalId]);
+      console.log("Загруженные транзакции:", transactions);
+      fetchDetails();
+    },
+    [goalId],
+    [transactions]
+  );
 
   if (isLoading) {
     return <div style={{ color: "#fff" }}>Загрузка данных...</div>;

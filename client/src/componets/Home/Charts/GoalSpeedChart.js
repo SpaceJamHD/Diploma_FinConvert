@@ -157,7 +157,6 @@ const GoalSpeedChart = ({ goal, transactions }) => {
     <div className="container text-light">
       <div className="row mb-4">
         <div className="col-md-12">
-          <h3 className="chart-title text-center">Динаміка накопичень</h3>
           <p className="text-center text-muted">
             Оберіть масштаб графіка та темп накопичення
           </p>

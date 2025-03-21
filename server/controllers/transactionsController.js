@@ -29,7 +29,8 @@ const getTransactionsByGoalId = async (req, res) => {
     console.log(` Ищем транзакции по goal_id: ${goalId}`);
 
     const result = await pool.query(
-      `SELECT id, user_id, amount, from_currency, to_currency, type, date 
+      `SELECT id, user_id, goal_id, amount, original_amount, 
+              from_currency, to_currency, type, date, description 
        FROM transactions 
        WHERE goal_id = $1 AND user_id = $2 
        ORDER BY date DESC`,
@@ -49,7 +50,11 @@ const getTransactionsByGoalId = async (req, res) => {
         console.log(` Найден goal_history_id: ${historyGoalId}`);
 
         const historyTransactions = await pool.query(
-          "SELECT id, user_id, amount, from_currency, to_currency, type, date FROM goals_history_transactions WHERE goal_history_id = $1 AND user_id = $2 ORDER BY date DESC",
+          `SELECT id, user_id, goal_history_id AS goal_id, amount, original_amount, 
+                  from_currency, to_currency, type, date, description 
+           FROM goals_history_transactions 
+           WHERE goal_history_id = $1 AND user_id = $2 
+           ORDER BY date DESC`,
           [historyGoalId, userId]
         );
 
