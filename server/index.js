@@ -12,6 +12,7 @@ const goalsRoutes = require("./routes/goalsRoutes");
 const exchangeRatesRoutes = require("./routes/exchangeRatesRoutes");
 const cryptoRoutes = require("./routes/cryptoRoutes");
 const transactionsRoutes = require("./routes/transactionsRoutes");
+const autoPlanRoutes = require("./routes/autoPlanRoutes");
 
 const { setupWebSocket } = require("./webSocket");
 
@@ -28,6 +29,7 @@ app.use("/api/goals", goalsRoutes);
 app.use("/api/exchange-rates", exchangeRatesRoutes);
 app.use("/api", cryptoRoutes);
 app.use("/api/transactions", transactionsRoutes);
+app.use("/api/auto-plan", autoPlanRoutes);
 
 const PORT = 5000;
 

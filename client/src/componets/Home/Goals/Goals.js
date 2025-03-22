@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import AddBalanceForm from "./AddBalanceForm";
 import WithdrawForm from "./WithdrawForm";
+import AutoPlanModal from "./AutoPlanModal";
+
 import { withdrawFullGoalBalance, fetchGoalsHistory } from "../../../utils/api";
 
 import "../../../styles/HomePage.css";
@@ -17,6 +19,9 @@ const Goals = ({ goals = [], setGoals }) => {
     priority: "",
     currency: "UAH",
   });
+
+  const [showAutoPlan, setShowAutoPlan] = useState(false);
+  const [selectedAutoGoal, setSelectedAutoGoal] = useState(null);
 
   const [showWithdrawForm, setShowWithdrawForm] = useState(false);
 
@@ -219,28 +224,59 @@ const Goals = ({ goals = [], setGoals }) => {
               </p>
             </div>
             <div className="col-lg-6 col-md-5 text-end">
-              <button
-                onClick={() => {
-                  setNewGoal({
-                    name: "",
-                    description: "",
-                    amount: "",
-                    deadline: "",
-                    priority: "",
-                  });
-                  setShowForm(true);
-                }}
+              <div
                 style={{
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  gap: "16px",
                 }}
               >
-                <i
-                  className="bi bi-plus-circle"
-                  style={{ color: "#007bff", fontSize: "2rem" }}
-                ></i>
-              </button>
+                <button
+                  onClick={() => setShowAutoPlan(true)}
+                  className="btn btn-outline-warning"
+                  style={{
+                    fontWeight: "bold",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 14px",
+                    borderRadius: "8px",
+                    fontSize: "0.95rem",
+                    boxShadow: "0 2px 6px rgba(255, 215, 0, 0.2)",
+                  }}
+                >
+                  <i className="bi bi-lightning-charge-fill"></i> Автопоповнення
+                </button>
+
+                <button
+                  onClick={() => {
+                    setNewGoal({
+                      name: "",
+                      description: "",
+                      amount: "",
+                      deadline: "",
+                      priority: "",
+                    });
+                    setShowForm(true);
+                  }}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: "4px",
+                  }}
+                >
+                  <i
+                    className="bi bi-plus-circle"
+                    style={{
+                      color: "#007bff",
+                      fontSize: "2rem",
+                      transition: "transform 0.2s ease",
+                    }}
+                  ></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -474,6 +510,15 @@ const Goals = ({ goals = [], setGoals }) => {
           </div>
         </div>
       </div>
+
+      {showAutoPlan && (
+        <AutoPlanModal
+          goals={goals}
+          selectedGoal={selectedAutoGoal}
+          onClose={() => setShowAutoPlan(false)}
+          onSelectGoal={setSelectedAutoGoal}
+        />
+      )}
 
       {showWithdrawForm && (
         <WithdrawForm

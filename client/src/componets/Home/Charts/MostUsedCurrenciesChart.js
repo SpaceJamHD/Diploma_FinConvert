@@ -111,7 +111,7 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
           boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
           padding: "20px",
           height: "400px",
-          maxWidth: "600px",
+          maxWidth: "500px",
           margin: "auto",
         }}
       >
