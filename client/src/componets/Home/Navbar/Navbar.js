@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import NotificationDropdown from "./NotificationDropdown";
 import "../../../styles/navbar.css";
 import "../../../styles/HomePage.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
@@ -9,6 +10,38 @@ import useExchangeRates from "../../../hooks/useExchangeRates";
 
 const Navbar = () => {
   const exchangeRates = useExchangeRates();
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    const fetchUnreadStatus = async () => {
+      try {
+        const res = await fetch("/api/notifications", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const notis = await res.json();
+        const unread = notis.some((n) => !n.read);
+        setHasUnread(unread);
+      } catch (err) {
+        console.error("❌ Статус непрочитаних не вдалося отримати:", err);
+      }
+    };
+
+    fetchUnreadStatus();
+  }, []);
+
+  useEffect(() => {
+    const checkNotifications = () => {
+      const notis = JSON.parse(localStorage.getItem("notifications")) || [];
+      const unread = notis.some((n) => n.read === false);
+      setHasUnread(unread);
+    };
+
+    checkNotifications();
+    window.addEventListener("storage", checkNotifications);
+    return () => window.removeEventListener("storage", checkNotifications);
+  }, []);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark px-3">
@@ -103,7 +136,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        <div className="dropdown">
+        <div className="dropdown" style={{ position: "relative" }}>
           <button
             className="btn btn-outline-light dropdown-toggle"
             type="button"
@@ -112,6 +145,19 @@ const Navbar = () => {
             aria-expanded="false"
           >
             <i className="bi bi-person-circle"></i>
+            {hasUnread && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "4px",
+                  right: "4px",
+                  background: "red",
+                  borderRadius: "50%",
+                  width: "10px",
+                  height: "10px",
+                }}
+              ></span>
+            )}
           </button>
           <ul
             className="dropdown-menu dropdown-menu-end"
@@ -123,9 +169,7 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
-              <a className="dropdown-item" href="#">
-                Перегляд сповіщень
-              </a>
+              <NotificationDropdown onOpen={() => setHasUnread(false)} />
             </li>
             <li>
               <hr className="dropdown-divider" />

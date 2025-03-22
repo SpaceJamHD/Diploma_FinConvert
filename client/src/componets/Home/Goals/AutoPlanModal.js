@@ -39,6 +39,10 @@ const AutoPlanModal = ({ goals, onClose }) => {
         throw new Error("Помилка створення автоматичного плану");
       }
 
+      if (!response.ok) {
+        throw new Error("Помилка створення автоматичного плану");
+      }
+
       alert("Автоплан успішно створено!");
       onClose();
     } catch (error) {

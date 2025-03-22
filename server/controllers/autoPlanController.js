@@ -26,7 +26,7 @@ const createAutoPlan = async (req, res) => {
 
     res.status(201).json({ message: "Автоплан створено успішно" });
   } catch (error) {
-    console.error("❌ Помилка при створенні автоплану:", error);
+    console.error("Помилка при створенні автоплану:", error);
     res.status(500).json({ message: "Помилка сервера" });
   }
 };
@@ -60,7 +60,6 @@ const deleteAutoPlan = async (req, res) => {
   }
 };
 
-// Функция запуска плана (можно вызвать вручную или cron)
 const runAutoPlansNow = async (req, res) => {
   const userId = req.user.id;
   try {
@@ -78,28 +77,56 @@ const runAutoPlansNow = async (req, res) => {
 
         if (plan.currency !== "UAH") {
           const exchangeRate = await getExchangeRate(plan.currency, "UAH");
-          if (!exchangeRate) {
-            console.error(
-              `Ошибка получения курса валют для ${plan.currency} → UAH`
-            );
-            continue;
-          }
+          if (!exchangeRate) continue;
           convertedAmount = parseFloat((plan.amount * exchangeRate).toFixed(6));
           isConverted = true;
         }
 
-        await addBalanceToGoal(
-          { params: { id: plan.goal_id }, user: { id: userId } },
-          {
-            body: {
-              originalAmount: plan.amount,
-              convertedAmount,
-              fromCurrency: plan.currency,
-              converted: isConverted,
-            },
-            status: () => ({ json: () => {} }),
-            json: () => {},
-          }
+        const fakeReq = {
+          params: { id: plan.goal_id },
+          user: { id: userId },
+          body: {
+            originalAmount: plan.amount,
+            convertedAmount,
+            fromCurrency: plan.currency,
+            converted: isConverted,
+          },
+        };
+
+        const fakeRes = {
+          status: () => ({ json: () => {} }),
+          json: () => {},
+        };
+
+        await addBalanceToGoal(fakeReq, fakeRes);
+
+        const goalRes = await pool.query(
+          "SELECT name FROM goals WHERE id = $1",
+          [plan.goal_id]
+        );
+        const goalName = goalRes.rows[0]?.name || "невідома ціль";
+
+        await pool.query(
+          `INSERT INTO notifications (user_id, message, created_at, read)
+           VALUES ($1, $2, NOW(), false)`,
+          [
+            userId,
+            `Ціль "${goalName}" поповнено на ${plan.amount} ${plan.currency}`,
+          ]
+        );
+
+        await pool.query(
+          `
+          DELETE FROM notifications
+          WHERE user_id = $1
+            AND id NOT IN (
+              SELECT id FROM notifications
+              WHERE user_id = $1
+              ORDER BY created_at DESC
+              LIMIT 5
+            )
+        `,
+          [userId]
         );
 
         let nextDate = new Date(plan.next_execution);
@@ -117,7 +144,7 @@ const runAutoPlansNow = async (req, res) => {
 
         executed.push(plan.id);
       } catch (e) {
-        console.error(`❌ Ошибка при исполнении плана ID ${plan.id}:`, e);
+        console.error(` Помилка при виконанні плану ID ${plan.id}:`, e);
       }
     }
 
