@@ -46,7 +46,7 @@ const AutoPlanModal = ({ goals, onClose }) => {
       alert("Автоплан успішно створено!");
       onClose();
     } catch (error) {
-      console.error("❌ Помилка створення автоплану:", error);
+      console.error(" Помилка створення автоплану:", error);
     }
   };
 

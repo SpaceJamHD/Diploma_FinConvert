@@ -24,7 +24,7 @@ const Navbar = () => {
         const unread = notis.some((n) => !n.read);
         setHasUnread(unread);
       } catch (err) {
-        console.error("❌ Статус непрочитаних не вдалося отримати:", err);
+        console.error(" Статус непрочитаних не вдалося отримати:", err);
       }
     };
 
