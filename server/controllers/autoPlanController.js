@@ -72,21 +72,37 @@ const runAutoPlansNow = async (req, res) => {
 
     for (let plan of rows) {
       try {
-        let convertedAmount = plan.amount;
+        const originalAmount = parseFloat(plan.amount);
+
+        if (originalAmount === 0) {
+          console.log(` Пропущено: сума 0 (${plan.amount} ${plan.currency})`);
+          continue;
+        }
+
+        let convertedAmount = originalAmount;
         let isConverted = false;
 
         if (plan.currency !== "UAH") {
           const exchangeRate = await getExchangeRate(plan.currency, "UAH");
           if (!exchangeRate) continue;
-          convertedAmount = parseFloat((plan.amount * exchangeRate).toFixed(6));
+          convertedAmount = parseFloat(
+            (originalAmount * exchangeRate).toFixed(6)
+          );
           isConverted = true;
+        }
+
+        if (convertedAmount === 0) {
+          console.log(
+            `Пропущено: конвертована сума 0 (${plan.amount} ${plan.currency})`
+          );
+          continue;
         }
 
         const fakeReq = {
           params: { id: plan.goal_id },
           user: { id: userId },
           body: {
-            originalAmount: plan.amount,
+            originalAmount,
             convertedAmount,
             fromCurrency: plan.currency,
             converted: isConverted,
@@ -106,26 +122,29 @@ const runAutoPlansNow = async (req, res) => {
         );
         const goalName = goalRes.rows[0]?.name || "невідома ціль";
 
+        const formattedAmount =
+          plan.currency === "BTC"
+            ? originalAmount.toFixed(8)
+            : originalAmount.toFixed(2);
+
         await pool.query(
           `INSERT INTO notifications (user_id, message, created_at, read)
            VALUES ($1, $2, NOW(), false)`,
           [
             userId,
-            `Ціль "${goalName}" поповнено на ${plan.amount} ${plan.currency}`,
+            `Ціль "${goalName}" поповнено на ${formattedAmount} ${plan.currency}`,
           ]
         );
 
         await pool.query(
-          `
-          DELETE FROM notifications
-          WHERE user_id = $1
-            AND id NOT IN (
-              SELECT id FROM notifications
-              WHERE user_id = $1
-              ORDER BY created_at DESC
-              LIMIT 5
-            )
-        `,
+          `DELETE FROM notifications
+           WHERE user_id = $1
+             AND id NOT IN (
+               SELECT id FROM notifications
+               WHERE user_id = $1
+               ORDER BY created_at DESC
+               LIMIT 5
+             )`,
           [userId]
         );
 
@@ -150,8 +169,8 @@ const runAutoPlansNow = async (req, res) => {
 
     res.json({ executed });
   } catch (error) {
-    console.error("Ошибка запуска планов:", error);
-    res.status(500).json({ message: "Ошибка сервера" });
+    console.error(" Помилка запуску автопланів:", error);
+    res.status(500).json({ message: "Помилка сервера" });
   }
 };
 
