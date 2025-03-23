@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import TransactionsBlock from "./TransactionsBlock";
 import BalanceSection from "../Balance/BalanceSection";
-import { createTransaction } from "../../../utils/api";
+import {
+  createTransaction,
+  fetchConvertedAmount,
+  getExchangeRate,
+} from "../../../utils/api";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/transactions.css";
 
@@ -9,6 +13,47 @@ const TransactionsPage = () => {
   const [amount, setAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("UAH");
   const [toCurrency, setToCurrency] = useState("USD");
+  const [spreadLoss, setSpreadLoss] = useState(0);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const calculateSpreadLoss = async () => {
+      if (!amount || parseFloat(amount) <= 0 || fromCurrency === toCurrency) {
+        setSpreadLoss(0);
+        return;
+      }
+
+      try {
+        const rate = await getExchangeRate(fromCurrency, toCurrency);
+        if (!rate || isCancelled) return;
+
+        let spreadPercent = 0.005;
+        if (fromCurrency === "BTC" || toCurrency === "BTC") {
+          spreadPercent = 0.015;
+        }
+
+        const expectedAmount = parseFloat(amount) * rate;
+        const adjustedRate = rate * (1 - spreadPercent);
+        const actualAmount = parseFloat(amount) * adjustedRate;
+
+        const formattedLoss =
+          toCurrency === "BTC"
+            ? (expectedAmount - actualAmount).toFixed(8)
+            : (expectedAmount - actualAmount).toFixed(2);
+
+        setSpreadLoss(parseFloat(formattedLoss));
+      } catch (error) {
+        console.error(" Помилка при розрахунку спреду:", error);
+      }
+    };
+
+    calculateSpreadLoss();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [amount, fromCurrency, toCurrency]);
 
   const handleTransaction = async () => {
     try {
@@ -88,6 +133,20 @@ const TransactionsPage = () => {
               <option value="BTC">BTC</option>
             </select>
           </div>
+          {spreadLoss > 0 && (
+            <div
+              style={{
+                textAlign: "right",
+                fontSize: "0.75rem",
+                color: "#dc3545",
+                marginTop: "0.25rem",
+              }}
+            >
+              Втрати через спред:{" "}
+              {spreadLoss.toFixed(toCurrency === "BTC" ? 8 : 2)} {toCurrency}
+            </div>
+          )}
+
           <button className="transaction-button" onClick={handleTransaction}>
             Конвертувати
           </button>

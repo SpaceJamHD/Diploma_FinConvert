@@ -5,7 +5,7 @@ const authenticateToken = require("../middleware/authenticateToken");
 
 router.get("/", authenticateToken, async (req, res) => {
   const userId = req.user.id;
-  console.log(" Получаем баланс пользователя:", userId);
+  // console.log(" Получаем баланс пользователя:", userId);
 
   try {
     const result = await pool.query(
@@ -27,7 +27,7 @@ router.get("/", authenticateToken, async (req, res) => {
         currency === "BTC" ? parseFloat(amount_btc) : parseFloat(amount);
     });
 
-    console.log(" Баланс, отправленный клиенту:", balances);
+    // console.log(" Баланс, отправленный клиенту:", balances);
     res.json(balances);
   } catch (error) {
     console.error(" Ошибка получения баланса:", error);

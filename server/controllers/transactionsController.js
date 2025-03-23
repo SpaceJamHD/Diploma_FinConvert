@@ -106,6 +106,7 @@ const createTransaction = async (req, res) => {
     }
 
     let finalAmount = amount;
+    let spreadLoss = 0;
 
     if (fromCurrency !== toCurrency) {
       const exchangeRate = await getExchangeRate(fromCurrency, toCurrency);
@@ -117,10 +118,24 @@ const createTransaction = async (req, res) => {
           .json({ message: "Ошибка получения курса валют" });
       }
 
-      finalAmount = parseFloat((amount * exchangeRate).toFixed(8));
-      console.log(
-        `Итоговая сумма после конвертации: ${finalAmount} ${toCurrency}`
+      let spreadPercent = 0.005;
+      if (fromCurrency === "BTC" || toCurrency === "BTC") {
+        spreadPercent = 0.015;
+      }
+
+      const adjustedRate = exchangeRate * (1 - spreadPercent);
+      const expectedAmount = amount * exchangeRate;
+      const actualAmount = amount * adjustedRate;
+
+      finalAmount = parseFloat(
+        actualAmount.toFixed(toCurrency === "BTC" ? 8 : 2)
       );
+      spreadLoss = parseFloat(
+        (expectedAmount - actualAmount).toFixed(toCurrency === "BTC" ? 8 : 2)
+      );
+
+      console.log(`Курс зі спредом: ${adjustedRate}`);
+      console.log(`Втрати через спред: ${spreadLoss}`);
     }
 
     if (toCurrency === "BTC" && finalAmount < 0.00000001) {
@@ -152,21 +167,20 @@ const createTransaction = async (req, res) => {
       [userId, toCurrency, finalAmount, toCurrency === "BTC" ? finalAmount : 0]
     );
 
-    console.log(
-      `Запись транзакции в историю для пользователя ${userId}: ${finalAmount} ${toCurrency}`
-    );
-
     const formatAmount = (currency, amount) => {
       if (currency === "BTC") {
-        return parseFloat(amount).toFixed(8); // Для BTC оставляем 8 знаков после запятой
+        return parseFloat(amount).toFixed(8);
       } else {
-        return parseFloat(amount).toFixed(2); // Для других валют - 2 знака после запятой
+        return parseFloat(amount).toFixed(2);
       }
     };
 
     const newTransaction = await pool.query(
-      `INSERT INTO currency_transactions (user_id, original_amount, amount, from_currency, to_currency, type, date, currency_from, currency_to) 
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8) RETURNING *`,
+      `INSERT INTO currency_transactions 
+        (user_id, original_amount, amount, from_currency, to_currency, type, date, currency_from, currency_to, spread_loss) 
+       VALUES 
+        ($1, $2, $3, $4, $5, $6, NOW(), $7, $8, $9) 
+       RETURNING *`,
       [
         userId,
         formatAmount(fromCurrency, amount),
@@ -176,6 +190,7 @@ const createTransaction = async (req, res) => {
         type,
         fromCurrency,
         toCurrency,
+        spreadLoss,
       ]
     );
 

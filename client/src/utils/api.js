@@ -225,3 +225,21 @@ export const repeatGoal = async (goal) => {
     throw error;
   }
 };
+
+export const getExchangeRate = async (fromCurrency, toCurrency) => {
+  try {
+    const response = await fetch(
+      `/api/exchange-rates?from=${fromCurrency}&to=${toCurrency}`
+    );
+    const data = await response.json();
+
+    if (!response.ok || !data.rate) {
+      throw new Error("Помилка отримання курсу");
+    }
+
+    return parseFloat(data.rate);
+  } catch (error) {
+    console.error("Помилка під час запиту курсу:", error);
+    return null;
+  }
+};
