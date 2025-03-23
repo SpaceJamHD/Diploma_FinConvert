@@ -174,9 +174,51 @@ const runAutoPlansNow = async (req, res) => {
   }
 };
 
+const updateAutoPlan = async (req, res) => {
+  const userId = req.user.id;
+  const planId = req.params.id;
+  const { goal_id, amount, currency, frequency, start_date, end_date } =
+    req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE auto_goal_plans
+       SET goal_id = $1,
+           amount = $2,
+           currency = $3,
+           frequency = $4,
+           start_date = $5,
+           end_date = $6
+       WHERE id = $7 AND user_id = $8`,
+      [
+        goal_id,
+        amount,
+        currency,
+        frequency,
+        start_date,
+        end_date,
+        planId,
+        userId,
+      ]
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Автоплан не знайдено або не належить вам" });
+    }
+
+    res.json({ message: "Автоплан оновлено успішно" });
+  } catch (error) {
+    console.error("Помилка при оновленні автоплану:", error);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+};
+
 module.exports = {
   createAutoPlan,
   getUserAutoPlans,
   deleteAutoPlan,
   runAutoPlansNow,
+  updateAutoPlan,
 };
