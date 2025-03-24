@@ -15,6 +15,7 @@ const cryptoRoutes = require("./routes/cryptoRoutes");
 const transactionsRoutes = require("./routes/transactionsRoutes");
 const autoPlanRoutes = require("./routes/autoPlanRoutes");
 const notificationsRoutes = require("./routes/notificationsRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 
 const { setupWebSocket } = require("./webSocket");
 const { runAutoPlansNow } = require("./controllers/autoPlanController");
@@ -35,6 +36,7 @@ app.use("/api", cryptoRoutes);
 app.use("/api/transactions", transactionsRoutes);
 app.use("/api/auto-plan", autoPlanRoutes);
 app.use("/api/notifications", notificationsRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 const PORT = 5000;
 
