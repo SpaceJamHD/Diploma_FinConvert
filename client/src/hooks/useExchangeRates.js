@@ -11,7 +11,7 @@ const useExchangeRates = () => {
   });
 
   const fetchExchangeRates = async () => {
-    const fixerApiKey = "823449f0648c2cf70b3493d9a1f8afe7";
+    const fixerApiKey = "30d02209bf6c4e98191bdce6774fdfeb";
     const fixerApiUrl = `http://data.fixer.io/api/latest?access_key=${fixerApiKey}&symbols=UAH,USD,EUR,NOK`;
     const coinGeckoApiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=uah`;
 

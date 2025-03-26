@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ChartTabs from "../Charts/ChartTabs";
+import GoalAdviceBlock from "../Advice/GoalAdviceBlock";
 import "../../../styles/goalDetails.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 
@@ -11,70 +12,70 @@ const GoalDetails = () => {
   const [balances, setBalances] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [autoPlans, setAutoPlans] = useState([]);
 
-  useEffect(
-    () => {
-      const fetchDetails = async () => {
-        try {
-          const token = localStorage.getItem("token");
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-          const goalResponse = await fetch(`/api/goals/${goalId}`, {
+        const goalResponse = await fetch(`/api/goals/${goalId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!goalResponse.ok) throw new Error("Цель не найдена.");
+        const goalData = await goalResponse.json();
+
+        const transactionsResponse = await fetch(
+          `/api/transactions/${goalId}`,
+          {
             headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (!goalResponse.ok) {
-            throw new Error("Цель не найдена.");
           }
+        );
 
-          const goalData = await goalResponse.json();
+        const transactionsData = transactionsResponse.ok
+          ? await transactionsResponse.json()
+          : [];
 
-          const transactionsResponse = await fetch(
-            `/api/transactions/${goalId}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+        const balancesResponse = await fetch(`/api/balances`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-          const transactionsData = transactionsResponse.ok
-            ? await transactionsResponse.json()
-            : [];
+        if (!balancesResponse.ok)
+          throw new Error("Ошибка загрузки данных баланса.");
+        const balancesData = await balancesResponse.json();
 
-          const balancesResponse = await fetch(`/api/balances`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+        const autoPlansResponse = await fetch("/api/auto-plan", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-          if (!balancesResponse.ok) {
-            throw new Error("Ошибка загрузки данных баланса.");
-          }
+        if (!autoPlansResponse.ok) throw new Error("Автоплани не знайдено");
+        const autoPlansData = await autoPlansResponse.json();
 
-          const balancesData = await balancesResponse.json();
-
-          setGoal(goalData);
-          setTransactions(
-            transactionsData.map((t) => ({
-              ...t,
-              amount: parseFloat(t.amount),
-            }))
-          );
-          setBalances(balancesData);
-        } catch (err) {
-          console.error(" Ошибка загрузки данных:", err);
-          setError("Не удалось загрузить данные цели.");
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      if (!goalId) {
-        console.error(" Ошибка: `goalId` пустой при загрузке!");
-        return;
+        setGoal(goalData);
+        setTransactions(
+          transactionsData.map((t) => ({
+            ...t,
+            amount: parseFloat(t.amount),
+          }))
+        );
+        setBalances(balancesData);
+        setAutoPlans(autoPlansData);
+      } catch (err) {
+        console.error("Ошибка загрузки данных:", err);
+        setError("Не удалось загрузить данные цели.");
+      } finally {
+        setIsLoading(false);
       }
-      console.log("Загруженные транзакции:", transactions);
-      fetchDetails();
-    },
-    [goalId],
-    [transactions]
-  );
+    };
+
+    if (!goalId) {
+      console.error("Ошибка: `goalId` пустой при загрузке!");
+      return;
+    }
+
+    fetchDetails();
+  }, [goalId]);
 
   if (isLoading) {
     return <div style={{ color: "#fff" }}>Загрузка данных...</div>;
@@ -106,6 +107,15 @@ const GoalDetails = () => {
           transactions={transactions}
           goal={goal}
           balances={balances}
+        />
+      </section>
+
+      <section className="chart-section mt-4">
+        <GoalAdviceBlock
+          goal={goal}
+          transactions={transactions}
+          balances={balances}
+          autoPlans={autoPlans}
         />
       </section>
 
