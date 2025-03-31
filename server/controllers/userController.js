@@ -68,7 +68,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign(
       { id: user.rows[0].id, role: user.rows[0].role },
       JWT_SECRET,
-      { expiresIn: "3h" }
+      { expiresIn: "1h" }
     );
 
     res.status(200).json({ token, message: "Успешная авторизация." });
