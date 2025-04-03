@@ -127,21 +127,6 @@ const getNextMonthForecast = async (req, res) => {
       [userId]
     );
 
-    const spreadQuery = await pool.query(
-      `SELECT 
-         SUM(
-           CASE 
-             WHEN to_currency = 'BTC' THEN spread_loss * 30000
-             WHEN to_currency = 'USD' THEN spread_loss * 39
-             WHEN to_currency = 'EUR' THEN spread_loss * 42.5
-             ELSE spread_loss
-           END
-         ) AS total_spread
-       FROM currency_transactions
-       WHERE user_id = $1 AND date >= NOW() - INTERVAL '30 days'`,
-      [userId]
-    );
-
     const withdrawQuery = await pool.query(
       `SELECT SUM(amount) AS total_withdraw
        FROM transactions
@@ -149,10 +134,39 @@ const getNextMonthForecast = async (req, res) => {
       [userId]
     );
 
+    const lossAndWithdrawQuery = await pool.query(
+      `SELECT 
+         SUM(
+           CASE 
+             WHEN to_currency = 'BTC' THEN spread_loss * 1300000
+             WHEN to_currency = 'USD' THEN spread_loss * 39
+             WHEN to_currency = 'EUR' THEN spread_loss * 42.5
+             ELSE spread_loss
+           END
+         ) AS total_spread,
+         SUM(
+           CASE 
+             WHEN type = 'withdraw-conversion' THEN 
+               CASE 
+                 WHEN to_currency = 'BTC' THEN amount * 1300000
+                 WHEN to_currency = 'USD' THEN amount * 39
+                 WHEN to_currency = 'EUR' THEN amount * 42.5
+                 ELSE amount
+               END
+             ELSE 0
+           END
+         ) AS withdraw_conversion
+       FROM currency_transactions
+       WHERE user_id = $1 AND date >= NOW() - INTERVAL '30 days'`,
+      [userId]
+    );
+
     const balancesQuery = await pool.query(
       `SELECT SUM(
         CASE 
-          WHEN currency = 'BTC' THEN COALESCE(amount_btc, 0) * 30000
+          WHEN currency = 'BTC' THEN COALESCE(amount_btc, 0) * 1300000
+          WHEN currency = 'USD' THEN amount * 39
+          WHEN currency = 'EUR' THEN amount * 42.5
           ELSE amount
         END
       ) AS total_balance
@@ -162,11 +176,13 @@ const getNextMonthForecast = async (req, res) => {
     );
 
     const income = parseFloat(incomeQuery.rows[0].total_income) || 0;
-    const spread = parseFloat(spreadQuery.rows[0].total_spread) || 0;
+    const spread = parseFloat(lossAndWithdrawQuery.rows[0].total_spread) || 0;
     const withdraw = parseFloat(withdrawQuery.rows[0].total_withdraw) || 0;
+    const withdrawConversion =
+      parseFloat(lossAndWithdrawQuery.rows[0].withdraw_conversion) || 0;
     const balance = parseFloat(balancesQuery.rows[0].total_balance) || 0;
 
-    const expenses = spread + withdraw;
+    const expenses = spread + withdraw + withdrawConversion;
     const expectedBalance = balance + income - expenses;
     const balanceChangePercent =
       balance > 0 ? ((expectedBalance - balance) / balance) * 100 : 0;

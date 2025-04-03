@@ -4,6 +4,7 @@ const {
   getCryptoToFiatRate,
 } = require("../utils/exchangeRates");
 const { broadcastBalanceUpdate } = require("../webSocket");
+const insertWithdrawConversion = require("../utils/insertWithdrawConversion");
 
 const getGoals = async (req, res) => {
   try {
@@ -275,6 +276,15 @@ const withdrawFromGoal = async (req, res) => {
 
     await updateBalance(userId, goalCurrency, withdrawAmount, "deposit");
 
+    if (goalCurrency !== "UAH") {
+      const insertWithdrawConversion = require("../utils/insertWithdrawConversion");
+      await insertWithdrawConversion({
+        userId,
+        amount: withdrawAmount,
+        currency: goalCurrency,
+      });
+    }
+
     await pool.query(
       "INSERT INTO transactions (user_id, goal_id, amount, type, date, description) VALUES ($1, $2, $3, $4, NOW(), $5)",
       [userId, id, withdrawAmount, "withdraw", "Частичный возврат из цели"]
@@ -423,6 +433,14 @@ const withdrawFullGoal = async (req, res) => {
     console.log(
       `Средства возвращены в кошелек: ${goalBalance} ${goalCurrency}`
     );
+
+    // if (goalCurrency !== "UAH") {
+    //   await insertWithdrawConversion({
+    //     userId,
+    //     amount: goalBalance,
+    //     currency: goalCurrency,
+    //   });
+    // }
 
     const deleteResult = await pool.query(
       "DELETE FROM goals WHERE id = $1 RETURNING id",
