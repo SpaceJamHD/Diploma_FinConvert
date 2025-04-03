@@ -120,17 +120,32 @@ const getNextMonthForecast = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const expensesQuery = await pool.query(
-      `SELECT SUM(amount) AS total_expenses
-       FROM transactions
-       WHERE user_id = $1 AND type = 'withdraw' AND date >= NOW() - INTERVAL '30 days'`,
-      [userId]
-    );
-
     const incomeQuery = await pool.query(
       `SELECT SUM(amount) AS total_income
        FROM transactions
        WHERE user_id = $1 AND type = 'income' AND date >= NOW() - INTERVAL '30 days'`,
+      [userId]
+    );
+
+    const spreadQuery = await pool.query(
+      `SELECT 
+         SUM(
+           CASE 
+             WHEN to_currency = 'BTC' THEN spread_loss * 30000
+             WHEN to_currency = 'USD' THEN spread_loss * 39
+             WHEN to_currency = 'EUR' THEN spread_loss * 42.5
+             ELSE spread_loss
+           END
+         ) AS total_spread
+       FROM currency_transactions
+       WHERE user_id = $1 AND date >= NOW() - INTERVAL '30 days'`,
+      [userId]
+    );
+
+    const withdrawQuery = await pool.query(
+      `SELECT SUM(amount) AS total_withdraw
+       FROM transactions
+       WHERE user_id = $1 AND type = 'withdraw' AND date >= NOW() - INTERVAL '30 days'`,
       [userId]
     );
 
@@ -146,12 +161,15 @@ const getNextMonthForecast = async (req, res) => {
       [userId]
     );
 
-    const expenses = parseFloat(expensesQuery.rows[0].total_expenses) || 0;
     const income = parseFloat(incomeQuery.rows[0].total_income) || 0;
+    const spread = parseFloat(spreadQuery.rows[0].total_spread) || 0;
+    const withdraw = parseFloat(withdrawQuery.rows[0].total_withdraw) || 0;
     const balance = parseFloat(balancesQuery.rows[0].total_balance) || 0;
 
+    const expenses = spread + withdraw;
     const expectedBalance = balance + income - expenses;
-    const balanceChangePercent = ((expectedBalance - balance) / balance) * 100;
+    const balanceChangePercent =
+      balance > 0 ? ((expectedBalance - balance) / balance) * 100 : 0;
 
     res.json({
       balance,
@@ -166,8 +184,40 @@ const getNextMonthForecast = async (req, res) => {
   }
 };
 
+const getSpreadLossTotalUAH = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `SELECT to_currency, SUM(spread_loss) AS loss
+       FROM currency_transactions
+       WHERE user_id = $1
+       GROUP BY to_currency`,
+      [userId]
+    );
+
+    let total = 0;
+    for (const row of result.rows) {
+      const { to_currency, loss } = row;
+
+      let rate = 1;
+      if (to_currency === "USD") rate = 39;
+      else if (to_currency === "EUR") rate = 42;
+      else if (to_currency === "BTC") rate = 1300000;
+
+      total += parseFloat(loss) * rate;
+    }
+
+    res.json({ total_loss: total });
+  } catch (error) {
+    console.error("Помилка підрахунку втрат:", error);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+};
+
 module.exports = {
   getSpreadLossAnalytics,
   getGoalsDistributionAnalytics,
   getNextMonthForecast,
+  getSpreadLossTotalUAH,
 };
