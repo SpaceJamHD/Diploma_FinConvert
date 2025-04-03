@@ -36,4 +36,138 @@ const getSpreadLossAnalytics = async (req, res) => {
   }
 };
 
-module.exports = { getSpreadLossAnalytics };
+const getGoalsDistributionAnalytics = async (req, res) => {
+  const userId = req.user.id;
+  const { range = "month" } = req.query;
+
+  let dateCondition = "";
+  if (range === "today") {
+    dateCondition = "AND date::date = CURRENT_DATE";
+  } else if (range === "week") {
+    dateCondition = "AND date >= CURRENT_DATE - INTERVAL '7 days'";
+  } else {
+    dateCondition = "AND date >= CURRENT_DATE - INTERVAL '1 month'";
+  }
+
+  try {
+    const result = await pool.query(
+      `
+      WITH all_tx AS (
+        SELECT 
+          g.id AS goal_id,
+          g.name,
+          t.original_amount,
+          t.from_currency,
+          t.amount,
+          g.currency AS goal_currency,
+          t.date
+        FROM transactions t
+        JOIN goals g ON g.id = t.goal_id
+        WHERE t.user_id = $1 AND t.type = 'income' ${dateCondition}
+
+        UNION ALL
+
+        SELECT 
+          gh.goal_id,
+          gh.name,
+          th.original_amount,
+          th.from_currency,
+          th.amount,
+          gh.currency AS goal_currency,
+          th.date
+        FROM goals_history_transactions th
+        JOIN goals_history gh ON gh.id = th.goal_history_id
+        WHERE th.user_id = $1 AND th.type = 'income' ${dateCondition}
+      ),
+      grouped_tx AS (
+        SELECT 
+          goal_id,
+          name,
+          goal_currency,
+          from_currency,
+          SUM(original_amount)::numeric(18,8) AS original,
+          SUM(amount)::numeric(18,2) AS total
+        FROM all_tx
+        GROUP BY goal_id, name, goal_currency, from_currency
+      )
+      SELECT 
+        goal_id,
+        name,
+        goal_currency,
+        JSON_AGG(
+          JSON_BUILD_OBJECT(
+            'from_currency', from_currency,
+            'original', original,
+            'total', total
+          )
+        ) AS contributions,
+        SUM(total)::numeric(18,2) AS total_uah
+      FROM grouped_tx
+      GROUP BY goal_id, name, goal_currency
+      ORDER BY total_uah DESC
+      `,
+      [userId]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Помилка при отриманні розподілу цілей:", error.message);
+    res.status(500).json({ message: "Помилка сервера при розрахунку цілей" });
+  }
+};
+
+const getNextMonthForecast = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const expensesQuery = await pool.query(
+      `SELECT SUM(amount) AS total_expenses
+       FROM transactions
+       WHERE user_id = $1 AND type = 'withdraw' AND date >= NOW() - INTERVAL '30 days'`,
+      [userId]
+    );
+
+    const incomeQuery = await pool.query(
+      `SELECT SUM(amount) AS total_income
+       FROM transactions
+       WHERE user_id = $1 AND type = 'income' AND date >= NOW() - INTERVAL '30 days'`,
+      [userId]
+    );
+
+    const balancesQuery = await pool.query(
+      `SELECT SUM(
+        CASE 
+          WHEN currency = 'BTC' THEN COALESCE(amount_btc, 0) * 30000
+          ELSE amount
+        END
+      ) AS total_balance
+      FROM balances
+      WHERE user_id = $1`,
+      [userId]
+    );
+
+    const expenses = parseFloat(expensesQuery.rows[0].total_expenses) || 0;
+    const income = parseFloat(incomeQuery.rows[0].total_income) || 0;
+    const balance = parseFloat(balancesQuery.rows[0].total_balance) || 0;
+
+    const expectedBalance = balance + income - expenses;
+    const balanceChangePercent = ((expectedBalance - balance) / balance) * 100;
+
+    res.json({
+      balance,
+      income,
+      expenses,
+      expectedBalance,
+      balanceChangePercent,
+    });
+  } catch (error) {
+    console.error("Forecast error:", error);
+    res.status(500).json({ message: "Помилка сервера при прогнозі" });
+  }
+};
+
+module.exports = {
+  getSpreadLossAnalytics,
+  getGoalsDistributionAnalytics,
+  getNextMonthForecast,
+};
