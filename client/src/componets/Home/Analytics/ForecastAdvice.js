@@ -6,6 +6,7 @@ import SpreadLossAdvice from "./SpreadLossAdvice";
 import generateDynamicAdvice from "./generateDynamicAdvice";
 import { Card } from "react-bootstrap";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
+import "../../../styles/dark-scrollbar.css";
 
 const ForecastAdvice = () => {
   const [forecastData, setForecastData] = useState(null);

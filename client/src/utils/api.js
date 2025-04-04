@@ -243,3 +243,26 @@ export const getExchangeRate = async (fromCurrency, toCurrency) => {
     return null;
   }
 };
+
+export const fetchConversionDirections = async (range = "month") => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `/api/analytics/conversion-directions?range=${range}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Помилка отримання аналітики напрямків");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Аналітика напрямків:", error);
+    return [];
+  }
+};

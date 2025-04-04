@@ -231,9 +231,36 @@ const getSpreadLossTotalUAH = async (req, res) => {
   }
 };
 
+const getConversionDirectionsAnalytics = async (req, res) => {
+  const userId = req.user.id;
+  const { range = "month" } = req.query;
+
+  let dateFrom = "NOW() - INTERVAL '1 month'";
+  if (range === "today") dateFrom = "NOW() - INTERVAL '1 day'";
+  else if (range === "week") dateFrom = "NOW() - INTERVAL '7 days'";
+
+  try {
+    const result = await pool.query(
+      `SELECT CONCAT(from_currency, ' → ', to_currency) AS direction,
+              COUNT(*) AS count
+       FROM currency_transactions
+       WHERE user_id = $1 AND date >= ${dateFrom}
+       GROUP BY direction
+       ORDER BY count DESC`,
+      [userId]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Помилка аналітики напрямків конвертацій:", error);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+};
+
 module.exports = {
   getSpreadLossAnalytics,
   getGoalsDistributionAnalytics,
   getNextMonthForecast,
   getSpreadLossTotalUAH,
+  getConversionDirectionsAnalytics,
 };

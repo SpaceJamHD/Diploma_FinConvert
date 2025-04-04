@@ -2,12 +2,17 @@ import React from "react";
 import SpreadLossChart from "./SpreadLossChart";
 import GoalsDistributionChart from "./GoalsDistributionChart";
 import ForecastAdvice from "./ForecastAdvice";
+import ExchangeDirectionsChart from "./ExchangeDirectionsChart";
 
 const AnalyticsPage = () => {
   const chartHeight = "540px";
 
   return (
     <div className="container mt-4">
+      <div className="mb-4">
+        <ExchangeDirectionsChart />
+      </div>
+
       <div
         className="d-flex flex-wrap gap-4 mb-4"
         style={{

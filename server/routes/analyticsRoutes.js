@@ -5,6 +5,7 @@ const {
   getGoalsDistributionAnalytics,
   getNextMonthForecast,
   getSpreadLossTotalUAH,
+  getConversionDirectionsAnalytics,
 } = require("../controllers/analyticsController");
 const authenticateToken = require("../middleware/authenticateToken");
 
@@ -18,5 +19,11 @@ router.get(
 router.get("/forecast", authenticateToken, getNextMonthForecast);
 
 router.get("/spread-total-loss-uah", authenticateToken, getSpreadLossTotalUAH);
+
+router.get(
+  "/conversion-directions",
+  authenticateToken,
+  getConversionDirectionsAnalytics
+);
 
 module.exports = router;
