@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import "../../../styles/HomePage.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
-import Goals from "../Goals/Goals.js";
+import Goals from "../Goals/Goals.jsx";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import useUserRole from "../../../hooks/useUserRole";
-import BalanceSection from "../Balance/BalanceSection";
-import ExpenseChart from "../../Charts/ExpenseChart.js";
+import useUserRole from "../../../hooks/useUserRole.jsx";
+import BalanceSection from "../Balance/BalanceSection.jsx";
+import ExpenseChart from "../../Charts/ExpenseChart.jsx";
 
 const HomePage = () => {
   const [showPastTransactions, setShowPastTransactions] = useState(false);

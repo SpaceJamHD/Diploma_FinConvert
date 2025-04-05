@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import NotificationDropdown from "./NotificationDropdown";
+import NotificationDropdown from "./NotificationDropdown.jsx";
 import "../../../styles/navbar.css";
 import "../../../styles/HomePage.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link } from "react-router-dom";
-import useExchangeRates from "../../../hooks/useExchangeRates";
+import useExchangeRates from "../../../hooks/useExchangeRates.jsx";
 
 const Navbar = () => {
   const exchangeRates = useExchangeRates();

@@ -8,7 +8,8 @@
     "server": "nodemon ./server/index.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "npm run build --prefix client"
+    "build": "npm run build --prefix client",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +25,9 @@
     "node-cron": "^3.0.3",
     "pg": "^8.13.1",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.0"
   }
 }
