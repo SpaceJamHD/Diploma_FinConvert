@@ -55,30 +55,78 @@ const Navbar = () => {
           <span>FinConvert</span>
         </a>
 
-        <div className="collapse navbar-collapse mx-auto justify-content-center">
+        <div
+          className="collapse navbar-collapse mx-auto justify-content-center"
+          id="navbarNav"
+        >
           <ul className="navbar-nav">
             <li className="nav-item">
-              <Link className="nav-link" to="/">
+              <Link
+                className="nav-link"
+                to="/"
+                onClick={() => {
+                  const nav = document.getElementById("navbarNav");
+                  if (nav?.classList.contains("show")) {
+                    nav.classList.remove("show");
+                  }
+                }}
+              >
                 Головна
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/history">
+              <Link
+                className="nav-link"
+                to="/history"
+                onClick={() => {
+                  const nav = document.getElementById("navbarNav");
+                  if (nav?.classList.contains("show")) {
+                    nav.classList.remove("show");
+                  }
+                }}
+              >
                 Історія
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/transactions">
+              <Link
+                className="nav-link"
+                to="/transactions"
+                onClick={() => {
+                  const nav = document.getElementById("navbarNav");
+                  if (nav?.classList.contains("show")) {
+                    nav.classList.remove("show");
+                  }
+                }}
+              >
                 Конвертація
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/analytics">
+              <Link
+                className="nav-link"
+                to="/analytics"
+                onClick={() => {
+                  const nav = document.getElementById("navbarNav");
+                  if (nav?.classList.contains("show")) {
+                    nav.classList.remove("show");
+                  }
+                }}
+              >
                 Аналітика
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/goals">
+              <Link
+                className="nav-link"
+                to="/goals"
+                onClick={() => {
+                  const nav = document.getElementById("navbarNav");
+                  if (nav?.classList.contains("show")) {
+                    nav.classList.remove("show");
+                  }
+                }}
+              >
                 Цілі
               </Link>
             </li>
@@ -182,6 +230,15 @@ const Navbar = () => {
             </li>
           </ul>
         </div>
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={() =>
+            document.getElementById("navbarNav").classList.toggle("show")
+          }
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
       </div>
     </nav>
   );
