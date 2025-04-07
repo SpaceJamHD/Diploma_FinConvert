@@ -1,10 +1,11 @@
-import React from "react";
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import useUserRole from "./hooks/useUserRole";
 import Footer from "./componets/Home/Footer/Footer";
@@ -24,13 +25,22 @@ import AdminNavbar from "./componets/Home/Navbar/AdminNavbar";
 
 const AppContent = () => {
   const location = useLocation();
-  const userRole = useUserRole();
+  const navigate = useNavigate();
+  const role = useUserRole();
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      if (role === "admin") {
+        navigate("/admin");
+      }
+    }
+  }, [location.pathname, role, navigate]);
 
   const hideFooterRoutes = ["/login", "/register", "/admin"];
 
   return (
     <>
-      {location.pathname === "/admin" && userRole === "admin" ? (
+      {location.pathname === "/admin" && role === "admin" ? (
         <AdminNavbar />
       ) : (
         !hideFooterRoutes.includes(location.pathname) && <Navbar />
@@ -106,15 +116,16 @@ const AppContent = () => {
           path="/admin"
           element={
             <ProtectedRoute>
-              {userRole === "admin" ? <AdminPage /> : <Navigate to="/" />}
+              {role === "admin" ? <AdminPage /> : <Navigate to="/" />}
             </ProtectedRoute>
           }
         />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      {!hideFooterRoutes.includes(location.pathname) &&
-        userRole !== "admin" && <Footer />}
+      {!hideFooterRoutes.includes(location.pathname) && role !== "admin" && (
+        <Footer />
+      )}
     </>
   );
 };
