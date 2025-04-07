@@ -10,7 +10,6 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
   const navigate = useNavigate();
 
@@ -37,7 +36,7 @@ const Register = () => {
           name,
           email,
           password,
-          role,
+          role: "user",
         }
       );
       console.log("Регистрация успешна:", response.data);
@@ -105,20 +104,6 @@ const Register = () => {
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="input-group mb-3">
-                <select
-                  className="form-select form-control-lg"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  required
-                >
-                  <option value="" disabled>
-                    Виберіть вашу роль
-                  </option>
-                  <option value="user">Звичайний користувач</option>
-                  <option value="business">Малий бізнес</option>
-                </select>
-              </div>
               <div className="input-group mb-3">
                 <input
                   type="text"

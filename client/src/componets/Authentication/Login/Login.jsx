@@ -43,10 +43,8 @@ const Login = () => {
 
       console.log("Роль пользователя:", userRole);
 
-      if (userRole === "user") {
-        navigate("/user-dashboard");
-      } else if (userRole === "business") {
-        navigate("/business-dashboard");
+      if (userRole === "admin") {
+        navigate("/admin");
       } else {
         navigate("/");
       }

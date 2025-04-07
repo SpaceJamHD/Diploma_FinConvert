@@ -13,11 +13,11 @@ export const fetchConvertedAmount = async (
     }
 
     const data = await response.json();
-    const rate = parseFloat(data.rate); // Получаем курс обмена
+    const rate = parseFloat(data.rate);
 
     if (!rate || isNaN(rate) || rate <= 0) {
-      console.error("❌ Ошибка: Некорректный курс обмена", rate);
-      return amount; // Возвращаем исходную сумму без изменений
+      console.error(" Ошибка: Некорректный курс обмена", rate);
+      return amount;
     }
 
     const convertedAmount = parseFloat((parseFloat(amount) * rate).toFixed(6));
@@ -30,7 +30,7 @@ export const fetchConvertedAmount = async (
       `💱 Курс ${fromCurrency} → ${toCurrency}: ${rate}, Сумма: ${amount}, Итог: ${convertedAmount}`
     );
 
-    console.log("🟡 КЛИЕНТСКАЯ КОНВЕРТАЦИЯ:", {
+    console.log(" КЛИЕНТСКАЯ КОНВЕРТАЦИЯ:", {
       fromCurrency,
       toCurrency,
       исходная_сумма: amount,
@@ -38,16 +38,16 @@ export const fetchConvertedAmount = async (
       итоговая_сумма: convertedAmount,
     });
 
-    return convertedAmount; // Возвращаем уже пересчитанную сумму
+    return convertedAmount;
   } catch (error) {
-    console.error("❌ Ошибка конвертации:", error);
-    return amount; // Если ошибка, возвращаем ту же сумму
+    console.error(" Ошибка конвертации:", error);
+    return amount;
   }
 };
 
 export const withdrawFromGoal = async (goalId, amount) => {
   try {
-    console.log("🔹 Отправка запроса на возврат:", { goalId, amount });
+    console.log("Отправка запроса на возврат:", { goalId, amount });
 
     const response = await fetch(`/api/goals/${goalId}/withdraw`, {
       method: "POST",
@@ -64,7 +64,7 @@ export const withdrawFromGoal = async (goalId, amount) => {
 
     return await response.json();
   } catch (error) {
-    console.error("❌ Ошибка при возврате средств:", error);
+    console.error("Ошибка при возврате средств:", error);
     throw error;
   }
 };
@@ -85,7 +85,7 @@ export const fetchTransactions = async () => {
 
     return await response.json();
   } catch (error) {
-    console.error("❌ Ошибка загрузки транзакций:", error);
+    console.error(" Ошибка загрузки транзакций:", error);
     return [];
   }
 };
@@ -98,7 +98,7 @@ export const createTransaction = async (
 ) => {
   const token = localStorage.getItem("token");
 
-  console.log("📡 Отправка транзакции:", {
+  console.log(" Отправка транзакции:", {
     amount,
     fromCurrency,
     toCurrency,
@@ -142,7 +142,7 @@ export const withdrawFullGoalBalance = async (goalId) => {
 
     return await response.json();
   } catch (error) {
-    console.error("❌ Ошибка при снятии средств:", error);
+    console.error(" Ошибка при снятии средств:", error);
     throw error;
   }
 };

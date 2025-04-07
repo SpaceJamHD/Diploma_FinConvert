@@ -5,7 +5,8 @@ const pool = require("../models/userModel");
 const JWT_SECRET = "secret007";
 
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
+  const role = "user";
 
   if (!name || !email || !password || !role) {
     return res
