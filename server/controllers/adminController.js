@@ -44,6 +44,28 @@ const banUser = async (req, res) => {
   }
 };
 
+const unbanUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await pool.query(
+      `UPDATE users SET banned_until = NULL, block_reason = NULL, block_duration = NULL WHERE id = $1`,
+      [id]
+    );
+
+    await pool.query(
+      `INSERT INTO notifications (user_id, message, created_at, read)
+         VALUES ($1, 'Ви розблоковані. Вибачте за очікування.', NOW(), false)`,
+      [id]
+    );
+
+    res.status(200).json({ message: "Користувача розблоковано." });
+  } catch (err) {
+    console.error("Ошибка при розблокуванні:", err);
+    res.status(500).json({ message: "Ошибка сервера." });
+  }
+};
+
 const sendMessageToUser = async (req, res) => {
   const { id } = req.params;
   const { message } = req.body;
@@ -64,5 +86,6 @@ module.exports = {
   getAllUsers,
   deleteUser,
   banUser,
+  unbanUser,
   sendMessageToUser,
 };

@@ -14,7 +14,7 @@ const BannedPage = () => {
       const diff = end - now;
 
       if (diff <= 0) {
-        navigate("/login"); // если бан истёк — вернуться на вход
+        navigate("/login");
         return;
       }
 
@@ -25,7 +25,7 @@ const BannedPage = () => {
 
       if (diff <= 0) {
         setRemainingTime(" Ви розблоковані");
-        setTimeout(() => navigate("/login"), 3000); // подождать 3 сек
+        setTimeout(() => navigate("/login"), 3000);
         return;
       }
 
@@ -56,11 +56,11 @@ const BannedPage = () => {
     >
       <h1 style={{ fontSize: "3rem", color: "#dc3545" }}>🔒 Вас заблоковано</h1>
       <p style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
-        ⏳ Залишилось: <strong>{remainingTime}</strong>
+        Залишилось: <strong>{remainingTime}</strong>
       </p>
       {reason && (
         <p style={{ fontStyle: "italic", color: "#ffc107" }}>
-          📄 Причина: {reason}
+          Причина: {reason}
         </p>
       )}
       <a
@@ -74,7 +74,7 @@ const BannedPage = () => {
           textDecoration: "none",
         }}
       >
-        📬 Написати в підтримку
+        Написати в підтримку
       </a>
     </div>
   );

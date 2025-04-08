@@ -5,6 +5,7 @@ const {
   getAllUsers,
   deleteUser,
   banUser,
+  unbanUser,
   sendMessageToUser,
 } = require("../controllers/adminController");
 
@@ -24,6 +25,8 @@ router.get("/users", getAllUsers);
 router.delete("/users/:id", deleteUser);
 
 router.post("/users/:id/ban", banUser);
+
+router.post("/users/:id/unban", authenticateToken, unbanUser);
 
 router.post("/users/:id/message", sendMessageToUser);
 

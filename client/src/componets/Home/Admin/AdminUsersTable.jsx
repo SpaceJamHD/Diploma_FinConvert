@@ -9,6 +9,7 @@ const AdminUsersTable = () => {
   const [banUserId, setBanUserId] = useState(null);
   const [banReason, setBanReason] = useState("");
   const [banDuration, setBanDuration] = useState(60);
+  const [isUnbanMode, setIsUnbanMode] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -37,24 +38,43 @@ const AdminUsersTable = () => {
 
   const handleBanUser = async () => {
     try {
-      await banUserById(banUserId, banDuration, banReason);
+      if (isUnbanMode) {
+        await axios.post(
+          `http://localhost:5000/api/admin/users/${banUserId}/unban`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === banUserId
-            ? {
-                ...u,
-                banned_until: new Date(Date.now() + banDuration * 60 * 1000),
-              }
-            : u
-        )
-      );
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === banUserId ? { ...u, banned_until: null } : u
+          )
+        );
+      } else {
+        await banUserById(banUserId, banDuration, banReason);
+
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === banUserId
+              ? {
+                  ...u,
+                  banned_until: new Date(Date.now() + banDuration * 60 * 1000),
+                }
+              : u
+          )
+        );
+      }
 
       setBanUserId(null);
       setBanReason("");
       setBanDuration(60);
+      setIsUnbanMode(false);
     } catch (err) {
-      console.error("Помилка блокування користувача:", err);
+      console.error("Помилка блокування/розблокування користувача:", err);
     }
   };
 
@@ -172,21 +192,38 @@ const AdminUsersTable = () => {
               width: "360px",
             }}
           >
-            <h5>Заблокувати користувача</h5>
-            <input
-              type="text"
-              value={banReason}
-              onChange={(e) => setBanReason(e.target.value)}
-              placeholder="Причина блокування"
-              className="form-control my-2"
-            />
-            <input
-              type="number"
-              value={banDuration}
-              onChange={(e) => setBanDuration(e.target.value)}
-              placeholder="Тривалість (хв)"
-              className="form-control my-2"
-            />
+            <button
+              onClick={() => setIsUnbanMode(!isUnbanMode)}
+              className="btn btn-sm btn-outline-light mb-2"
+            >
+              Перемкнути на {isUnbanMode ? "блокування" : "розблокування"}
+            </button>
+
+            <h5>
+              {isUnbanMode
+                ? "Розблокувати користувача"
+                : "Заблокувати користувача"}
+            </h5>
+
+            {!isUnbanMode && (
+              <>
+                <input
+                  type="text"
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  placeholder="Причина блокування"
+                  className="form-control my-2"
+                />
+                <input
+                  type="number"
+                  value={banDuration}
+                  onChange={(e) => setBanDuration(e.target.value)}
+                  placeholder="Тривалість (хв)"
+                  className="form-control my-2"
+                />
+              </>
+            )}
+
             <div style={{ display: "flex", justifyContent: "space-around" }}>
               <button onClick={handleBanUser} className="btn btn-warning">
                 Підтвердити
