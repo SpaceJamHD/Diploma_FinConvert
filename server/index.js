@@ -16,6 +16,7 @@ const transactionsRoutes = require("./routes/transactionsRoutes");
 const autoPlanRoutes = require("./routes/autoPlanRoutes");
 const notificationsRoutes = require("./routes/notificationsRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const { setupWebSocket } = require("./webSocket");
 const { runAutoPlansNow } = require("./controllers/autoPlanController");
@@ -37,6 +38,7 @@ app.use("/api/transactions", transactionsRoutes);
 app.use("/api/auto-plan", autoPlanRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = 5000;
 

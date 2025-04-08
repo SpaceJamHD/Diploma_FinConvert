@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export const fetchConvertedAmount = async (
   fromCurrency,
   toCurrency,
@@ -265,4 +267,59 @@ export const fetchConversionDirections = async (range = "month") => {
     console.error("Аналітика напрямків:", error);
     return [];
   }
+};
+
+export const fetchAllUsers = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch("/api/admin/users", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка при получении пользователей");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка загрузки пользователей:", error);
+    return [];
+  }
+};
+
+export const deleteUserById = async (userId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка при удалении пользователя");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Ошибка удаления пользователя:", error);
+    throw error;
+  }
+};
+
+export const banUserById = async (id, durationMinutes, reason) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.post(
+    `/api/admin/users/${id}/ban`,
+    { durationMinutes, reason },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
 };

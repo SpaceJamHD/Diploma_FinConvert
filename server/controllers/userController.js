@@ -61,6 +61,38 @@ const loginUser = async (req, res) => {
       return res.status(404).json({ message: "Пользователь не найден." });
     }
 
+    if (
+      user.rows[0].banned_until &&
+      new Date(user.rows[0].banned_until) < new Date()
+    ) {
+      await pool.query(
+        "UPDATE users SET banned_until = NULL, block_reason = NULL, block_duration = NULL WHERE id = $1",
+        [user.rows[0].id]
+      );
+
+      await pool.query(
+        `INSERT INTO notifications (user_id, message, created_at, read)
+         VALUES ($1, $2, NOW(), false)`,
+        [user.rows[0].id, "Вас розблоковано. Вибачте за очікування."]
+      );
+    }
+
+    if (
+      user.rows[0].banned_until &&
+      new Date(user.rows[0].banned_until) > new Date()
+    ) {
+      const remaining = Math.ceil(
+        (new Date(user.rows[0].banned_until) - new Date()) / (1000 * 60 * 60)
+      );
+
+      return res.status(403).json({
+        message: `Ваш обліковий запис заблоковано на ${remaining} год.`,
+        banned: true,
+        bannedUntil: user.rows[0].banned_until,
+        reason: user.rows[0].block_reason,
+      });
+    }
+
     const validPassword = await bcrypt.compare(password, user.rows[0].password);
     if (!validPassword) {
       return res.status(400).json({ message: "Неверный пароль." });

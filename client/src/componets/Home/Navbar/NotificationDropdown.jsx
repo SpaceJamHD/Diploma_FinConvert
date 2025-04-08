@@ -12,9 +12,16 @@ const NotificationDropdown = ({ onOpen }) => {
         },
       });
       const data = await res.json();
-      setNotifications(data);
+
+      if (Array.isArray(data)) {
+        setNotifications(data);
+      } else {
+        console.warn("Очікувався масив, але прийшло:", data);
+        setNotifications([]);
+      }
     } catch (err) {
-      console.error(" Не вдалося отримати сповіщення:", err);
+      console.error("Не вдалося отримати сповіщення:", err);
+      setNotifications([]);
     }
   };
 

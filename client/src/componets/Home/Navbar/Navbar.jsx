@@ -13,6 +13,7 @@ const Navbar = () => {
   const exchangeRates = useExchangeRates();
   const [hasUnread, setHasUnread] = useState(false);
   const role = useUserRole();
+  const isBannedPage = window.location.pathname === "/banned";
 
   useEffect(() => {
     const fetchUnreadStatus = async () => {
@@ -57,84 +58,86 @@ const Navbar = () => {
           <span>FinConvert</span>
         </a>
 
-        {role !== "admin" && (
-          <div
-            className="collapse navbar-collapse mx-auto justify-content-center"
-            id="navbarNav"
-          >
-            <ul className="navbar-nav">
-              <li className="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/"
-                  onClick={() => {
-                    const nav = document.getElementById("navbarNav");
-                    if (nav?.classList.contains("show")) {
-                      nav.classList.remove("show");
-                    }
-                  }}
-                >
-                  Головна
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/history"
-                  onClick={() => {
-                    const nav = document.getElementById("navbarNav");
-                    if (nav?.classList.contains("show")) {
-                      nav.classList.remove("show");
-                    }
-                  }}
-                >
-                  Історія
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/transactions"
-                  onClick={() => {
-                    const nav = document.getElementById("navbarNav");
-                    if (nav?.classList.contains("show")) {
-                      nav.classList.remove("show");
-                    }
-                  }}
-                >
-                  Конвертація
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/analytics"
-                  onClick={() => {
-                    const nav = document.getElementById("navbarNav");
-                    if (nav?.classList.contains("show")) {
-                      nav.classList.remove("show");
-                    }
-                  }}
-                >
-                  Аналітика
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/goals"
-                  onClick={() => {
-                    const nav = document.getElementById("navbarNav");
-                    if (nav?.classList.contains("show")) {
-                      nav.classList.remove("show");
-                    }
-                  }}
-                >
-                  Цілі
-                </Link>
-              </li>
-            </ul>
-          </div>
+        {role !== "admin" && !isBannedPage && (
+          <>
+            <div
+              className="collapse navbar-collapse mx-auto justify-content-center"
+              id="navbarNav"
+            >
+              <ul className="navbar-nav">
+                <li className="nav-item">
+                  <Link
+                    className="nav-link"
+                    to="/"
+                    onClick={() => {
+                      const nav = document.getElementById("navbarNav");
+                      if (nav?.classList.contains("show")) {
+                        nav.classList.remove("show");
+                      }
+                    }}
+                  >
+                    Головна
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className="nav-link"
+                    to="/history"
+                    onClick={() => {
+                      const nav = document.getElementById("navbarNav");
+                      if (nav?.classList.contains("show")) {
+                        nav.classList.remove("show");
+                      }
+                    }}
+                  >
+                    Історія
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className="nav-link"
+                    to="/transactions"
+                    onClick={() => {
+                      const nav = document.getElementById("navbarNav");
+                      if (nav?.classList.contains("show")) {
+                        nav.classList.remove("show");
+                      }
+                    }}
+                  >
+                    Конвертація
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className="nav-link"
+                    to="/analytics"
+                    onClick={() => {
+                      const nav = document.getElementById("navbarNav");
+                      if (nav?.classList.contains("show")) {
+                        nav.classList.remove("show");
+                      }
+                    }}
+                  >
+                    Аналітика
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className="nav-link"
+                    to="/goals"
+                    onClick={() => {
+                      const nav = document.getElementById("navbarNav");
+                      if (nav?.classList.contains("show")) {
+                        nav.classList.remove("show");
+                      }
+                    }}
+                  >
+                    Цілі
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </>
         )}
 
         <div className="d-flex align-items-center">
@@ -210,17 +213,21 @@ const Navbar = () => {
             className="dropdown-menu dropdown-menu-end"
             aria-labelledby="profileMenu"
           >
-            <li>
-              <Link className="dropdown-item" to="/profile">
-                Обліковий запис
-              </Link>
-            </li>
-            <li>
-              <NotificationDropdown onOpen={() => setHasUnread(false)} />
-            </li>
-            <li>
-              <hr className="dropdown-divider" />
-            </li>
+            {!isBannedPage && (
+              <>
+                <li>
+                  <Link className="dropdown-item" to="/profile">
+                    Обліковий запис
+                  </Link>
+                </li>
+                <li>
+                  <NotificationDropdown onOpen={() => setHasUnread(false)} />
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+              </>
+            )}
             <li>
               <Link
                 className="dropdown-item text-danger"

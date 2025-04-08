@@ -22,6 +22,7 @@ import HistoryPage from "./componets/Home/History/HistoryPage";
 import AnalyticsPage from "./componets/Home/Analytics/AnalyticsPage";
 import AdminPage from "./componets/Home/Admin/AdminPage";
 import AdminNavbar from "./componets/Home/Navbar/AdminNavbar";
+import BannedPage from "./componets/Authentication/BannedPage";
 
 const AppContent = () => {
   const location = useLocation();
@@ -120,6 +121,7 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/banned" element={<BannedPage />} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

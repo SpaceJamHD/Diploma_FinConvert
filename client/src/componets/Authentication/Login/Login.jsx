@@ -32,6 +32,16 @@ const Login = () => {
         }
       );
 
+      if (response.data.banned) {
+        const { bannedUntil, reason } = response.data;
+
+        localStorage.setItem("bannedUntil", bannedUntil);
+        localStorage.setItem("banReason", reason);
+
+        navigate("/banned");
+        return;
+      }
+
       console.log("Ответ от сервера:", response.data);
 
       const { token } = response.data;
@@ -49,10 +59,18 @@ const Login = () => {
         navigate("/");
       }
     } catch (error) {
-      console.error(
-        "Ошибка авторизации:",
-        error.response?.data?.message || error.message
-      );
+      const errData = error.response?.data;
+
+      if (error.response?.status === 403 && errData?.banned) {
+        navigate("/banned", {
+          state: {
+            bannedUntil: errData.bannedUntil,
+            reason: errData.reason,
+          },
+        });
+      } else {
+        console.error("Ошибка авторизации:", errData?.message || error.message);
+      }
     }
   };
 
