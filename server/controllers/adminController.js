@@ -2,13 +2,23 @@ const pool = require("../models/userModel");
 
 const getAllUsers = async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT id, name, email, role, banned_until FROM users ORDER BY id`
-    );
-    res.status(200).json(result.rows);
+    const result = await pool.query(`
+        SELECT 
+          u.id,
+          u.name,
+          u.email,
+          u.role,
+          u.created_at,
+          u.banned_until,
+          p.city
+        FROM users u
+        LEFT JOIN user_profiles p ON u.id = p.user_id
+        ORDER BY u.id
+      `);
+    res.json(result.rows);
   } catch (err) {
-    console.error("Ошибка получения пользователей:", err);
-    res.status(500).json({ message: "Ошибка сервера." });
+    console.error("Помилка отримання користувачів:", err);
+    res.status(500).json({ message: "Помилка сервера" });
   }
 };
 
@@ -82,10 +92,104 @@ const sendMessageToUser = async (req, res) => {
   }
 };
 
+const getSuspiciousUsers = async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT 
+        u.id AS user_id,
+        u.name,
+        COUNT(t.id) AS transaction_count,
+        COALESCE(SUM(t.amount), 0) AS total_amount,
+        COALESCE(AVG(t.amount), 0) AS avg_amount,
+        COALESCE(SUM(t.spread_loss), 0) AS total_spread_loss,
+        MAX(t.date) AS last_transaction,
+        SUM(CASE WHEN t.from_currency = 'BTC' OR t.to_currency = 'BTC' THEN 1 ELSE 0 END) AS btc_transactions,
+        SUM(CASE WHEN t.date > NOW() - INTERVAL '24 hours' THEN 1 ELSE 0 END) AS recent_transactions
+      FROM users u
+      LEFT JOIN currency_transactions t ON u.id = t.user_id
+      GROUP BY u.id, u.name
+      ORDER BY total_spread_loss DESC
+      LIMIT 100
+    `);
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Помилка при отриманні підозрілих користувачів:", err);
+    res.status(500).json({ error: "Помилка сервера" });
+  }
+};
+
+const getAdminStats = async (req, res) => {
+  try {
+    const [
+      totalUsers,
+      activeUsers,
+      bannedUsers,
+      totalTransactions,
+      suspiciousUsers,
+    ] = await Promise.all([
+      pool.query("SELECT COUNT(*) FROM users"),
+      pool.query(
+        "SELECT COUNT(*) FROM users WHERE banned_until IS NULL OR banned_until < NOW()"
+      ),
+      pool.query(
+        "SELECT COUNT(*) FROM users WHERE banned_until IS NOT NULL AND banned_until > NOW()"
+      ),
+      pool.query("SELECT COUNT(*) FROM currency_transactions"),
+      pool.query(`
+        SELECT COUNT(DISTINCT user_id)
+        FROM currency_transactions
+        WHERE date >= NOW() - INTERVAL '1 hour'
+        GROUP BY user_id
+        HAVING COUNT(*) > 1000
+      `),
+    ]);
+
+    res.json({
+      totalUsers: parseInt(totalUsers.rows[0].count),
+      activeUsers: parseInt(activeUsers.rows[0].count),
+      bannedUsers: parseInt(bannedUsers.rows[0].count),
+      totalTransactions: parseInt(totalTransactions.rows[0].count),
+      avgPerUser: (
+        parseInt(totalTransactions.rows[0].count) /
+        Math.max(parseInt(totalUsers.rows[0].count), 1)
+      ).toFixed(2),
+      suspiciousToday: suspiciousUsers.rows.length,
+    });
+  } catch (err) {
+    console.error("Помилка при отриманні статистики:", err);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+};
+
+const getTopSpendersToday = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT u.name, u.email, 
+             SUM(ct.amount) AS total_spent, 
+             COUNT(*) AS transactions_count
+      FROM currency_transactions ct
+      JOIN users u ON ct.user_id = u.id
+      WHERE ct.type = 'перевод' AND DATE(ct.date) = CURRENT_DATE
+      GROUP BY u.id, u.name, u.email
+      ORDER BY total_spent DESC
+      LIMIT 5
+    `);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Ошибка получения топ-пользователей:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
 module.exports = {
   getAllUsers,
   deleteUser,
   banUser,
   unbanUser,
   sendMessageToUser,
+  getSuspiciousUsers,
+  getAdminStats,
+  getTopSpendersToday,
 };

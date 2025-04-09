@@ -10,6 +10,8 @@ const AdminUsersTable = () => {
   const [banReason, setBanReason] = useState("");
   const [banDuration, setBanDuration] = useState(60);
   const [isUnbanMode, setIsUnbanMode] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -88,6 +90,43 @@ const AdminUsersTable = () => {
         </div>
 
         <div className="fin-card-body px-4 pb-4">
+          <div className="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Пошук за ім’ям, email або ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                backgroundColor: "#2a2a2a",
+                color: "#fff",
+                border: "1px solid #444",
+                borderRadius: "6px",
+                padding: "10px",
+                maxWidth: "400px",
+                flex: "1",
+              }}
+            />
+
+            <select
+              className="form-select w-auto"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                backgroundColor: "#2a2a2a",
+                color: "#fff",
+                border: "1px solid #444",
+                borderRadius: "6px",
+                padding: "8px 12px",
+                minWidth: "160px",
+              }}
+            >
+              <option value="all">Усі</option>
+              <option value="active">Активні</option>
+              <option value="banned">Заблоковані</option>
+            </select>
+          </div>
+
           <div className="table-responsive">
             <table className="fin-table table mb-0">
               <thead>
@@ -95,6 +134,8 @@ const AdminUsersTable = () => {
                   <th>ID</th>
                   <th>Ім'я</th>
                   <th>Email</th>
+                  <th>Місто</th>
+                  <th>Дата реєстрації</th>
                   <th>Роль</th>
                   <th>Статус</th>
                   <th>Дії</th>
@@ -114,52 +155,78 @@ const AdminUsersTable = () => {
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => (
-                    <tr key={user.id} className="fin-td">
-                      <td className="fin-td text-center">{user.id}</td>
-                      <td className="fin-td text-start">{user.name}</td>
-                      <td className="fin-td text-start">{user.email}</td>
-                      <td className="fin-td text-center">{user.role}</td>
-                      <td className="fin-td text-center">
-                        {user.banned_until &&
-                        new Date(user.banned_until) > new Date()
-                          ? `Заблокований до ${new Date(
-                              user.banned_until
-                            ).toLocaleString("uk-UA")}`
-                          : "Активний"}
-                      </td>
-                      <td className="fin-td text-center">
-                        <button
-                          onClick={() => setConfirmDeleteId(user.id)}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <i
-                            className="bi bi-trash"
-                            style={{ color: "#dc3545", fontSize: "1.2rem" }}
-                          ></i>
-                        </button>
+                  users
+                    .filter((user) => {
+                      const term = searchTerm.toLowerCase();
+                      const matchesSearch =
+                        user.name.toLowerCase().includes(term) ||
+                        user.email.toLowerCase().includes(term) ||
+                        user.id.toString().includes(term);
 
-                        <button
-                          onClick={() => setBanUserId(user.id)}
-                          style={{
-                            marginLeft: "10px",
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <i
-                            className="bi bi-shield-exclamation"
-                            style={{ color: "#ffc107", fontSize: "1.2rem" }}
-                          ></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                      const isBanned =
+                        user.banned_until &&
+                        new Date(user.banned_until) > new Date();
+
+                      if (statusFilter === "banned" && !isBanned) return false;
+                      if (statusFilter === "active" && isBanned) return false;
+
+                      return matchesSearch;
+                    })
+                    .map((user) => (
+                      <tr key={user.id} className="fin-td">
+                        <td className="fin-td text-center">{user.id}</td>
+                        <td className="fin-td text-start">{user.name}</td>
+                        <td className="fin-td text-start">{user.email}</td>
+                        <td className="fin-td text-start">
+                          {user.city || "-"}
+                        </td>
+                        <td className="fin-td text-center">
+                          {new Date(user.created_at).toLocaleDateString(
+                            "uk-UA"
+                          )}
+                        </td>
+                        <td className="fin-td text-center">{user.role}</td>
+                        <td className="fin-td text-center">
+                          {user.banned_until &&
+                          new Date(user.banned_until) > new Date()
+                            ? `Заблокований до ${new Date(
+                                user.banned_until
+                              ).toLocaleString("uk-UA")}`
+                            : "Активний"}
+                        </td>
+
+                        <td className="fin-td text-center">
+                          <button
+                            onClick={() => setConfirmDeleteId(user.id)}
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <i
+                              className="bi bi-trash"
+                              style={{ color: "#dc3545", fontSize: "1.2rem" }}
+                            ></i>
+                          </button>
+
+                          <button
+                            onClick={() => setBanUserId(user.id)}
+                            style={{
+                              marginLeft: "10px",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <i
+                              className="bi bi-shield-exclamation"
+                              style={{ color: "#ffc107", fontSize: "1.2rem" }}
+                            ></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
                 )}
               </tbody>
             </table>

@@ -323,3 +323,13 @@ export const banUserById = async (id, durationMinutes, reason) => {
   );
   return response.data;
 };
+
+export const fetchSuspiciousUsers = async () => {
+  const token = localStorage.getItem("token");
+  const res = await fetch("/api/admin/suspicious-users", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.json();
+};
