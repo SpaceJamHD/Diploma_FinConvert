@@ -154,17 +154,52 @@ const addBalanceToGoal = async (req, res) => {
     console.log(` Списываем ${originAmt} ${fromCurrency} с кошелька`);
     await updateBalance(userId, fromCurrency, originAmt, "withdraw");
 
-    if (!converted && fromCurrency !== goalCurrency) {
+    if (fromCurrency !== goalCurrency) {
       console.log(
-        ` Конвертация: ${originAmt} ${fromCurrency} → ${goalCurrency}`
+        ` Конвертация (з сервером) ${originAmt} ${fromCurrency} → ${goalCurrency}`
       );
+
       const exchangeRate = await getExchangeRate(fromCurrency, goalCurrency);
+
       if (!exchangeRate) {
         return res
           .status(400)
           .json({ message: "Ошибка получения курса валют" });
       }
-      finalAmount = parseFloat((originAmt * exchangeRate).toFixed(6));
+
+      let spreadPercent = 0.005;
+      if (fromCurrency === "BTC" || goalCurrency === "BTC") {
+        spreadPercent = 0.015;
+      }
+
+      const adjustedRate = exchangeRate * (1 - spreadPercent);
+      const expectedAmount = originAmt * exchangeRate;
+      const actualAmount = originAmt * adjustedRate;
+
+      const spreadLoss = parseFloat(
+        (expectedAmount - actualAmount).toFixed(goalCurrency === "BTC" ? 8 : 2)
+      );
+      finalAmount = parseFloat(
+        actualAmount.toFixed(goalCurrency === "BTC" ? 8 : 2)
+      );
+
+      await pool.query(
+        `INSERT INTO currency_transactions 
+         (user_id, original_amount, amount, from_currency, to_currency, type, date, currency_from, currency_to, spread_loss)
+         VALUES ($1, $2, $3, $4, $5, 'goal-conversion', NOW(), $6, $7, $8)`,
+        [
+          userId,
+          originAmt.toFixed(fromCurrency === "BTC" ? 8 : 2),
+          finalAmount.toFixed(goalCurrency === "BTC" ? 8 : 2),
+          fromCurrency,
+          goalCurrency,
+          fromCurrency,
+          goalCurrency,
+          spreadLoss,
+        ]
+      );
+
+      console.log(`Спред для цели: ${spreadLoss} ${goalCurrency}`);
     }
 
     let actualDeposit = finalAmount;

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { fetchConvertedAmount } from "../../../utils/api";
+import React, { useState, useEffect } from "react";
+import { fetchConvertedAmount, getExchangeRate } from "../../../utils/api";
 
 const AddBalanceForm = ({
   goalId,
@@ -11,6 +11,40 @@ const AddBalanceForm = ({
   const [amount, setAmount] = useState("");
   const [fromCurrency, setFromCurrency] = useState("UAH");
   const [isLoading, setIsLoading] = useState(false);
+  const [spreadLoss, setSpreadLoss] = useState(0);
+
+  useEffect(() => {
+    const calculateSpread = async () => {
+      const numericAmount = normalizeAmount(amount);
+      if (!numericAmount || fromCurrency === currentCurrency) {
+        setSpreadLoss(0);
+        return;
+      }
+
+      try {
+        const rate = await getExchangeRate(fromCurrency, currentCurrency);
+        if (!rate) return;
+
+        let spreadPercent =
+          fromCurrency === "BTC" || currentCurrency === "BTC" ? 0.015 : 0.005;
+
+        const expected = numericAmount * rate;
+        const actual = numericAmount * rate * (1 - spreadPercent);
+
+        const loss =
+          currentCurrency === "BTC"
+            ? (expected - actual).toFixed(8)
+            : (expected - actual).toFixed(2);
+
+        setSpreadLoss(parseFloat(loss));
+      } catch (e) {
+        console.error("Помилка при розрахунку спреду:", e);
+        setSpreadLoss(0);
+      }
+    };
+
+    calculateSpread();
+  }, [amount, fromCurrency, currentCurrency]);
 
   const normalizeAmount = (value) => {
     const cleaned = value.replace(/\s+/g, "").replace(",", ".");
@@ -105,6 +139,18 @@ const AddBalanceForm = ({
         }}
       >
         <h3 style={{ marginBottom: "20px" }}>Поповнення цілі</h3>
+        {spreadLoss > 0 && (
+          <div
+            style={{
+              fontSize: "0.75rem",
+              color: "#dc3545",
+              textAlign: "right",
+              marginTop: "10px",
+            }}
+          >
+            Втрати через спред: {spreadLoss} {currentCurrency}
+          </div>
+        )}
 
         <div
           style={{
@@ -129,6 +175,7 @@ const AddBalanceForm = ({
               fontSize: "1rem",
             }}
           />
+
           <select
             value={fromCurrency}
             onChange={(e) => setFromCurrency(e.target.value)}
