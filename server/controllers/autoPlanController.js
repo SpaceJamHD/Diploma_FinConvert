@@ -82,13 +82,24 @@ const runAutoPlansNow = async (req, res) => {
         let convertedAmount = originalAmount;
         let isConverted = false;
 
+        let spreadLoss = 0;
+
         if (plan.currency !== "UAH") {
           const exchangeRate = await getExchangeRate(plan.currency, "UAH");
           if (!exchangeRate) continue;
-          convertedAmount = parseFloat(
-            (originalAmount * exchangeRate).toFixed(6)
-          );
+
+          const spreadPercent =
+            plan.currency === "BTC" || "UAH" === "BTC" ? 0.015 : 0.005;
+
+          const adjustedRate = exchangeRate * (1 - spreadPercent);
+          const expectedAmount = originalAmount * exchangeRate;
+          const actualAmount = originalAmount * adjustedRate;
+
+          convertedAmount = parseFloat(actualAmount.toFixed(6));
+          spreadLoss = parseFloat((expectedAmount - actualAmount).toFixed(6));
           isConverted = true;
+
+          console.log(`Спред втрати: ${spreadLoss} UAH`);
         }
 
         if (convertedAmount === 0) {
@@ -106,6 +117,7 @@ const runAutoPlansNow = async (req, res) => {
             convertedAmount,
             fromCurrency: plan.currency,
             converted: isConverted,
+            spreadLoss,
           },
         };
 

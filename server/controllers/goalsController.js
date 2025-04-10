@@ -168,6 +168,7 @@ const addBalanceToGoal = async (req, res) => {
       }
 
       let spreadPercent = 0.005;
+
       if (fromCurrency === "BTC" || goalCurrency === "BTC") {
         spreadPercent = 0.015;
       }
