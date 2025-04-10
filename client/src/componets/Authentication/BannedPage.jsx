@@ -43,8 +43,8 @@ const BannedPage = () => {
   return (
     <div
       style={{
-        backgroundColor: "#111",
-        color: "#fff",
+        backgroundColor: "#0d0d0d",
+        color: "#eaeaea",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -52,30 +52,71 @@ const BannedPage = () => {
         alignItems: "center",
         textAlign: "center",
         padding: "2rem",
+        fontFamily: "'Inter', sans-serif",
       }}
     >
-      <h1 style={{ fontSize: "3rem", color: "#dc3545" }}>🔒 Вас заблоковано</h1>
-      <p style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
-        Залишилось: <strong>{remainingTime}</strong>
-      </p>
-      {reason && (
-        <p style={{ fontStyle: "italic", color: "#ffc107" }}>
-          Причина: {reason}
-        </p>
-      )}
-      <a
-        href="mailto:support@finconvert.com"
+      <div
         style={{
-          marginTop: "2rem",
-          padding: "0.8rem 1.6rem",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          borderRadius: "8px",
-          textDecoration: "none",
+          background: "#1a1a1a",
+          border: "1px solid #333",
+          borderRadius: "12px",
+          padding: "3rem 2.5rem",
+          maxWidth: "460px",
+          width: "100%",
+          boxShadow: "0 0 20px rgba(0,0,0,0.6)",
         }}
       >
-        Написати в підтримку
-      </a>
+        <h1
+          style={{
+            fontSize: "2.5rem",
+            marginBottom: "1rem",
+            color: "#ff4d4f",
+          }}
+        >
+          Вас заблоковано
+        </h1>
+
+        <p
+          style={{
+            fontSize: "1.1rem",
+            marginBottom: "1rem",
+            color: "#cccccc",
+          }}
+        >
+          До завершення блокування:{" "}
+          <strong style={{ color: "#ffffff" }}>{remainingTime}</strong>
+        </p>
+
+        {reason && (
+          <p
+            style={{
+              fontSize: "0.95rem",
+              fontStyle: "italic",
+              color: "#f0ad4e",
+              marginBottom: "2rem",
+            }}
+          >
+            Причина: {reason}
+          </p>
+        )}
+
+        <a
+          href="mailto:support@finconvert.com"
+          style={{
+            padding: "0.7rem 1.4rem",
+            backgroundColor: "#444",
+            color: "#fff",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontWeight: "500",
+            transition: "background 0.3s ease",
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#666")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#444")}
+        >
+          Зв’язатися з підтримкою
+        </a>
+      </div>
     </div>
   );
 };

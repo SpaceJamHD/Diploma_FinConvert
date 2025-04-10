@@ -34,9 +34,7 @@ const TopSpenders = () => {
         <h6 className="text-light mb-0">
           Користувачі з найбільшими витратами сьогодні
         </h6>
-        <p className="text-sm text-secondary">
-          <i className="bi bi-cash-coin text-warning"></i> Топ 5 витратників
-        </p>
+        <p className="text-sm text-secondary mb-0">Топ 5 витратників</p>
       </div>
       <div className="fin-card-body px-4 pb-4">
         <div className="table-responsive">
