@@ -1,10 +1,8 @@
 const useAdviceCurrency = (goal, transactions = []) => {
   const advice = [];
-
   if (!goal || !Array.isArray(transactions)) return advice;
 
   const incomeTx = transactions.filter((t) => t.type === "income");
-
   const mismatchedCurrencyTx = incomeTx.filter(
     (tx) => tx.from_currency && tx.from_currency !== goal.currency
   );
@@ -16,11 +14,8 @@ const useAdviceCurrency = (goal, transactions = []) => {
     );
   }
 
-  const recentCurrencyChanges = incomeTx.filter(
-    (tx) =>
-      tx.from_currency &&
-      tx.from_currency !== goal.currency &&
-      new Date(tx.date) > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30)
+  const recentCurrencyChanges = mismatchedCurrencyTx.filter(
+    (tx) => new Date(tx.date) > new Date(Date.now() - 1000 * 60 * 60 * 24 * 30)
   );
 
   if (recentCurrencyChanges.length > 2) {
@@ -29,12 +24,18 @@ const useAdviceCurrency = (goal, transactions = []) => {
     );
   }
 
-  const totalSpreadLoss = incomeTx.reduce(
+  const totalSpreadLoss = mismatchedCurrencyTx.reduce(
     (sum, tx) => sum + (tx.spread_loss || 0),
     0
   );
 
-  if (totalSpreadLoss > goal.amount * 0.05) {
+  if (totalSpreadLoss > goal.amount * 0.1) {
+    advice.push(
+      `Сумарні втрати на спреді перевищують 10% цілі (${totalSpreadLoss.toFixed(
+        2
+      )} ${goal.currency}). Необхідно оптимізувати поповнення.`
+    );
+  } else if (totalSpreadLoss > goal.amount * 0.05) {
     advice.push(
       `Втрати на спреді вже склали ${totalSpreadLoss.toFixed(2)} ${
         goal.currency
@@ -44,7 +45,29 @@ const useAdviceCurrency = (goal, transactions = []) => {
 
   if (mismatchCount > 0 && totalSpreadLoss === 0) {
     advice.push(
-      "Для кращої точності та уникнення втрат рекомендується поповнювати в валюті цілі."
+      "Для кращої точності та уникнення потенційних втрат рекомендується поповнювати в валюті цілі."
+    );
+  }
+
+  const extremeTx = mismatchedCurrencyTx.filter(
+    (tx) => tx.spread_loss && tx.spread_loss > goal.amount * 0.03
+  );
+
+  if (extremeTx.length > 0) {
+    advice.push(
+      `Виявлено ${extremeTx.length} поповнення з високими втратами через спред. Розгляньте можливість фіксованих конверсій або використання стабільних валют.`
+    );
+  }
+
+  if (mismatchCount > 5) {
+    advice.push(
+      "Велика кількість валютних поповнень. Це може ускладнити облік і планування. Зосередьтесь на стабільній валюті."
+    );
+  }
+
+  if (incomeTx.length > 0 && mismatchCount / incomeTx.length > 0.5) {
+    advice.push(
+      "Більше половини всіх поповнень — у валюті, відмінній від цілі. Це знижує ефективність."
     );
   }
 

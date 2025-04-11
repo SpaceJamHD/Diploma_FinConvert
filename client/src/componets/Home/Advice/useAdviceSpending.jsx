@@ -15,62 +15,71 @@ const useAdviceSpending = (goal, transactions = []) => {
 
   if (totalSpent > 0) {
     advice.push(
-      `Ви вже витратили ${totalSpent.toFixed(2)} ${
+      `Ви витратили ${totalSpent.toFixed(2)} ${
         goal.currency
-      } з цієї цілі. Перевірте, чи це було заплановано.`
+      } з цієї цілі. Перевірте, чи це відповідає вашому фінансовому плану.`
     );
   }
 
-  if (avgSpending > goal.amount * 0.2) {
+  if (avgSpending > goal.amount * 0.3) {
     advice.push(
-      `Середня витрата складає ${avgSpending.toFixed(2)} ${
+      `Середня витрата становить ${avgSpending.toFixed(2)} ${
         goal.currency
-      }, що є досить значною. Розгляньте можливість скорочення витрат.`
+      } — це висока сума. Скоротіть необов'язкові витрати.`
+    );
+  } else if (avgSpending > goal.amount * 0.15) {
+    advice.push(
+      `Витрати помірні, але можуть бути оптимізовані. Перегляньте останні транзакції.`
     );
   } else if (avgSpending < goal.amount * 0.05 && spendingTx.length > 0) {
     advice.push(
-      `Ваші середні витрати (${avgSpending.toFixed(
-        2
-      )}) низькі — це допомагає досягти мети швидше.`
+      `Ваші середні витрати (${avgSpending.toFixed(2)} ${
+        goal.currency
+      }) досить низькі — це допомагає накопичити швидше.`
     );
   }
 
-  if (recentSpending.length > 3) {
+  if (recentSpending.length > 5) {
     advice.push(
       `За останній місяць було ${
         recentSpending.length
       } витрат на суму ${recentTotal.toFixed(2)} ${
         goal.currency
-      }. Перевірте, чи можна уникнути частих витрат.`
+      }. Спробуйте встановити ліміт.`
     );
   }
 
   if (totalSpent > goal.balance) {
     advice.push(
-      "Ваші витрати перевищують залишок цілі. Це може вплинути на досягнення мети."
+      "Ваші витрати перевищили залишок цілі. Це може загрожувати досягненню мети."
     );
   }
 
   if (spendingTx.length >= 5 && totalSpent > 0) {
     advice.push(
-      "Ціль має значну кількість витрат. Можливо, варто скоротити необов'язкові витрати або переглянути бюджет."
+      "Ціль має значну кількість витрат. Варто проаналізувати, чи всі вони необхідні."
     );
   }
 
   const excessiveSpendingTx = spendingTx.filter(
     (tx) => tx.amount > goal.amount * 0.4
   );
-
   if (excessiveSpendingTx.length > 0) {
     advice.push(
-      `Зареєстровані великі витрати (понад 40% від мети). Переконайтесь, що це дійсно виправдані витрати.`
+      `Виявлено витрати понад 40% від цілі. Переконайтесь у доцільності цих витрат.`
     );
   }
 
   const goalCompletionRatio = goal.balance / goal.amount;
   if (goalCompletionRatio < 0.5 && totalSpent > goal.amount * 0.3) {
     advice.push(
-      "Витрати вже значні, а прогрес по цілі низький. Пора зменшити витрати або активніше поповнювати ціль."
+      "Витрати значні, а прогрес по цілі — низький. Пора активніше поповнювати або скорочувати витрати."
+    );
+  }
+
+  if (spendingTx.length === 0 && goal.balance > 0) {
+    advice.push(
+      "Чудово! У вас ще не було витрат з цієї цілі. Продовжуйте контролювати бюджет."
     );
   }
 

@@ -11,13 +11,20 @@ const useGoalAdvice = async (
   balances = {},
   autoPlans = []
 ) => {
+  const progressTips = useAdviceProgress(goal, transactions);
+  const topUpTips = useAdviceTopUps(goal, transactions, balances);
+  const spendingTips = useAdviceSpending(goal, transactions);
+  const currencyTips = useAdviceCurrency(goal, transactions);
+  const deadlineTips = useAdviceDeadline(goal, transactions);
+  const autoTopUpTips = await useAdviceAutoTopUp(goal, autoPlans);
+
   return {
-    progress: useAdviceProgress(goal, transactions),
-    topup: useAdviceTopUps(goal, transactions, balances),
-    spending: useAdviceSpending(goal, transactions),
-    currency: useAdviceCurrency(goal, transactions),
-    deadline: useAdviceDeadline(goal, transactions),
-    auto: await useAdviceAutoTopUp(goal, autoPlans),
+    progress: progressTips,
+    topup: topUpTips,
+    spending: spendingTips,
+    currency: currencyTips,
+    deadline: deadlineTips,
+    auto: autoTopUpTips,
   };
 };
 
