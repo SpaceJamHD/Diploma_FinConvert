@@ -2,67 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import "../../../styles/analytics.css";
+import generateGoalsDistributionAdvice from "./generateGoalsDistributionAdvice";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
-
-const getAdvice = (data, total) => {
-  if (data.length === 0) return ["Немає даних для аналізу за обраний період."];
-
-  const sorted = [...data].sort((a, b) => b.total_uah - a.total_uah);
-  const topGoal = sorted[0];
-  const smallGoal = sorted.find((g) => g.total_uah / total < 0.15);
-
-  const advices = [];
-
-  if (topGoal)
-    advices.push(
-      ` Ціль '${topGoal.name}' отримала найбільше поповнень — чудовий фокус!`
-    );
-
-  if (smallGoal)
-    advices.push(
-      ` Ціль '${smallGoal.name}' отримала лише ${Math.round(
-        (smallGoal.total_uah / total) * 100
-      )}% — можливо, її варто пріоритизувати.`
-    );
-
-  const zeroGoals = data.filter(
-    (g) =>
-      !g.contributions ||
-      g.contributions.every((c) => parseFloat(c.original) === 0)
-  );
-  zeroGoals.forEach((g) =>
-    advices.push(` Ціль '${g.name}' не поповнювалась — це ризиковано.`)
-  );
-
-  data.forEach((g) => {
-    const btcContribution = g.contributions?.find(
-      (c) => c.from_currency === "BTC"
-    );
-    if (btcContribution && parseFloat(btcContribution.original) > 0) {
-      advices.push(
-        ` Ціль '${g.name}' частково поповнювалась BTC — пам'ятай про волатильність криптовалюти.`
-      );
-    }
-  });
-
-  data.forEach((g) => {
-    if (g.contributions?.length === 1) {
-      advices.push(
-        ` Ціль '${g.name}' має лише одне джерело поповнення — варто урізноманітнити надходження.`
-      );
-    }
-  });
-
-  const dominantGoal = data.find((g) => g.total_uah / total > 0.5);
-  if (dominantGoal) {
-    advices.push(
-      ` Більше 50% поповнень припадає на ціль '${dominantGoal.name}' — можливо, варто збалансувати розподіл.`
-    );
-  }
-
-  return advices;
-};
 
 const generateColors = (count) => {
   const palette = [
@@ -107,7 +49,7 @@ const GoalsDistributionChart = () => {
             0
           );
           setGoalsData(result);
-          setAdvice(getAdvice(result, total));
+          setAdvice(generateGoalsDistributionAdvice(result, total));
         } else {
           setGoalsData([]);
           setAdvice(["Помилка: неможливо обробити дані."]);
@@ -135,11 +77,6 @@ const GoalsDistributionChart = () => {
       },
     ],
   };
-
-  const totalSum = goalsData.reduce(
-    (sum, g) => sum + parseFloat(g.total_uah),
-    0
-  );
 
   const options = {
     plugins: {

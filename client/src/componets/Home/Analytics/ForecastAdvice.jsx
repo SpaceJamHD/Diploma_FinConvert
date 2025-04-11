@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import useForecastTrends from "./useForecastTrends";
-import useSpendingBreakdown from "./useSpendingBreakdown";
-import useAnomalyDetection from "./useAnomalyDetection";
 import SpreadLossAdvice from "./SpreadLossAdvice";
-import generateDynamicAdvice from "./generateDynamicAdvice";
+import generateFinalAdvice from "./generateFinalAdvice";
+import generateGoalPriorityAdvice from "./generateGoalPriorityAdvice";
+import generateSmartGoalAdvice from "./generateSmartGoalAdvice";
+
 import { Card } from "react-bootstrap";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/dark-scrollbar.css";
@@ -11,10 +11,8 @@ import "../../../styles/dark-scrollbar.css";
 const ForecastAdvice = () => {
   const [forecastData, setForecastData] = useState(null);
   const [dynamicAdvice, setDynamicAdvice] = useState([]);
-
-  const trendsAdvice = useForecastTrends(forecastData);
-  const breakdownAdvice = useSpendingBreakdown(forecastData);
-  const anomalyAdvice = useAnomalyDetection(forecastData);
+  const [goalAdvice, setGoalAdvice] = useState([]);
+  const [smartGoalAdvice, setSmartGoalAdvice] = useState([]);
 
   useEffect(() => {
     const fetchForecast = async () => {
@@ -35,17 +33,41 @@ const ForecastAdvice = () => {
   }, []);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [goalsRes, plansRes] = await Promise.all([
+          fetch("/api/goals", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+          fetch("/api/auto-goal-plans", {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+        ]);
+
+        const goals = await goalsRes.json();
+        const autoPlans = await plansRes.json();
+
+        setGoalAdvice(generateGoalPriorityAdvice(goals));
+        setSmartGoalAdvice(generateSmartGoalAdvice(goals, autoPlans));
+      } catch (error) {
+        console.error("Помилка завантаження цілей або планів:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
     if (forecastData) {
-      setDynamicAdvice(generateDynamicAdvice(forecastData));
+      setDynamicAdvice(generateFinalAdvice(forecastData));
     }
   }, [forecastData]);
 
-  const allAdvice = [
-    ...dynamicAdvice,
-    ...trendsAdvice,
-    ...breakdownAdvice,
-    ...anomalyAdvice,
-  ];
+  const allAdvice = [...dynamicAdvice, ...goalAdvice, ...smartGoalAdvice];
 
   const uniqueAdvice = Array.from(
     new Map(

@@ -187,12 +187,28 @@ const getNextMonthForecast = async (req, res) => {
     const balanceChangePercent =
       balance > 0 ? ((expectedBalance - balance) / balance) * 100 : 0;
 
+    const goalsCountQuery = await pool.query(
+      `SELECT COUNT(*) AS count FROM goals WHERE user_id = $1`,
+      [userId]
+    );
+    const goalsCount = parseInt(goalsCountQuery.rows[0].count) || 0;
+
+    const conversionsQuery = await pool.query(
+      `SELECT COUNT(*) AS count
+       FROM currency_transactions
+       WHERE user_id = $1 AND type = 'conversion' AND date >= NOW() - INTERVAL '30 days'`,
+      [userId]
+    );
+    const conversionsCount = parseInt(conversionsQuery.rows[0].count) || 0;
+
     res.json({
       balance,
       income,
       expenses,
       expectedBalance,
       balanceChangePercent,
+      goalsCount,
+      conversionsCount,
     });
   } catch (error) {
     console.error("Forecast error:", error);

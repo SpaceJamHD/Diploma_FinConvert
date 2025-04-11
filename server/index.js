@@ -36,6 +36,7 @@ app.use("/api/exchange-rates", exchangeRatesRoutes);
 app.use("/api", cryptoRoutes);
 app.use("/api/transactions", transactionsRoutes);
 app.use("/api/auto-plan", autoPlanRoutes);
+app.use("/api/auto-goal-plans", autoPlanRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/admin", adminRoutes);
