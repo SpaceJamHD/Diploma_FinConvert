@@ -23,6 +23,7 @@ import AnalyticsPage from "./componets/Home/Analytics/AnalyticsPage";
 import AdminPage from "./componets/Home/Admin/AdminPage";
 import AdminNavbar from "./componets/Home/Navbar/AdminNavbar";
 import BannedPage from "./componets/Authentication/BannedPage";
+import AdminUserDetails from "./componets/Home/Admin/AdminUserDetails";
 
 const AppContent = () => {
   const location = useLocation();
@@ -121,7 +122,17 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+
         <Route path="/banned" element={<BannedPage />} />
+
+        <Route
+          path="/admin/users/:id"
+          element={
+            <ProtectedRoute>
+              {role === "admin" ? <AdminUserDetails /> : <Navigate to="/" />}
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

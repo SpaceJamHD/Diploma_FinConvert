@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
 import { fetchAllUsers, deleteUserById, banUserById } from "../../../utils/api";
 
@@ -79,6 +81,8 @@ const AdminUsersTable = () => {
       console.error("Помилка блокування/розблокування користувача:", err);
     }
   };
+
+  const navigate = useNavigate();
 
   return (
     <main className="container mb-5">
@@ -222,6 +226,21 @@ const AdminUsersTable = () => {
                             <i
                               className="bi bi-shield-exclamation"
                               style={{ color: "#ffc107", fontSize: "1.2rem" }}
+                            ></i>
+                          </button>
+
+                          <button
+                            onClick={() => navigate(`/admin/users/${user.id}`)}
+                            style={{
+                              marginLeft: "10px",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <i
+                              className="bi bi-person-lines-fill"
+                              style={{ color: "#0dcaf0", fontSize: "1.2rem" }}
                             ></i>
                           </button>
                         </td>
