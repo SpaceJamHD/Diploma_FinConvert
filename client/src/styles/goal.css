@@ -304,3 +304,119 @@ input {
     background: #28a745;
     color: #ffffff;
 }
+
+.fin-card-body div::-webkit-scrollbar {
+    width: 10px;
+}
+
+.fin-card-body div::-webkit-scrollbar-track {
+    background: #222;
+}
+
+.fin-card-body div::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 10px;
+    border: 2px solid #333;
+}
+
+.fin-card-body div::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+}
+
+.ban-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.ban-modal-dialog {
+    background-color: #1e1e1e;
+    padding: 25px 30px;
+    border-radius: 10px;
+    width: 360px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    border: 1px solid #333;
+    z-index: 2100;
+}
+
+.ban-modal-title {
+    color: #ffd700;
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.ban-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ban-input {
+    padding: 10px 14px;
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    color: #ffcc00;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.ban-toggle-btn {
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 6px 14px;
+    margin-bottom: 15px;
+    background-color: transparent;
+    color: #ffd700;
+    border: 1px solid #ffd700;
+    transition: all 0.3s ease;
+}
+
+.ban-toggle-btn:hover {
+    background-color: #333;
+}
+
+.ban-btn-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.ban-btn-confirm {
+    flex: 1;
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 0;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.ban-btn-confirm:hover {
+    background-color: #218838;
+}
+
+.ban-btn-cancel {
+    flex: 1;
+    background-color: #dc3545;
+    color: #fff;
+    padding: 10px 0;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.ban-btn-cancel:hover {
+    background-color: #c82333;
+}

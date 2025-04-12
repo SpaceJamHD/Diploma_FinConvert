@@ -5,6 +5,7 @@ const AdminStats = () => {
   const [stats, setStats] = useState(null);
   const [bannedList, setBannedList] = useState([]);
   const [showBanned, setShowBanned] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -18,7 +19,9 @@ const AdminStats = () => {
         const data = await res.json();
         setStats(data);
       } catch (err) {
-        console.error("Ошибка получения статистики администратора:", err);
+        console.error("Помилка при отриманні статистики:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -38,25 +41,35 @@ const AdminStats = () => {
         const data = await res.json();
         setBannedList(data);
       } catch (err) {
-        console.error("Ошибка загрузки заблокированных:", err);
+        console.error(
+          "Помилка при завантаженні заблокованих користувачів:",
+          err
+        );
       }
     }
   };
 
-  if (!stats) return <p className="text-light">Загрузка статистики...</p>;
+  if (loading) return <p className="text-light">Завантаження статистики...</p>;
+  if (!stats) return <p className="text-danger">Немає даних статистики</p>;
 
   const statItems = [
-    { title: "Всего пользователей", value: stats.totalUsers },
-    { title: "Активные пользователи", value: stats.activeUsers },
+    { title: "Усього користувачів", value: stats.totalUsers ?? "—" },
+    { title: "Активні користувачі", value: stats.activeUsers ?? "—" },
     {
-      title: "Заблокированные",
-      value: stats.bannedUsers,
+      title: "Заблоковані користувачі",
+      value: stats.bannedUsers ?? "—",
       clickable: true,
       onClick: toggleBannedList,
     },
-    { title: "Транзакций всего", value: stats.totalTransactions },
-    { title: "Среднее транзакцій/пользователь", value: stats.avgPerUser },
-    { title: "Аномалий сегодня", value: stats.suspiciousToday },
+    { title: "Усього транзакцій", value: stats.totalTransactions ?? "—" },
+    {
+      title: "Середнє транзакцій на користувача",
+      value: stats.avgPerUser ?? "—",
+    },
+    {
+      title: "Підозрілі дії за сьогодні",
+      value: stats.suspiciousToday ?? "—",
+    },
   ];
 
   return (
@@ -64,9 +77,7 @@ const AdminStats = () => {
       <div className="fin-card-header pb-3">
         <h6 className="text-light mb-0">Загальна статистика системи</h6>
         <p className="text-sm text-secondary mb-0">
-          <i className="bi bi-activity text-warning"></i>
-          <span className="font-weight-bold"> Адмін-панель</span> — оновлено
-          щойно
+          <span className="fw-bold"> Адмін-панель</span> — оновлено щойно
         </p>
       </div>
 
@@ -99,13 +110,13 @@ const AdminStats = () => {
 
         {showBanned && (
           <div className="mt-3">
-            <h6 className="text-warning">Список заблокированных:</h6>
+            <h6 className="text-warning">Список заблокованих користувачів:</h6>
             <ul
               className="list-unstyled text-light"
               style={{ paddingLeft: "1rem" }}
             >
               {bannedList.length === 0 ? (
-                <li>Нет заблокированных пользователей</li>
+                <li>Немає заблокованих користувачів</li>
               ) : (
                 bannedList.map((user, idx) => (
                   <li key={idx} className="py-1 border-bottom border-secondary">

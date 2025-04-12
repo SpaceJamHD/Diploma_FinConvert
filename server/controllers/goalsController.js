@@ -562,6 +562,21 @@ const getGoalById = async (req, res) => {
   }
 };
 
+const getGoalsByUserIdForAdmin = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM goals WHERE user_id = $1 ORDER BY created_at DESC",
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Ошибка при получении целей пользователя админом:", error);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+};
+
 module.exports = {
   getGoals,
   addGoal,
@@ -573,4 +588,5 @@ module.exports = {
   getGoalsHistory,
   getGoalById,
   withdrawFullGoal,
+  getGoalsByUserIdForAdmin,
 };

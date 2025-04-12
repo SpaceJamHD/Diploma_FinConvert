@@ -254,38 +254,16 @@ const AdminUsersTable = () => {
       </div>
 
       {banUserId && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#1e1e1e",
-              color: "#fff",
-              padding: "20px",
-              borderRadius: "8px",
-              textAlign: "center",
-              width: "360px",
-            }}
-          >
+        <div className="ban-modal-overlay">
+          <div className="ban-modal-dialog">
             <button
               onClick={() => setIsUnbanMode(!isUnbanMode)}
-              className="btn btn-sm btn-outline-light mb-2"
+              className="btn btn-sm btn-outline-warning ban-toggle-btn"
             >
               Перемкнути на {isUnbanMode ? "блокування" : "розблокування"}
             </button>
 
-            <h5>
+            <h5 className="ban-title">
               {isUnbanMode
                 ? "Розблокувати користувача"
                 : "Заблокувати користувача"}
@@ -298,25 +276,25 @@ const AdminUsersTable = () => {
                   value={banReason}
                   onChange={(e) => setBanReason(e.target.value)}
                   placeholder="Причина блокування"
-                  className="form-control my-2"
+                  className="ban-input form-control"
                 />
                 <input
                   type="number"
                   value={banDuration}
                   onChange={(e) => setBanDuration(e.target.value)}
                   placeholder="Тривалість (хв)"
-                  className="form-control my-2"
+                  className="ban-input form-control"
                 />
               </>
             )}
 
-            <div style={{ display: "flex", justifyContent: "space-around" }}>
-              <button onClick={handleBanUser} className="btn btn-warning">
+            <div className="ban-btn-group">
+              <button onClick={handleBanUser} className="ban-btn-confirm">
                 Підтвердити
               </button>
               <button
                 onClick={() => setBanUserId(null)}
-                className="btn btn-secondary"
+                className="ban-btn-cancel"
               >
                 Скасувати
               </button>

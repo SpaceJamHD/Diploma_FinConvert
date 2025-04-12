@@ -50,4 +50,19 @@ router.delete("/", authenticateToken, async (req, res) => {
   }
 });
 
+router.get("/admin/history/:id", authenticateToken, async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM currency_transactions WHERE user_id = $1 ORDER BY date DESC",
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Ошибка получения транзакций пользователя:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+});
+
 module.exports = router;

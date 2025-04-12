@@ -11,6 +11,7 @@ const {
   withdrawFullGoal,
   getGoalsHistory,
   getGoalById,
+  getGoalsByUserIdForAdmin,
 } = require("../controllers/goalsController");
 const authenticateToken = require("../middleware/authenticateToken");
 
@@ -46,10 +47,9 @@ router.get(
 
     try {
       console.log(
-        `🔍 Запрашиваем транзакции для goalId: ${goalId}, userId: ${userId}`
+        `Запрашиваем транзакции для goalId: ${goalId}, userId: ${userId}`
       );
 
-      // ✅ 1️⃣ Находим goal_history_id
       const historyGoal = await pool.query(
         "SELECT id FROM goals_history WHERE goal_id = $1 AND user_id = $2",
         [goalId, userId]
@@ -65,17 +65,16 @@ router.get(
       const historyGoalId = historyGoal.rows[0].id;
       console.log(`📜 Найден goal_history_id: ${historyGoalId}`);
 
-      // ✅ 2️⃣ Загружаем транзакции из goals_history_transactions
       const result = await pool.query(
         "SELECT * FROM goals_history_transactions WHERE goal_history_id = $1 AND user_id = $2 ORDER BY date DESC",
         [historyGoalId, userId]
       );
 
-      console.log(`✅ Найдено ${result.rows.length} транзакций.`);
+      console.log(`Найдено ${result.rows.length} транзакций.`);
 
       res.json(result.rows);
     } catch (error) {
-      console.error("❌ Ошибка при получении транзакций из истории:", error);
+      console.error("Ошибка при получении транзакций из истории:", error);
       res.status(500).json({ message: "Ошибка сервера" });
     }
   }
@@ -92,5 +91,34 @@ router.post("/:id/withdraw-balance", authenticateToken, withdrawFromGoal);
 router.get("/:id", authenticateToken, getGoalById);
 
 router.post("/:id/withdraw-full", authenticateToken, withdrawFullGoal);
+
+const checkAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Доступ заборонено" });
+  }
+  next();
+};
+
+router.get(
+  "/admin/:userId",
+  authenticateToken,
+  checkAdmin,
+  getGoalsByUserIdForAdmin
+);
+
+router.get("/admin/history/:id", authenticateToken, async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const result = await pool.query(
+      "SELECT * FROM goals_history WHERE user_id = $1 ORDER BY achieved_at DESC",
+      [userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Ошибка получения целей пользователя:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+});
 
 module.exports = router;

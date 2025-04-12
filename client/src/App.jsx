@@ -24,6 +24,7 @@ import AdminPage from "./componets/Home/Admin/AdminPage";
 import AdminNavbar from "./componets/Home/Navbar/AdminNavbar";
 import BannedPage from "./componets/Authentication/BannedPage";
 import AdminUserDetails from "./componets/Home/Admin/AdminUserDetails";
+import AdminUserHistory from "./componets/Home/Admin/AdminUserHistory";
 
 const AppContent = () => {
   const location = useLocation();
@@ -42,7 +43,7 @@ const AppContent = () => {
 
   return (
     <>
-      {location.pathname === "/admin" && role === "admin" ? (
+      {location.pathname.startsWith("/admin") && role === "admin" ? (
         <AdminNavbar />
       ) : (
         !hideFooterRoutes.includes(location.pathname) && <Navbar />
@@ -130,6 +131,15 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               {role === "admin" ? <AdminUserDetails /> : <Navigate to="/" />}
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/users/:id/history"
+          element={
+            <ProtectedRoute>
+              {role === "admin" ? <AdminUserHistory /> : <Navigate to="/" />}
             </ProtectedRoute>
           }
         />
