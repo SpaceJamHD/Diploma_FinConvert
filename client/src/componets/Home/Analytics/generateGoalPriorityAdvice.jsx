@@ -1,33 +1,34 @@
-const generateGoalPriorityAdvice = (goals = []) => {
+const generateGoalPriorityAdvice = (goals = [], goalTransactions = []) => {
   const advice = new Map();
 
   if (!Array.isArray(goals) || goals.length === 0) return [];
 
+  const parseNumber = (val) => parseFloat(val || 0);
+
   const lowPriorityGoals = goals.filter(
-    (goal) => goal.priority === "Низький" && goal.balance > 0
+    (goal) => goal.priority === "Низький" && parseNumber(goal.balance) > 0
   );
 
   const mediumPriorityGoals = goals.filter(
-    (goal) => goal.priority === "Середній" && goal.balance > 0
+    (goal) => goal.priority === "Середній" && parseNumber(goal.balance) > 0
   );
 
   const highPriorityGoals = goals.filter((goal) => goal.priority === "Високий");
 
   const highNotFunded = highPriorityGoals.filter(
-    (goal) => parseFloat(goal.balance || 0) < parseFloat(goal.amount || 0) * 0.3
+    (goal) => parseNumber(goal.balance) === 0
   );
 
   const totalLowBalance = lowPriorityGoals.reduce(
-    (sum, g) => sum + parseFloat(g.balance || 0),
+    (sum, g) => sum + parseNumber(g.balance),
     0
   );
 
   const totalHighMissing = highNotFunded.reduce(
-    (sum, g) => sum + (parseFloat(g.amount || 0) - parseFloat(g.balance || 0)),
+    (sum, g) => sum + (parseNumber(g.amount) - parseNumber(g.balance)),
     0
   );
 
-  // 💡 Теперь уже безопасно использовать:
   if (
     mediumPriorityGoals.length > 0 &&
     highNotFunded.length > 0 &&

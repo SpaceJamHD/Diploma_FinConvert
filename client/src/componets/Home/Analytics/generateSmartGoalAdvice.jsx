@@ -4,29 +4,39 @@ const generateSmartGoalAdvice = (goals = [], autoPlans = []) => {
   if (!Array.isArray(goals) || goals.length === 0) return [];
 
   const now = new Date();
-  const highPriority = goals.filter((g) => g.priority === "Високий");
-  const lowProgress = goals.filter(
-    (g) =>
-      parseFloat(g.balance || 0) < parseFloat(g.amount || 1) * 0.5 &&
-      new Date(g.deadline) < new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  );
 
-  const nearComplete = goals.filter(
-    (g) =>
-      parseFloat(g.balance || 0) >= parseFloat(g.amount || 1) * 0.9 &&
-      parseFloat(g.balance || 0) < parseFloat(g.amount || 1)
-  );
+  const highPriorityGoals = goals.filter((g) => g.priority === "Високий");
 
-  const manySmallGoals = goals.filter((g) => parseFloat(g.balance || 0) < 100);
+  const deadlineSoon = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const riskyGoals = highPriorityGoals.filter((g) => {
+    const balance = parseFloat(g.balance || 0);
+    const amount = parseFloat(g.amount || 1);
+    const progress = balance / amount;
+    const deadline = new Date(g.deadline);
+    return progress < 0.5 && deadline < deadlineSoon;
+  });
 
-  const inactiveAutoPlans = autoPlans.filter(
-    (p) =>
-      !p.next_execution ||
-      new Date(p.next_execution) >
-        new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
-  );
+  const nearComplete = goals.filter((g) => {
+    const balance = parseFloat(g.balance || 0);
+    const amount = parseFloat(g.amount || 1);
+    const progress = balance / amount;
+    return progress >= 0.9 && progress < 1;
+  });
 
-  if (lowProgress.length > 0) {
+  const manySmallGoals = goals.filter((g) => {
+    const balance = parseFloat(g.balance || 0);
+    const amount = parseFloat(g.amount || 1);
+    const progress = balance / amount;
+    return balance < 100 && progress < 0.5;
+  });
+
+  const inactiveAutoPlans = autoPlans.filter((p) => {
+    if (!p.next_execution) return true;
+    const exec = new Date(p.next_execution);
+    return exec > new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  });
+
+  if (riskyGoals.length > 0) {
     advice.set("deadline-risk", {
       id: "deadline-risk",
       text: "Є цілі з високим пріоритетом, що не фінансуються до дедлайну — перевірте прогрес і адаптуйте бюджет.",

@@ -196,9 +196,14 @@ const getNextMonthForecast = async (req, res) => {
     const conversionsQuery = await pool.query(
       `SELECT COUNT(*) AS count
        FROM currency_transactions
-       WHERE user_id = $1 AND type = 'conversion' AND date >= NOW() - INTERVAL '30 days'`,
+       WHERE user_id = $1
+         AND from_currency IS NOT NULL 
+         AND to_currency IS NOT NULL 
+         AND from_currency != to_currency
+         AND date >= NOW() - INTERVAL '30 days'`,
       [userId]
     );
+
     const conversionsCount = parseInt(conversionsQuery.rows[0].count) || 0;
 
     res.json({
@@ -273,10 +278,40 @@ const getConversionDirectionsAnalytics = async (req, res) => {
   }
 };
 
+const getAllGoalIncomeTransactions = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT goal_id, amount, type, date
+      FROM transactions
+      WHERE user_id = $1 AND type = 'income'
+
+      UNION ALL
+
+      SELECT gh.goal_id, th.amount, th.type, th.date
+      FROM goals_history_transactions th
+      JOIN goals_history gh ON gh.id = th.goal_history_id
+      WHERE th.user_id = $1 AND th.type = 'income'
+      `,
+      [userId]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Помилка при отриманні всіх поповнень цілей:", error);
+    res
+      .status(500)
+      .json({ message: "Помилка сервера при отриманні транзакцій" });
+  }
+};
+
 module.exports = {
   getSpreadLossAnalytics,
   getGoalsDistributionAnalytics,
   getNextMonthForecast,
   getSpreadLossTotalUAH,
   getConversionDirectionsAnalytics,
+  getAllGoalIncomeTransactions,
 };
