@@ -112,8 +112,8 @@ const SuspiciousUsersTable = () => {
                     <td className="fin-td text-center">
                       {u.transaction_count}
                     </td>
-                    <td className="fin-td text-right">
-                      {parseFloat(u.total_amount).toFixed(2)}
+                    <td className="fin-td text-right text-warning">
+                      {parseFloat(u.total_amount_usd).toFixed(2)} $
                     </td>
                     <td className="fin-td text-right text-danger">
                       {parseFloat(u.total_spread_loss).toFixed(2)}

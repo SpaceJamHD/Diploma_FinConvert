@@ -99,12 +99,42 @@ const getSuspiciousUsers = async (req, res) => {
         u.id AS user_id,
         u.name,
         COUNT(t.id) AS transaction_count,
-        COALESCE(SUM(t.amount), 0) AS total_amount,
-        COALESCE(AVG(t.amount), 0) AS avg_amount,
-        COALESCE(SUM(t.spread_loss), 0) AS total_spread_loss,
+
+        COALESCE(SUM(
+          CASE 
+            WHEN t.to_currency = 'USD' THEN t.amount
+            WHEN t.to_currency = 'UAH' THEN t.amount / 38.0
+            WHEN t.to_currency = 'EUR' THEN t.amount * 1.08
+            WHEN t.to_currency = 'BTC' THEN t.amount * 65000.0
+            ELSE 0
+          END
+        ), 0) AS total_amount_usd,
+
+        COALESCE(AVG(
+          CASE 
+            WHEN t.to_currency = 'USD' THEN t.amount
+            WHEN t.to_currency = 'UAH' THEN t.amount / 38.0
+            WHEN t.to_currency = 'EUR' THEN t.amount * 1.08
+            WHEN t.to_currency = 'BTC' THEN t.amount * 65000.0
+            ELSE 0
+          END
+        ), 0) AS avg_amount_usd,
+
+        COALESCE(SUM(
+          CASE 
+            WHEN t.to_currency = 'USD' THEN t.spread_loss * 39
+            WHEN t.to_currency = 'EUR' THEN t.spread_loss * 42
+            WHEN t.to_currency = 'BTC' THEN t.spread_loss * 1300000
+            ELSE t.spread_loss
+          END
+        ), 0) AS total_spread_loss,
+
         MAX(t.date) AS last_transaction,
+
         SUM(CASE WHEN t.from_currency = 'BTC' OR t.to_currency = 'BTC' THEN 1 ELSE 0 END) AS btc_transactions,
+
         SUM(CASE WHEN t.date > NOW() - INTERVAL '24 hours' THEN 1 ELSE 0 END) AS recent_transactions
+
       FROM users u
       LEFT JOIN currency_transactions t ON u.id = t.user_id
       GROUP BY u.id, u.name
