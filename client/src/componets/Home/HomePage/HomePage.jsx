@@ -87,7 +87,7 @@ const HomePage = () => {
                 <p>Тут ваші фінанси під контролем.</p>
               </div>
             )}
-            <button className="btn btn-success btn-lg">Подробнее</button>
+            <button className="btn btn-success btn-lg">Докладніше</button>
           </div>
 
           <div className="col-lg-5">

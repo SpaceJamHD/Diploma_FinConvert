@@ -14,7 +14,7 @@ const ParentComponent = () => {
           },
         });
         if (!response.ok) {
-          throw new Error("Ошибка при загрузке целей");
+          throw new Error("Помилка під час завантаження цілей");
         }
         const data = await response.json();
         setGoals(data);

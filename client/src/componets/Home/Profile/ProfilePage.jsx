@@ -29,7 +29,7 @@ const ProfilePage = () => {
       });
       const data = await response.json();
       if (!response.ok)
-        throw new Error(data.message || "Ошибка загрузки профиля.");
+        throw new Error(data.message || "Помилка завантаження профілю.");
       setProfile(data);
       setLoading(false);
     } catch (error) {
@@ -50,7 +50,7 @@ const ProfilePage = () => {
       });
       const data = await response.json();
       if (!response.ok)
-        throw new Error(data.message || "Ошибка сохранения профиля.");
+        throw new Error(data.message || "Помилка збереження профілю.");
       setSuccess(true);
       setIsEditing(false);
     } catch (error) {
@@ -88,7 +88,7 @@ const ProfilePage = () => {
           </div>
           <div className="card-body">
             {success && (
-              <p className="text-success">Профиль успешно обновлен!</p>
+              <p className="text-success">Профіль успішно оновлено!</p>
             )}
             <div className="row">
               <div className="col-md-6">

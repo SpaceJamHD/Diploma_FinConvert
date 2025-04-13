@@ -8,13 +8,13 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
 
   const handleWithdraw = async () => {
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
-      alert("Введите корректную сумму!");
+      alert("Введіть правильну суму!");
       return;
     }
 
     try {
       setIsLoading(true);
-      console.log("🔹 Отправка запроса на возврат:", {
+      console.log(" Отправка запроса на возврат:", {
         goalId: goal.id,
         amount,
         fromCurrency,
@@ -68,7 +68,7 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
           textAlign: "center",
         }}
       >
-        <h3 style={{ marginBottom: "20px" }}>Возврат средств</h3>
+        <h3 style={{ marginBottom: "20px" }}>Повернення коштів</h3>
 
         <div
           style={{
@@ -81,7 +81,7 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Введите сумму"
+            placeholder="Введіть суму"
             required
             style={{
               flex: 1,
@@ -123,7 +123,7 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
               marginRight: "10px",
             }}
           >
-            {isLoading ? "Обработка..." : "Вернуть"}
+            {isLoading ? "Обробка..." : "Повернути"}
           </button>
           <button
             onClick={onClose}
@@ -137,7 +137,7 @@ const WithdrawForm = ({ goal, onClose, onWithdraw }) => {
               cursor: "pointer",
             }}
           >
-            Отмена
+            Скасування
           </button>
         </div>
       </div>

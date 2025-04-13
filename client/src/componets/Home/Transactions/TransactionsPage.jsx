@@ -65,7 +65,7 @@ const TransactionsPage = () => {
       );
       setAmount("");
     } catch (error) {
-      alert(" Ошибка при создании транзакции!");
+      alert(" Помилка під час створення транзакції!");
     }
   };
 
@@ -83,7 +83,7 @@ const TransactionsPage = () => {
       }
       window.location.reload();
     } catch (error) {
-      alert(" Ошибка при очистке истории транзакций!");
+      alert(" Помилка під час очищення історії транзакцій!");
     }
   };
 

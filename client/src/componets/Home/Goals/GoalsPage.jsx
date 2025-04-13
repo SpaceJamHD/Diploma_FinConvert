@@ -10,7 +10,7 @@ const GoalsPage = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.error("Токен отсутствует. Пожалуйста, войдите в систему.");
+        console.error("Токена відсутня. Будь ласка, увійдіть до системи.");
         setIsLoading(false);
         return;
       }
@@ -24,7 +24,7 @@ const GoalsPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Ошибка при загрузке данных");
+        throw new Error("Помилка під час завантаження даних");
       }
 
       const goalsData = await response.json();

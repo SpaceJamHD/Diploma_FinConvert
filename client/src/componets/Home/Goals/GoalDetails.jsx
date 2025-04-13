@@ -23,7 +23,7 @@ const GoalDetails = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!goalResponse.ok) throw new Error("Цель не найдена.");
+        if (!goalResponse.ok) throw new Error("Ціль не знайдена.");
         const goalData = await goalResponse.json();
 
         const transactionsResponse = await fetch(
@@ -41,8 +41,7 @@ const GoalDetails = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!balancesResponse.ok)
-          throw new Error("Ошибка загрузки данных баланса.");
+        if (!balancesResponse.ok) throw new Error("Помилка завантаження.");
         const balancesData = await balancesResponse.json();
 
         const autoPlansResponse = await fetch("/api/auto-plan", {
@@ -62,15 +61,15 @@ const GoalDetails = () => {
         setBalances(balancesData);
         setAutoPlans(autoPlansData);
       } catch (err) {
-        console.error("Ошибка загрузки данных:", err);
-        setError("Не удалось загрузить данные цели.");
+        console.error("Помилка загрузки даних:", err);
+        setError("Не вдалося завантажити цілі.");
       } finally {
         setIsLoading(false);
       }
     };
 
     if (!goalId) {
-      console.error("Ошибка: `goalId` пустой при загрузке!");
+      console.error("Помилка: `goalId` порожній при завантаженні!");
       return;
     }
 
@@ -78,7 +77,7 @@ const GoalDetails = () => {
   }, [goalId]);
 
   if (isLoading) {
-    return <div style={{ color: "#fff" }}>Загрузка данных...</div>;
+    return <div style={{ color: "#fff" }}>Завантаження даних...</div>;
   }
 
   if (error) {
@@ -86,14 +85,14 @@ const GoalDetails = () => {
   }
 
   if (!goal) {
-    return <div style={{ color: "#fff" }}>Цель не найдена.</div>;
+    return <div style={{ color: "#fff" }}>Ціль не знайдена.</div>;
   }
 
   return (
     <main className="container mb-5">
       <section className="goal-details-grid">
         <div className="goal-field">
-          Цель: {goal.amount} {goal.currency}
+          Ціль: {goal.amount} {goal.currency}
         </div>
         <h1 className="goal-title">{goal.name}</h1>
         <div className="goal-field">
@@ -120,22 +119,22 @@ const GoalDetails = () => {
       </section>
 
       <section className="transaction-history mt-4">
-        <h3>История транзакций</h3>
+        <h3>Історія транзакцій</h3>
         <div className="transaction-table-wrapper">
           <table className="table table-dark table-striped">
             <thead>
               <tr>
                 <th>Дата</th>
-                <th>Описание</th>
+                <th>Опис</th>
                 <th>Тип</th>
-                <th>Сумма</th>
+                <th>Сума</th>
               </tr>
             </thead>
             <tbody>
               {transactions.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="text-center text-light">
-                    Транзакции отсутствуют.
+                    Транзакції відсутні.
                   </td>
                 </tr>
               ) : (
@@ -148,9 +147,12 @@ const GoalDetails = () => {
                   >
                     <td>{new Date(t.date).toLocaleDateString("ru-RU")}</td>
                     <td className="text-truncate">
-                      {t.description || "Без описания"}
+                      {t.description === "Пополнение цели"
+                        ? "Поповнення цілі"
+                        : t.description || "Без опису"}
                     </td>
-                    <td>{t.type === "income" ? "Доход" : "Расход"}</td>
+
+                    <td>{t.type === "income" ? "Дохід" : "Витрата"}</td>
                     <td>
                       {t.amount.toFixed(2)} {goal.currency}
                     </td>

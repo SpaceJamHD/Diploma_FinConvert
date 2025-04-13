@@ -19,7 +19,7 @@ const useWebSocket = (updateBalance) => {
       try {
         const message = JSON.parse(event.data);
         if (message.type === "BALANCE_UPDATE") {
-          console.log("📡 Обновленный баланс:", message.data);
+          console.log(" Обновленный баланс:", message.data);
           updateBalance(message.data);
         }
       } catch (error) {

@@ -72,7 +72,7 @@ const Goals = ({ goals = [], setGoals }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Ошибка при загрузке баланса кошелька");
+        throw new Error("Помилка під час завантаження балансу гаманця");
       }
 
       const data = await response.json();
@@ -93,7 +93,7 @@ const Goals = ({ goals = [], setGoals }) => {
       !deadline ||
       !priority
     ) {
-      alert("Заполните все поля.");
+      alert("Заповніть усі поля.");
       return;
     }
 
@@ -144,7 +144,7 @@ const Goals = ({ goals = [], setGoals }) => {
         currency: "UAH",
       });
     } catch (error) {
-      console.error("Ошибка:", error);
+      console.error("Помилка:", error);
     }
   };
 
@@ -158,7 +158,7 @@ const Goals = ({ goals = [], setGoals }) => {
       });
 
       if (!response.ok) {
-        throw new Error("Ошибка при удалении цели");
+        throw new Error("Помилка при видаленні цілі");
       }
 
       setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== deleteId));
@@ -186,7 +186,7 @@ const Goals = ({ goals = [], setGoals }) => {
     try {
       const response = await withdrawFullGoalBalance(goalId);
       console.log(
-        " Средства переведены, цель удалена и сохранена в истории:",
+        " Кошти переведені, мета видалена та збережена в історії:",
         response
       );
 
@@ -196,7 +196,7 @@ const Goals = ({ goals = [], setGoals }) => {
         const updatedGoals = await fetchGoalsHistory();
         setGoals(updatedGoals);
       } else {
-        console.warn("Сервер не вернул ID удаленной цели!");
+        console.warn("Сервер не повернув ID віддаленої мети!");
       }
     } catch (error) {
       console.error("Ошибка при снятии всех средств:", error);
@@ -321,7 +321,7 @@ const Goals = ({ goals = [], setGoals }) => {
                           goalCompleted
                             ? {
                                 background:
-                                  "linear-gradient(90deg, #0f0, #ff0, #f00)", // Градиентный фон
+                                  "linear-gradient(90deg, #0f0, #ff0, #f00)",
                                 color: "#fff",
                                 fontWeight: "bold",
                                 textAlign: "center",
@@ -417,7 +417,7 @@ const Goals = ({ goals = [], setGoals }) => {
                                 borderRadius: "8px",
                               }}
                             >
-                              Достигнута цель! Забрать деньги
+                              Досягнуто мету! Забрати гроші
                             </button>
                           ) : (
                             <>
@@ -583,7 +583,7 @@ const Goals = ({ goals = [], setGoals }) => {
             }}
           >
             <p style={{ marginBottom: "20px" }}>
-              Вы уверены, что хотите удалить цель?
+              Ви впевнені, що хочете видалити ціль?
             </p>
             <div style={{ display: "flex", justifyContent: "space-around" }}>
               <button
@@ -597,7 +597,7 @@ const Goals = ({ goals = [], setGoals }) => {
                   cursor: "pointer",
                 }}
               >
-                Удалить
+                Видалити
               </button>
               <button
                 onClick={handleCancelDelete}
@@ -610,7 +610,7 @@ const Goals = ({ goals = [], setGoals }) => {
                   cursor: "pointer",
                 }}
               >
-                Отмена
+                Скасування
               </button>
             </div>
           </div>
@@ -734,9 +734,9 @@ const Goals = ({ goals = [], setGoals }) => {
                   fontSize: "1rem",
                 }}
               >
-                <option value="UAH">Гривна (UAH)</option>
-                <option value="USD">Доллар (USD)</option>
-                <option value="EUR">Евро (EUR)</option>
+                <option value="UAH">Гривня (UAH)</option>
+                <option value="USD">Долар (USD)</option>
+                <option value="EUR">Євро (EUR)</option>
               </select>
             </div>
             <div style={{ marginBottom: "15px" }}>

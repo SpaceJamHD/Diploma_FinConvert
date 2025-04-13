@@ -16,7 +16,6 @@ const TopUpFrequencyChart = ({ transactions }) => {
     return <p className="text-light text-center">Немає даних</p>;
   }
 
-  // Создаем объект для хранения количества пополнений по месяцам
   const monthlyCounts = {};
   const monthNames = [
     "Січень",
@@ -36,19 +35,18 @@ const TopUpFrequencyChart = ({ transactions }) => {
   transactions.forEach((txn) => {
     if (txn.type === "income") {
       const date = new Date(txn.date);
-      const month = date.getMonth(); // Получаем номер месяца (0 - январь, 11 - декабрь)
+      const month = date.getMonth();
 
       if (!monthlyCounts[month]) {
         monthlyCounts[month] = 0;
       }
 
-      monthlyCounts[month] += 1; // Увеличиваем счетчик пополнений за месяц
+      monthlyCounts[month] += 1;
     }
   });
 
-  // Подготовка данных для графика
-  const labels = monthNames; // Названия месяцев
-  const dataValues = labels.map((_, index) => monthlyCounts[index] || 0); // Количество пополнений по месяцам
+  const labels = monthNames;
+  const dataValues = labels.map((_, index) => monthlyCounts[index] || 0);
 
   const chartData = {
     labels,
@@ -56,7 +54,7 @@ const TopUpFrequencyChart = ({ transactions }) => {
       {
         label: "Кількість поповнень",
         data: dataValues,
-        backgroundColor: "rgba(54, 162, 235, 0.8)", // Синий цвет
+        backgroundColor: "rgba(54, 162, 235, 0.8)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 2,
         borderRadius: 5,

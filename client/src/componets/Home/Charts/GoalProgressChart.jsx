@@ -24,7 +24,9 @@ ChartJS.register(
 
 const GoalProgressChart = ({ goal, transactions, exchangeRates = {} }) => {
   if (!goal || !goal.currency || !transactions || transactions.length === 0) {
-    return <p className="text-light text-center">Нет данных для отображения</p>;
+    return (
+      <p className="text-light text-center">Немає даних для відображення</p>
+    );
   }
 
   const sortedTransactions = transactions.sort(

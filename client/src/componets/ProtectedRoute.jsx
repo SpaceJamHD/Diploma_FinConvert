@@ -45,7 +45,7 @@ const ProtectedRoute = ({ children }) => {
   }, [token]);
 
   if (isAuthorized === null) {
-    return <div>Загрузка...</div>;
+    return <div>Завантаження...</div>;
   }
 
   if (!isAuthorized) {
