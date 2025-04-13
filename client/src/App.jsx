@@ -32,7 +32,7 @@ const AppContent = () => {
   const role = useUserRole();
 
   useEffect(() => {
-    if (location.pathname === "/") {
+    if (role && location.pathname === "/") {
       if (role === "admin") {
         navigate("/admin");
       }

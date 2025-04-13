@@ -6,7 +6,7 @@ const JWT_SECRET = "secret007";
 
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
-  const role = "user";
+  const role = req.body.role || "user";
 
   if (!name || !email || !password || !role) {
     return res
