@@ -6,11 +6,44 @@ import Goals from "../Goals/Goals.jsx";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import useUserRole from "../../../hooks/useUserRole.jsx";
 import BalanceSection from "../Balance/BalanceSection.jsx";
-import ExpenseChart from "../../Charts/ExpenseChart.jsx";
+import VisitChart from "../../Charts/VisitChart.jsx";
 
 const HomePage = () => {
   const [showPastTransactions, setShowPastTransactions] = useState(false);
+  const [visitData, setVisitData] = useState([]);
   const role = useUserRole();
+
+  useEffect(() => {
+    const fetchVisits = async () => {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/users/visits", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setVisitData(data);
+    };
+
+    fetchVisits();
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token || !role) return;
+
+    fetch("/api/users/visit", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ page: "home" }),
+    }).then((res) => {
+      if (!res.ok) {
+        console.error("Не удалось зафиксировать визит");
+      }
+    });
+  }, [role]);
 
   useEffect(() => {
     class TxtRotate {
@@ -224,7 +257,7 @@ const HomePage = () => {
       </section>
 
       <section className="container">
-        <ExpenseChart />
+        <VisitChart data={visitData} />
       </section>
     </main>
   );

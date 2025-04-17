@@ -49,4 +49,43 @@ const broadcastBalanceUpdate = async (userId) => {
   }
 };
 
-module.exports = { setupWebSocket, broadcastBalanceUpdate };
+const broadcastVisitsUpdate = async (userId) => {
+  if (!wss) {
+    console.error(" WebSocket сервер не инициализирован");
+    return;
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT to_char(visited_at, 'YYYY-MM-DD') as date, COUNT(*) as count
+       FROM page_visits
+       WHERE user_id = $1
+       GROUP BY date
+       ORDER BY date ASC`,
+      [userId]
+    );
+
+    const visits = result.rows;
+
+    const message = JSON.stringify({
+      type: "VISITS_UPDATE",
+      data: visits,
+    });
+
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+
+    console.log(" Визиты обновлены и отправлены клиентам:", visits);
+  } catch (error) {
+    console.error(" Ошибка отправки визитов через WebSocket:", error);
+  }
+};
+
+module.exports = {
+  setupWebSocket,
+  broadcastBalanceUpdate,
+  broadcastVisitsUpdate,
+};

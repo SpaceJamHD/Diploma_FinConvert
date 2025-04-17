@@ -6,6 +6,8 @@ const {
   registerUser,
   getUserProfile,
   updateUserProfile,
+  recordPageVisit,
+  getPageVisits,
 } = require("../controllers/userController");
 const pool = require("../models/userModel");
 
@@ -37,5 +39,8 @@ router.get("/validate/:id", async (req, res) => {
 router.get("/profile", authenticateToken, getUserProfile);
 
 router.put("/profile", authenticateToken, updateUserProfile);
+
+router.post("/visit", authenticateToken, recordPageVisit);
+router.get("/visits", authenticateToken, getPageVisits);
 
 module.exports = router;

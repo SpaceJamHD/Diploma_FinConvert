@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const pool = require("../models/userModel");
-
+const { broadcastVisitsUpdate } = require("../webSocket");
 const JWT_SECRET = "secret007";
 
 const registerUser = async (req, res) => {
@@ -172,4 +172,74 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, updateUserProfile };
+const recordPageVisit = async (req, res) => {
+  const userId = req.user.id;
+  const page_name = req.body.page || "home";
+
+  try {
+    // Проверка: уже есть визит на эту страницу сегодня?
+    const existingVisit = await pool.query(
+      `SELECT 1 FROM page_visits 
+       WHERE user_id = $1 AND page_name = $2 AND visited_at::date = CURRENT_DATE`,
+      [userId, page_name]
+    );
+
+    if (existingVisit.rows.length > 0) {
+      return res
+        .status(200)
+        .json({ message: "Візит вже зафіксований сьогодні" });
+    }
+
+    // Запись нового визита
+    await pool.query(
+      "INSERT INTO page_visits (user_id, page_name, visited_at) VALUES ($1, $2, NOW())",
+      [userId, page_name]
+    );
+
+    // Получение данных для обновления графика
+    const result = await pool.query(
+      `SELECT to_char(visited_at, 'YYYY-MM-DD') as date, COUNT(*) as count
+       FROM page_visits
+       WHERE user_id = $1
+       GROUP BY date
+       ORDER BY date ASC`,
+      [userId]
+    );
+
+    broadcastVisitsUpdate(userId, result.rows);
+
+    res.status(201).json({ message: "Візит зафіксований" });
+  } catch (error) {
+    console.error("Ошибка при записи визита:", error);
+    res.status(500).json({ message: "Помилка сервера" });
+  }
+};
+
+const getPageVisits = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const result = await pool.query(
+      `SELECT to_char(visited_at, 'YYYY-MM-DD') as date, COUNT(*) as count
+       FROM page_visits
+       WHERE user_id = $1
+       GROUP BY date
+       ORDER BY date ASC`,
+      [userId]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Ошибка получения визитов:", error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  updateUserProfile,
+  recordPageVisit,
+  getPageVisits,
+};
