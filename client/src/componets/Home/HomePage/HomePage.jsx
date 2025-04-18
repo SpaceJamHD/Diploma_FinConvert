@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../../../styles/HomePage.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
-import Goals from "../Goals/Goals.jsx";
+import QuickGoals from "../Goals/QuickGoals.jsx";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import useUserRole from "../../../hooks/useUserRole.jsx";
 import BalanceSection from "../Balance/BalanceSection.jsx";
@@ -249,7 +249,7 @@ const HomePage = () => {
         </div>
       </header>
       <section className="container">
-        <Goals />
+        <QuickGoals />
       </section>
 
       <section className="container">
