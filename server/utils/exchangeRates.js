@@ -1,5 +1,12 @@
 const fetch = require("node-fetch");
 
+const fallbackRates = {
+  UAH: { USD: 0.0242, EUR: 0.0213, BTC: 0.00000028 },
+  USD: { UAH: 41.32, EUR: 0.8793, BTC: 0.0000117 },
+  EUR: { UAH: 47.02, USD: 1.137, BTC: 0.0000133 },
+  BTC: { UAH: 3_500_000, USD: 85_200, EUR: 75_000 },
+};
+
 const getExchangeRate = async (fromCurrency, toCurrency) => {
   try {
     console.log(`Запрос курса: ${fromCurrency} → ${toCurrency}`);
@@ -12,31 +19,37 @@ const getExchangeRate = async (fromCurrency, toCurrency) => {
 
     if (!data.success) {
       console.error("Ошибка Fixer API:", data.error);
-      return null;
+      throw new Error("Fixer API не отвечает");
     }
 
     const rates = data.rates;
     if (!rates[fromCurrency] || !rates[toCurrency]) {
-      console.error("Ошибка: Не найден курс валют", {
-        fromCurrency,
-        toCurrency,
-      });
-      return null;
+      console.error("Не найден курс валют:", { fromCurrency, toCurrency });
+      throw new Error("Нет нужных валют в ответе Fixer");
     }
 
     let finalRate = rates[toCurrency] / rates[fromCurrency];
 
     if (!finalRate || finalRate <= 0) {
-      console.error(
-        `Ошибка: курс ${fromCurrency} → ${toCurrency} некорректный (${finalRate})`
-      );
-      return null;
+      console.error(` Некорректный курс: ${finalRate}`);
+      throw new Error("Курс некорректный");
     }
 
     console.log(` Курс ${fromCurrency} → ${toCurrency}: ${finalRate}`);
     return parseFloat(finalRate.toFixed(8));
   } catch (error) {
-    console.error("Ошибка при получении курса валют:", error);
+    console.warn(
+      `Используем fallback курс для ${fromCurrency} → ${toCurrency}`
+    );
+
+    if (
+      fallbackRates[fromCurrency] &&
+      fallbackRates[fromCurrency][toCurrency]
+    ) {
+      return fallbackRates[fromCurrency][toCurrency];
+    }
+
+    console.error(` Нет fallback курса для ${fromCurrency} → ${toCurrency}`);
     return null;
   }
 };
@@ -58,8 +71,8 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
       throw new Error("Ошибка загрузки курсов криптовалют и фиатных валют");
     }
 
-    console.log(" Данные по курсам криптовалют:", cryptoRates);
-    console.log(" Данные по фиатным курсам:", fiatRates);
+    console.log("Курсы криптовалют:", cryptoRates);
+    console.log(" Курсы фиата:", fiatRates);
 
     if (fromCurrency === "BTC") {
       const rate = cryptoRates.bitcoin[toCurrency.toLowerCase()];
@@ -70,11 +83,11 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
       const btcRate = cryptoRates.bitcoin["usd"];
 
       if (!fiatToUsd || !btcRate) {
-        throw new Error(`Ошибка: Нет курса для ${fromCurrency} или BTC`);
+        throw new Error(`Нет курса для ${fromCurrency} или BTC`);
       }
 
       const finalRate = fiatToUsd / btcRate;
-      console.log(` Конвертация ${fromCurrency} → BTC: ${finalRate}`);
+      console.log(`Конвертация ${fromCurrency} → BTC: ${finalRate}`);
       return parseFloat(amount) * finalRate;
     } else {
       const fromRate = fiatRates.rates[fromCurrency];
@@ -82,9 +95,7 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
       const eurBaseRate = fiatRates.rates["EUR"];
 
       if (!fromRate || !toRate || !eurBaseRate) {
-        throw new Error(
-          `Ошибка: Курсы ${fromCurrency} или ${toCurrency} не найдены`
-        );
+        throw new Error("Нет нужных курсов в Fixer");
       }
 
       const fromToEur = fromRate / eurBaseRate;
@@ -94,7 +105,16 @@ const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
       return parseFloat(amount) * finalRate;
     }
   } catch (error) {
-    console.error(" Ошибка при запросе курсов валют:", error);
+    console.warn(`⚠ Ошибка API: ${error.message}`);
+
+    if (
+      fallbackRates[fromCurrency] &&
+      fallbackRates[fromCurrency][toCurrency]
+    ) {
+      return parseFloat(amount) * fallbackRates[fromCurrency][toCurrency];
+    }
+
+    console.error(`❌ Нет fallback курса для ${fromCurrency} → ${toCurrency}`);
     return null;
   }
 };
