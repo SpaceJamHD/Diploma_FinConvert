@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
 import { fetchAllUsers, deleteUserById, banUserById } from "../../../utils/api";
+import "../../../styles/adminBan.css";
 
 const AdminUsersTable = () => {
   const [users, setUsers] = useState([]);

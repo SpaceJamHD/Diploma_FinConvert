@@ -83,7 +83,7 @@ const TransactionsPage = () => {
     }
   };
 
-  const currencies = ["UAH", "USD", "EUR", "BTC", "ETH"];
+  const currencies = ["UAH", "USD", "EUR", "BTC"];
 
   return (
     <div className="container mt-4">

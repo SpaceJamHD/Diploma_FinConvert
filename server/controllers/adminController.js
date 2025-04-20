@@ -167,11 +167,13 @@ const getAdminStats = async (req, res) => {
       ),
       pool.query("SELECT COUNT(*) FROM currency_transactions"),
       pool.query(`
-        SELECT COUNT(DISTINCT user_id)
-        FROM currency_transactions
-        WHERE date >= NOW() - INTERVAL '1 hour'
-        GROUP BY user_id
-        HAVING COUNT(*) > 1000
+        SELECT COUNT(*) FROM (
+          SELECT user_id
+          FROM currency_transactions
+          WHERE DATE(date AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Kyiv') = CURRENT_DATE
+          GROUP BY user_id
+          HAVING COUNT(*) > 10
+        ) suspicious;
       `),
     ]);
 
@@ -184,7 +186,7 @@ const getAdminStats = async (req, res) => {
         parseInt(totalTransactions.rows[0].count) /
         Math.max(parseInt(totalUsers.rows[0].count), 1)
       ).toFixed(2),
-      suspiciousToday: suspiciousUsers.rows.length,
+      suspiciousToday: parseInt(suspiciousUsers.rows[0].count),
     });
   } catch (err) {
     console.error("Помилка при отриманні статистики:", err);
@@ -195,15 +197,20 @@ const getAdminStats = async (req, res) => {
 const getTopSpendersToday = async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT u.name, u.email, 
-             SUM(ct.amount) AS total_spent, 
-             COUNT(*) AS transactions_count
+      SELECT 
+        u.name, 
+        u.email, 
+        SUM(ct.amount) AS total_spent, 
+        COUNT(*) AS transactions_count
       FROM currency_transactions ct
       JOIN users u ON ct.user_id = u.id
-      WHERE ct.type = 'перевод' AND DATE(ct.date) = CURRENT_DATE
+      WHERE 
+        DATE(ct.date AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Kyiv') = CURRENT_DATE
+        AND ct.amount > 0
+        AND ct.type IN ('goal-conversion', 'manual', 'перевод')
       GROUP BY u.id, u.name, u.email
       ORDER BY total_spent DESC
-      LIMIT 5
+      LIMIT 5;
     `);
 
     res.json(result.rows);
