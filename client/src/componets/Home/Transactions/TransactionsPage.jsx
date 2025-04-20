@@ -214,6 +214,30 @@ const TransactionsPage = () => {
           </button>
         </div>
       </div>
+      <div className="row">
+        <div className="col-lg-3"></div>
+        <div className="col-lg-6 d-flex">
+          <div className="currency-container d-flex justify-content-center align-items-center p-3">
+            <div className="d-flex justify-content-center gap-3">
+              <span className="currency-icon d-flex align-items-center justify-content-center">
+                $
+              </span>
+              <span className="currency-icon d-flex align-items-center justify-content-center">
+                €
+              </span>
+              <span className="currency-icon d-flex align-items-center justify-content-center">
+                ₿
+              </span>
+              <span className="currency-icon d-flex align-items-center justify-content-center">
+                ₴
+              </span>
+              <span className="currency-icon d-flex align-items-center justify-content-center">
+                Ξ
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
