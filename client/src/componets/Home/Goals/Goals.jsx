@@ -85,14 +85,7 @@ const Goals = ({ goals = [], setGoals }) => {
   const handleSaveGoal = async () => {
     const { name, description, amount, currency, deadline, priority } = newGoal;
 
-    if (
-      !name ||
-      !description ||
-      !amount ||
-      !currency ||
-      !deadline ||
-      !priority
-    ) {
+    if (!name || !description || !amount || !deadline || !priority) {
       alert("Заповніть усі поля.");
       return;
     }
@@ -186,20 +179,17 @@ const Goals = ({ goals = [], setGoals }) => {
     try {
       const response = await withdrawFullGoalBalance(goalId);
       console.log(
-        " Кошти переведені, мета видалена та збережена в історії:",
+        "Кошти переведені, мета видалена та збережена в історії:",
         response
       );
 
       if (response.deletedGoalId) {
         setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== goalId));
-
-        const updatedGoals = await fetchGoalsHistory();
-        setGoals(updatedGoals);
       } else {
         console.warn("Сервер не повернув ID віддаленої мети!");
       }
     } catch (error) {
-      console.error("Ошибка при снятии всех средств:", error);
+      console.error("Ошибка при знятті всіх коштів:", error);
     }
   };
 
@@ -334,8 +324,8 @@ const Goals = ({ goals = [], setGoals }) => {
                           className="fin-td text-start"
                           title={goal.description}
                         >
-                          {goal.description.length > 30
-                            ? `${goal.description.slice(0, 30)}...`
+                          {goal.description.length > 20
+                            ? `${goal.description.slice(0, 20)}...`
                             : goal.description}
                         </td>
 
@@ -417,7 +407,7 @@ const Goals = ({ goals = [], setGoals }) => {
                                 borderRadius: "8px",
                               }}
                             >
-                              Досягнуто мету! Забрати гроші
+                              Досягнуто мету
                             </button>
                           ) : (
                             <>
@@ -721,7 +711,7 @@ const Goals = ({ goals = [], setGoals }) => {
               </label>
               <select
                 name="currency"
-                value={newGoal.currency || "UAH"}
+                value={newGoal.currency}
                 onChange={handleInputChange}
                 required
                 style={{
@@ -734,6 +724,7 @@ const Goals = ({ goals = [], setGoals }) => {
                   fontSize: "1rem",
                 }}
               >
+                <option value="">Оберіть валюту</option>
                 <option value="UAH">Гривня (UAH)</option>
                 <option value="USD">Долар (USD)</option>
                 <option value="EUR">Євро (EUR)</option>
