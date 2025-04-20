@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../../styles/goal.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const TopSpenders = () => {
   const [users, setUsers] = useState([]);
@@ -8,12 +9,8 @@ const TopSpenders = () => {
     const fetchTopSpenders = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("/api/admin/top-spenders-today", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
+        const res = await axiosInstance.get("/api/admin/top-spenders-today");
+        const data = await res.data;
         if (Array.isArray(data)) {
           setUsers(data);
         } else {

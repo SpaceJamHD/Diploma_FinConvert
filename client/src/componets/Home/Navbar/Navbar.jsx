@@ -8,6 +8,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link } from "react-router-dom";
 import useExchangeRates from "../../../hooks/useExchangeRates.jsx";
 import useUserRole from "../../../hooks/useUserRole";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const Navbar = () => {
   const exchangeRates = useExchangeRates();
@@ -18,7 +19,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchUnreadStatus = async () => {
       try {
-        const res = await fetch("/api/notifications", {
+        const res = await axiosInstance.post("/api/notifications", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -233,7 +234,7 @@ const Navbar = () => {
                 className="dropdown-item text-danger"
                 to="/login"
                 onClick={() => {
-                  localStorage.removeItem("authToken");
+                  localStorage.removeItem("token");
                 }}
               >
                 Вийти

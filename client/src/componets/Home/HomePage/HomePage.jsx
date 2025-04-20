@@ -7,6 +7,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import useUserRole from "../../../hooks/useUserRole.jsx";
 import BalanceSection from "../Balance/BalanceSection.jsx";
 import VisitChart from "../../Charts/VisitChart.jsx";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const HomePage = () => {
   const [showPastTransactions, setShowPastTransactions] = useState(false);
@@ -15,34 +16,23 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchVisits = async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch("/api/users/visits", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setVisitData(data);
+      try {
+        const { data } = await axiosInstance.get("/api/users/visits");
+        setVisitData(data);
+      } catch (error) {
+        console.error("Помилка при завантаженні візитів:", error);
+      }
     };
 
     fetchVisits();
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    if (!role) return;
 
-    if (!token || !role) return;
-
-    fetch("/api/users/visit", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ page: "home" }),
-    }).then((res) => {
-      if (!res.ok) {
-        console.error("Не удалось зафиксировать визит");
-      }
-    });
+    axiosInstance
+      .post("/api/users/visit", { page: "home" })
+      .catch(() => console.error("Не удалось зафиксировать визит"));
   }, [role]);
 
   useEffect(() => {

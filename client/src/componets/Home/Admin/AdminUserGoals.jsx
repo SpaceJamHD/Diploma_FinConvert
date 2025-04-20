@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AdminUserGoals = () => {
   const { id: userId } = useParams();
@@ -10,11 +11,7 @@ const AdminUserGoals = () => {
   useEffect(() => {
     const fetchUserGoals = async () => {
       try {
-        const response = await axios.get(`/api/goals/admin/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const response = await axiosInstance.get(`/api/goals/admin/${userId}`);
         setGoals(response.data);
       } catch (error) {
         console.error("Помилка при завантаженні цілей користувача:", error);

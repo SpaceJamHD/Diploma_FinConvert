@@ -3,6 +3,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import "../../../styles/analytics.css";
 import generateGoalsDistributionAdvice from "./generateGoalsDistributionAdvice";
+import axiosInstance from "../../../utils/axiosInstance";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
@@ -33,16 +34,10 @@ const GoalsDistributionChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `/api/analytics/goals-distribution?range=${range}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const response = await axiosInstance.get(
+          `/api/analytics/goals-distribution?range=${range}`
         );
-        const result = await response.json();
+        const result = response.data;
         if (Array.isArray(result)) {
           const total = result.reduce(
             (sum, item) => sum + parseFloat(item.total),

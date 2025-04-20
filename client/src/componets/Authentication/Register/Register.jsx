@@ -4,6 +4,7 @@ import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -30,13 +31,16 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/users/register",
+      const response = await axiosInstance.post(
+        `/api/users/register`,
         {
           name,
           email,
           password,
           role: "user",
+        },
+        {
+          withCredentials: true,
         }
       );
       console.log("Регистрация успешна:", response.data);

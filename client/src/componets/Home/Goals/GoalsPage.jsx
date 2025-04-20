@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Goals from "./Goals";
 import BalanceSection from "../Balance/BalanceSection";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const GoalsPage = () => {
   const [goals, setGoals] = useState([]);
@@ -15,19 +16,7 @@ const GoalsPage = () => {
         return;
       }
 
-      const response = await fetch("/api/goals", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Помилка під час завантаження даних");
-      }
-
-      const goalsData = await response.json();
+      const { data: goalsData } = await axiosInstance.get("/api/goals");
       setGoals(goalsData);
     } catch (error) {
       console.error("Ошибка при загрузке целей:", error);

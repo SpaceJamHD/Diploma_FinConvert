@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../../styles/goal.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AdminStats = () => {
   const [stats, setStats] = useState(null);
@@ -10,14 +11,8 @@ const AdminStats = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("/api/admin/stats", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await res.json();
-        setStats(data);
+        const res = await axiosInstance.get("/api/admin/stats");
+        setStats(res.data);
       } catch (err) {
         console.error("Помилка при отриманні статистики:", err);
       } finally {

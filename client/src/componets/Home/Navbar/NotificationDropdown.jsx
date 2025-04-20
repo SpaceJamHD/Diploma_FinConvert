@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const NotificationDropdown = ({ onOpen }) => {
   const [notifications, setNotifications] = useState([]);
@@ -6,7 +7,7 @@ const NotificationDropdown = ({ onOpen }) => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch("/api/notifications", {
+      const res = await axiosInstance.post(`/api/notifications`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -39,17 +40,13 @@ const NotificationDropdown = ({ onOpen }) => {
     if (visible) {
       const markAsRead = async () => {
         try {
-          await fetch("/api/notifications/mark-all-read", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          });
+          await axiosInstance.post("/api/notifications/mark-all-read");
+
           const updated = notifications.map((n) => ({ ...n, read: true }));
           setNotifications(updated);
           onOpen?.();
         } catch (err) {
-          console.error(" Не вдалося оновити статус прочитаного", err);
+          console.error("Не вдалося оновити статус прочитаного", err);
         }
       };
 

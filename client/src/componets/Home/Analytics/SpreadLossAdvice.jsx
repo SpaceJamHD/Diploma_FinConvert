@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const SpreadLossAdvice = () => {
   const [totalLossUAH, setTotalLossUAH] = useState(null);
@@ -7,12 +8,10 @@ const SpreadLossAdvice = () => {
   useEffect(() => {
     const fetchTotalLoss = async () => {
       try {
-        const res = await fetch("/api/analytics/spread-total-loss-uah", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const data = await res.json();
+        const res = await axiosInstance.get(
+          "/api/analytics/spread-total-loss-uah"
+        );
+        const data = res.data;
         setTotalLossUAH(data.total_loss);
       } catch (error) {
         console.error("Помилка при отриманні загальних втрат:", error);

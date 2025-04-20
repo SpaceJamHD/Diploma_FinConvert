@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Goals from "./Goals";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const ParentComponent = () => {
   const [goals, setGoals] = useState([]);
@@ -7,16 +8,7 @@ const ParentComponent = () => {
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const response = await fetch("/api/goals", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Помилка під час завантаження цілей");
-        }
-        const data = await response.json();
+        const { data } = await axiosInstance.get("/api/goals");
         setGoals(data);
       } catch (error) {
         console.error("Ошибка при загрузке целей:", error);

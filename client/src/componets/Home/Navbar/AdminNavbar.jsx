@@ -6,6 +6,7 @@ import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Link, useNavigate } from "react-router-dom";
 import useExchangeRates from "../../../hooks/useExchangeRates.jsx";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AdminNavbar = () => {
   const exchangeRates = useExchangeRates();
@@ -15,12 +16,7 @@ const AdminNavbar = () => {
   useEffect(() => {
     const fetchUnreadStatus = async () => {
       try {
-        const res = await fetch("/api/notifications", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const notis = await res.json();
+        const { data: notis } = await axiosInstance.get("/api/notifications");
         const unread = notis.some((n) => !n.read);
         setHasUnread(unread);
       } catch (err) {

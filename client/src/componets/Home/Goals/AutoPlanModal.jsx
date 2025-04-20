@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AutoPlansList from "./AutoPlansList";
 import "../../../styles/autoPlan.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AutoPlanModal = ({ goals, onClose, editData }) => {
   const [selectedGoalId, setSelectedGoalId] = useState(null);
@@ -46,14 +47,10 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
         fromCurrency === "BTC" ? 8 : 2
       );
 
-      const response = await fetch(url, {
+      const response = await axiosInstance({
         method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-
-        body: JSON.stringify({
+        url,
+        data: {
           goal_id: selectedGoalId,
           amount: formattedAmount,
           currency: fromCurrency,
@@ -61,7 +58,7 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
           start_date: startDate,
           end_date: endDate,
           execution_time: executionTime,
-        }),
+        },
       });
 
       if (!response.ok) {

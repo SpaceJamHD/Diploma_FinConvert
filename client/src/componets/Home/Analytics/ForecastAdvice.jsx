@@ -7,6 +7,7 @@ import generateSmartGoalAdvice from "./generateSmartGoalAdvice";
 import { Card } from "react-bootstrap";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/dark-scrollbar.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const ForecastAdvice = () => {
   const [forecastData, setForecastData] = useState(null);
@@ -17,12 +18,8 @@ const ForecastAdvice = () => {
   useEffect(() => {
     const fetchForecast = async () => {
       try {
-        const res = await fetch("/api/analytics/forecast", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const data = await res.json();
+        const res = await axiosInstance.get("/api/analytics/forecast");
+        const data = res.data;
         setForecastData(data);
       } catch (error) {
         console.error("Помилка отримання прогнозу:", error);
@@ -36,20 +33,12 @@ const ForecastAdvice = () => {
     const fetchData = async () => {
       try {
         const [goalsRes, plansRes] = await Promise.all([
-          fetch("/api/goals", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-          fetch("/api/auto-goal-plans", {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
+          axiosInstance.get("/api/goals"),
+          axiosInstance.get("/api/auto-goal-plans"),
         ]);
 
-        const goals = await goalsRes.json();
-        const autoPlans = await plansRes.json();
+        const goals = goalsRes.data;
+        const autoPlans = plansRes.data;
 
         setGoalAdvice(generateGoalPriorityAdvice(goals));
         setSmartGoalAdvice(generateSmartGoalAdvice(goals, autoPlans));

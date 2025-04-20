@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { fetchAllUsers, deleteUserById, banUserById } from "../../../utils/api";
 import "../../../styles/adminBan.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AdminUsersTable = () => {
   const [users, setUsers] = useState([]);
@@ -44,15 +45,7 @@ const AdminUsersTable = () => {
   const handleBanUser = async () => {
     try {
       if (isUnbanMode) {
-        await axios.post(
-          `http://localhost:5000/api/admin/users/${banUserId}/unban`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        await axiosInstance.post(`/api/admin/users/${banUserId}/unban`);
 
         setUsers((prev) =>
           prev.map((u) =>

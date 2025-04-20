@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useWebSocket from "../../../hooks/useWebSocket";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const BalanceSection = ({ hideViewAll = false }) => {
   const [balances, setBalances] = useState({
@@ -26,12 +27,7 @@ const BalanceSection = ({ hideViewAll = false }) => {
         return;
       }
 
-      const response = await fetch("http://localhost:5000/api/balances", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosInstance.get("/api/balances");
 
       if (!response.ok) {
         throw new Error(`Ошибка API: ${response.status}`);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AddBalanceForm from "./AddBalanceForm";
 import "../../../styles/goal.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const QuickGoals = () => {
   const [goals, setGoals] = useState([]);
@@ -10,18 +11,7 @@ const QuickGoals = () => {
   useEffect(() => {
     const fetchGoals = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("/api/goals", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error("Помилка при завантаженні цілей");
-        }
-
-        const data = await res.json();
+        const { data } = await axiosInstance.get("/api/goals");
 
         const sorted = [...data].sort((a, b) => {
           const priorityOrder = {
@@ -61,17 +51,7 @@ const QuickGoals = () => {
 
   const fetchBalances = async () => {
     try {
-      const response = await fetch("/api/balances", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Помилка під час оновлення балансу гаманця");
-      }
-
-      await response.json();
+      await axiosInstance.get("/api/balances");
     } catch (error) {
       console.error(" Помилка оновлення гаманця:", error);
     }

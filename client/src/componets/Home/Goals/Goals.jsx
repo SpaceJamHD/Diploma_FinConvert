@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import AddBalanceForm from "./AddBalanceForm";
 import WithdrawForm from "./WithdrawForm";
 import AutoPlanModal from "./AutoPlanModal";
+import axiosInstance from "../../../utils/axiosInstance";
 
 import { withdrawFullGoalBalance, fetchGoalsHistory } from "../../../utils/api";
 
@@ -65,17 +66,8 @@ const Goals = ({ goals = [], setGoals }) => {
 
   const fetchBalances = async () => {
     try {
-      const response = await fetch("/api/balances", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const { data } = await axiosInstance.get("/api/balances");
 
-      if (!response.ok) {
-        throw new Error("Помилка під час завантаження балансу гаманця");
-      }
-
-      const data = await response.json();
       console.log(" Баланс кошелька обновлен:", data);
     } catch (error) {
       console.error(" Ошибка обновления кошелька:", error);
@@ -94,16 +86,13 @@ const Goals = ({ goals = [], setGoals }) => {
       const method = newGoal.id ? "PUT" : "POST";
       const url = newGoal.id ? `/api/goals/${newGoal.id}` : "/api/goals";
 
-      const response = await fetch(url, {
+      const response = await axiosInstance({
         method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
+        url,
+        data: {
           ...newGoal,
           balance: 0,
-        }),
+        },
       });
 
       if (!response.ok) {
@@ -143,12 +132,7 @@ const Goals = ({ goals = [], setGoals }) => {
 
   const handleDeleteGoal = async () => {
     try {
-      const response = await fetch(`/api/goals/${deleteId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const response = await axiosInstance.delete(`/api/goals/${deleteId}`);
 
       if (!response.ok) {
         throw new Error("Помилка при видаленні цілі");

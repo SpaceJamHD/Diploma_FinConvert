@@ -4,6 +4,7 @@ import useWebSocket from "../../../hooks/useWebSocket";
 import { Card, Collapse } from "react-bootstrap";
 import "../../../styles/chart-tabs.css";
 import "../../../styles/goalDetails.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const GoalAdviceBlock = ({ goal, transactions, balances, autoPlans }) => {
   const [advice, setAdvice] = useState({});
@@ -29,17 +30,11 @@ const GoalAdviceBlock = ({ goal, transactions, balances, autoPlans }) => {
 
   const handleRunAutoPlans = async () => {
     try {
-      const res = await fetch("/api/auto-plan/run", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await axiosInstance.post("/api/auto-plan/run");
 
       if (!res.ok) throw new Error("Помилка при запуску автопланів");
 
-      const result = await res.json();
+      const result = await res.data;
       console.log("Результат автопланів:", result);
 
       updateAdvice();

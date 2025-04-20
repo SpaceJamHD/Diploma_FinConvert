@@ -12,7 +12,7 @@ const getExchangeRate = async (fromCurrency, toCurrency) => {
     console.log(`Запрос курса: ${fromCurrency} → ${toCurrency}`);
 
     const apiKey = process.env.FIXER_API_KEY;
-    const fixerUrl = `http://data.fixer.io/api/latest?access_key=${apiKey}`;
+    const fixerUrl = `https://data.fixer.io/api/latest?access_key=${apiKey}`;
 
     const response = await fetch(fixerUrl);
     const data = await response.json();
@@ -55,7 +55,7 @@ const getExchangeRate = async (fromCurrency, toCurrency) => {
 };
 
 const getCryptoToFiatRate = async (fromCurrency, toCurrency, amount) => {
-  const fixerApiUrl = `http://data.fixer.io/api/latest?access_key=${process.env.FIXER_API_KEY}`;
+  const fixerApiUrl = `https://data.fixer.io/api/latest?access_key=${process.env.FIXER_API_KEY}`;
   const coinGeckoApiUrl = `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,eur,uah`;
 
   try {

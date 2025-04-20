@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,8 +25,8 @@ const Login = () => {
     console.log("Форма отправлена с данными:", { email, password });
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/users/login`,
+      const response = await axiosInstance.post(
+        "/api/users/login",
         {
           email,
           password,
@@ -49,7 +50,7 @@ const Login = () => {
 
       const { token } = response.data;
 
-      // localStorage.setItem("token", token);
+      localStorage.setItem("token", token);
 
       const decoded = jwtDecode(token);
       const userRole = decoded.role;

@@ -3,6 +3,7 @@ import "../../../styles/profile.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState({
@@ -22,39 +23,24 @@ const ProfilePage = () => {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/profile", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Помилка завантаження профілю.");
-      setProfile(data);
+      const response = await axiosInstance.get("/api/users/profile");
+      setProfile(response.data);
       setLoading(false);
     } catch (error) {
-      setError(error.message);
+      setError(
+        error.response?.data?.message || "Помилка завантаження профілю."
+      );
       setLoading(false);
     }
   };
 
   const handleSave = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify(profile),
-      });
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Помилка збереження профілю.");
+      await axiosInstance.put("/api/users/profile", profile);
       setSuccess(true);
       setIsEditing(false);
     } catch (error) {
-      setError(error.message);
+      setError(error.response?.data?.message || "Помилка збереження профілю.");
     }
   };
 

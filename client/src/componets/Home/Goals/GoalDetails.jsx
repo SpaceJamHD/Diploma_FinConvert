@@ -4,6 +4,7 @@ import ChartTabs from "../Charts/ChartTabs";
 import GoalAdviceBlock from "../Advice/GoalAdviceBlock";
 import "../../../styles/goalDetails.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const GoalDetails = () => {
   const { goalId } = useParams();
@@ -19,34 +20,25 @@ const GoalDetails = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const goalResponse = await fetch(`/api/goals/${goalId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const goalResponse = await axiosInstance.get(`/api/goals/${goalId}`);
 
         if (!goalResponse.ok) throw new Error("Ціль не знайдена.");
         const goalData = await goalResponse.json();
 
-        const transactionsResponse = await fetch(
-          `/api/transactions/${goalId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+        const transactionsResponse = await axiosInstance.get(
+          `/api/transactions/${goalId}`
         );
 
         const transactionsData = transactionsResponse.ok
           ? await transactionsResponse.json()
           : [];
 
-        const balancesResponse = await fetch(`/api/balances`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const balancesResponse = await axiosInstance.get(`/api/balances`);
 
         if (!balancesResponse.ok) throw new Error("Помилка завантаження.");
         const balancesData = await balancesResponse.json();
 
-        const autoPlansResponse = await fetch("/api/auto-plan", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const autoPlansResponse = await axiosInstance.get("/api/auto-plan");
 
         if (!autoPlansResponse.ok) throw new Error("Автоплани не знайдено");
         const autoPlansData = await autoPlansResponse.json();

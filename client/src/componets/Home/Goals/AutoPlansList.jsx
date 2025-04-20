@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../../styles/autoPlan.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AutoPlansList = ({ goals, onClose, onEdit }) => {
   const [plans, setPlans] = useState([]);
@@ -8,12 +9,9 @@ const AutoPlansList = ({ goals, onClose, onEdit }) => {
 
   const fetchPlans = async () => {
     try {
-      const res = await fetch("/api/auto-plan", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await res.json();
+      const res = await axiosInstance.get("/api/auto-plan");
+      const data = res.data;
+
       setPlans(data);
     } catch (err) {
       console.error("Помилка при отриманні автопланів:", err);
@@ -26,12 +24,8 @@ const AutoPlansList = ({ goals, onClose, onEdit }) => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await fetch(`/api/auto-plan/${planToDelete}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      await axiosInstance.delete(`/api/auto-plan/${planToDelete}`);
+
       setPlans((prev) => prev.filter((p) => p.id !== planToDelete));
       setShowConfirm(false);
       setPlanToDelete(null);

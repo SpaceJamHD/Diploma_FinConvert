@@ -12,6 +12,7 @@ import {
   Filler,
 } from "chart.js";
 import "../../../styles/chart.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 ChartJS.register(
   LineController,
@@ -35,16 +36,11 @@ const SpreadLossChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(
-          `/api/analytics/spread-loss?currency=${currency}&range=${range}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const res = await axiosInstance.get(
+          `/api/analytics/spread-loss?currency=${currency}&range=${range}`
         );
-        const result = await response.json();
+        const result = res.data;
+
         setData(result);
       } catch (error) {
         console.error("Помилка завантаження аналітики:", error);

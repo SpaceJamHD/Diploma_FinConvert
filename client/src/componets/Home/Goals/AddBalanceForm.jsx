@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchConvertedAmount, getExchangeRate } from "../../../utils/api";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const AddBalanceForm = ({
   goalId,
@@ -78,19 +79,15 @@ const AddBalanceForm = ({
         isConverted = true;
       }
 
-      const response = await fetch(`/api/goals/${goalId}/add-balance`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
+      const response = await axiosInstance.post(
+        `/api/goals/${goalId}/add-balance`,
+        {
           originalAmount: numericAmount,
           convertedAmount: convertedAmount,
           fromCurrency,
           converted: isConverted,
-        }),
-      });
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Помилка при оновленні балансу");

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import "../../../styles/HomePage.css";
 import "../../../styles/goal.css";
+import axiosInstance from "../../../utils/axiosInstance";
 
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 
@@ -25,9 +26,9 @@ const AdminUserHistory = () => {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/transactions/admin/history/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axiosInstance.get(
+        `/api/transactions/admin/history/${id}`
+      );
       setTransactions(res.data);
     } catch (err) {
       console.error("Помилка при завантаженні транзакцій:", err);
@@ -39,9 +40,7 @@ const AdminUserHistory = () => {
   const fetchGoals = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/goals/admin/history/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axiosInstance.get(`/api/goals/admin/history/${id}`);
       setGoals(res.data);
     } catch (err) {
       console.error("Помилка при завантаженні цілей:", err);
