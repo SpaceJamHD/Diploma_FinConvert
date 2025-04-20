@@ -12,4 +12,15 @@ const pool = new Pool({
   },
 });
 
+const checkDbConnection = async () => {
+  try {
+    const res = await pool.query("SELECT NOW()");
+    console.log("База данных подключена успешно:", res.rows[0]);
+  } catch (err) {
+    console.error("Ошибка подключения к базе данных:", err);
+  }
+};
+
+checkDbConnection();
+
 module.exports = pool;
