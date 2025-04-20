@@ -27,13 +27,7 @@ const BalanceSection = ({ hideViewAll = false }) => {
         return;
       }
 
-      const response = await axiosInstance.get("/api/balances");
-
-      if (!response.ok) {
-        throw new Error(`Ошибка API: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const { data } = await axiosInstance.get("/api/balances");
 
       const btcBalance = data.BTC
         ? parseFloat(data.BTC).toFixed(8)
