@@ -104,7 +104,13 @@ const loginUser = async (req, res) => {
       { expiresIn: "10h" }
     );
 
-    res.status(200).json({ token, message: "Успешная авторизация." });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: 10 * 60 * 60 * 1000,
+    });
+    res.status(200).json({ message: "Успешная авторизация." });
   } catch (error) {
     console.error("Ошибка при авторизации пользователя:", error);
     res.status(500).json({ message: "Ошибка сервера." });

@@ -25,10 +25,13 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/users/login",
+        `${process.env.REACT_APP_API_URL}/api/users/login`,
         {
           email,
           password,
+        },
+        {
+          withCredentials: true,
         }
       );
 
@@ -46,7 +49,7 @@ const Login = () => {
 
       const { token } = response.data;
 
-      localStorage.setItem("token", token);
+      // localStorage.setItem("token", token);
 
       const decoded = jwtDecode(token);
       const userRole = decoded.role;
