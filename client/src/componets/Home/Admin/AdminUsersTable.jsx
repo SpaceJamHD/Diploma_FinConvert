@@ -177,6 +177,7 @@ const AdminUsersTable = () => {
 
                       return matchesSearch;
                     })
+                    .filter((user) => user.role !== "admin")
                     .map((user) => (
                       <tr key={user.id} className="fin-td">
                         <td className="fin-td text-center">{user.id}</td>
