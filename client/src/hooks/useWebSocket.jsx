@@ -8,7 +8,10 @@ const useWebSocket = (updateBalance) => {
       wsRef.current.close();
     }
 
-    const ws = new WebSocket("ws://localhost:5000/ws");
+    const ws = new WebSocket(
+      "wss://diploma-finconvert-frontend.onrender.com/ws"
+    );
+
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -30,7 +33,9 @@ const useWebSocket = (updateBalance) => {
     ws.onclose = () => {
       console.log(" WebSocket отключен. Переподключение через 3 сек...");
       setTimeout(() => {
-        wsRef.current = new WebSocket("ws://localhost:5000/ws");
+        wsRef.current = new WebSocket(
+          "wss://diploma-finconvert-frontend.onrender.com/ws"
+        );
       }, 3000);
     };
 
