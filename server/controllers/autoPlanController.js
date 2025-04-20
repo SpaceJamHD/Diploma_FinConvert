@@ -4,14 +4,21 @@ const { getExchangeRate } = require("../utils/exchangeRates");
 
 const createAutoPlan = async (req, res) => {
   const userId = req.user.id;
-  const { goal_id, amount, currency, frequency, start_date, end_date } =
-    req.body;
+  const {
+    goal_id,
+    amount,
+    currency,
+    frequency,
+    start_date,
+    end_date,
+    execution_time,
+  } = req.body;
 
   try {
     await pool.query(
       `INSERT INTO auto_goal_plans (
-        user_id, goal_id, amount, currency, frequency, start_date, end_date, next_execution
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        user_id, goal_id, amount, currency, frequency, start_date, end_date, next_execution, execution_time
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [
         userId,
         goal_id,
@@ -21,6 +28,7 @@ const createAutoPlan = async (req, res) => {
         start_date,
         end_date,
         start_date,
+        execution_time,
       ]
     );
 
@@ -64,7 +72,10 @@ const runAutoPlansNow = async (req, res) => {
   const userId = req.user.id;
   try {
     const { rows } = await pool.query(
-      `SELECT * FROM auto_goal_plans WHERE user_id = $1 AND next_execution <= NOW()`,
+      `SELECT * FROM auto_goal_plans 
+      WHERE user_id = $1 
+        AND next_execution::date <= NOW()::date 
+        AND (execution_time IS NULL OR execution_time <= TO_CHAR(NOW(), 'HH24:MI:SS')::time)`,
       [userId]
     );
 
@@ -168,6 +179,15 @@ const runAutoPlansNow = async (req, res) => {
         else if (plan.frequency === "monthly")
           nextDate.setMonth(nextDate.getMonth() + 1);
 
+        if (plan.execution_time) {
+          const [hours, minutes, seconds] = plan.execution_time.split(":");
+          nextDate.setHours(
+            parseInt(hours),
+            parseInt(minutes),
+            parseInt(seconds || "0")
+          );
+        }
+
         await pool.query(
           `UPDATE auto_goal_plans SET next_execution = $1 WHERE id = $2`,
           [nextDate, plan.id]
@@ -189,8 +209,15 @@ const runAutoPlansNow = async (req, res) => {
 const updateAutoPlan = async (req, res) => {
   const userId = req.user.id;
   const planId = req.params.id;
-  const { goal_id, amount, currency, frequency, start_date, end_date } =
-    req.body;
+  const {
+    goal_id,
+    amount,
+    currency,
+    frequency,
+    start_date,
+    end_date,
+    execution_time,
+  } = req.body;
 
   try {
     const result = await pool.query(
@@ -200,8 +227,9 @@ const updateAutoPlan = async (req, res) => {
            currency = $3,
            frequency = $4,
            start_date = $5,
-           end_date = $6
-       WHERE id = $7 AND user_id = $8`,
+           end_date = $6,
+           execution_time = $7
+       WHERE id = $8 AND user_id = $9`,
       [
         goal_id,
         amount,
@@ -209,6 +237,7 @@ const updateAutoPlan = async (req, res) => {
         frequency,
         start_date,
         end_date,
+        execution_time,
         planId,
         userId,
       ]

@@ -11,6 +11,7 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
   const [endDate, setEndDate] = useState("");
   const [showPlans, setShowPlans] = useState(false);
   const [localEditData, setLocalEditData] = useState(null);
+  const [executionTime, setExecutionTime] = useState("");
 
   useEffect(() => {
     if (editData) {
@@ -21,6 +22,7 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
       setFrequency(editData.frequency);
       setStartDate(editData.start_date?.substring(0, 10));
       setEndDate(editData.end_date?.substring(0, 10));
+      setExecutionTime(editData.execution_time?.substring(0, 5));
     }
   }, [editData]);
 
@@ -40,19 +42,25 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
         ? `/api/auto-plan/${localEditData.id}`
         : "/api/auto-plan";
 
+      const formattedAmount = parseFloat(amount).toFixed(
+        fromCurrency === "BTC" ? 8 : 2
+      );
+
       const response = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+
         body: JSON.stringify({
           goal_id: selectedGoalId,
-          amount,
+          amount: formattedAmount,
           currency: fromCurrency,
           frequency,
           start_date: startDate,
           end_date: endDate,
+          execution_time: executionTime,
         }),
       });
 
@@ -149,6 +157,7 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
                 <label>Сума поповнення</label>
                 <input
                   type="number"
+                  step={fromCurrency === "BTC" ? "0.00000001" : "0.01"}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   required
@@ -200,6 +209,16 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="auto-field">
+                <label>Час виконання</label>
+                <input
+                  type="time"
+                  value={executionTime}
+                  onChange={(e) => setExecutionTime(e.target.value)}
                   required
                 />
               </div>

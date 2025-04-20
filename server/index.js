@@ -49,11 +49,13 @@ server.listen(PORT, () => {
 
 setupWebSocket(server);
 
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("* * * * *", async () => {
   console.log(" Cron job: запуск авто-поповнень...");
   try {
     const { rows } = await pool.query(
-      `SELECT DISTINCT user_id FROM auto_goal_plans WHERE next_execution <= NOW()`
+      `SELECT DISTINCT user_id FROM auto_goal_plans 
+       WHERE next_execution::date <= NOW()::date
+         AND (execution_time IS NULL OR execution_time <= TO_CHAR(NOW(), 'HH24:MI:SS')::time)`
     );
 
     for (const user of rows) {

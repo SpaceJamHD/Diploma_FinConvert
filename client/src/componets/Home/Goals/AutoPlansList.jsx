@@ -67,6 +67,7 @@ const AutoPlansList = ({ goals, onClose, onEdit }) => {
                 <th>Сума</th>
                 <th>Валюта</th>
                 <th>Частота</th>
+                <th>Час</th>
                 <th>Період</th>
                 <th>Дії</th>
               </tr>
@@ -77,9 +78,14 @@ const AutoPlansList = ({ goals, onClose, onEdit }) => {
                 return (
                   <tr key={plan.id}>
                     <td>{goal ? goal.name : "-"}</td>
-                    <td>{parseFloat(plan.amount).toFixed(8)}</td>
+                    <td>
+                      {parseFloat(plan.amount).toFixed(
+                        plan.currency === "BTC" ? 8 : 2
+                      )}
+                    </td>
                     <td>{plan.currency}</td>
                     <td>{frequencyMap[plan.frequency] || plan.frequency}</td>
+                    <td>{plan.execution_time?.substring(0, 5) || "-"}</td>
                     <td>
                       {formatDate(plan.start_date)} —{" "}
                       {plan.end_date
