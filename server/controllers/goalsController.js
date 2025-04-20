@@ -49,7 +49,7 @@ const updateGoal = async (req, res) => {
     );
 
     if (!goalResult.rows.length) {
-      return res.status(404).json({ message: "Цель не найдена" });
+      return res.status(404).json({ message: "Ціль не знайдена" });
     }
 
     let currentBalance = parseFloat(goalResult.rows[0].balance);
@@ -164,7 +164,7 @@ const addBalanceToGoal = async (req, res) => {
       if (!exchangeRate) {
         return res
           .status(400)
-          .json({ message: "Ошибка получения курса валют" });
+          .json({ message: "Помилка отримання курсу валют" });
       }
 
       let spreadPercent = 0.005;
@@ -231,7 +231,7 @@ const addBalanceToGoal = async (req, res) => {
         actualDeposit,
         parseFloat(parseFloat(originalAmount).toFixed(8)),
         "income",
-        "Пополнение цели",
+        "Поповнення мети",
         fromCurrency,
       ]
     );
@@ -285,7 +285,7 @@ const withdrawFromGoal = async (req, res) => {
     );
 
     if (!goalResult.rows.length) {
-      return res.status(404).json({ message: "Цель не найдена" });
+      return res.status(404).json({ message: "Ціль не знайдена" });
     }
 
     const goal = goalResult.rows[0];
@@ -296,11 +296,11 @@ const withdrawFromGoal = async (req, res) => {
     if (withdrawAmount <= 0) {
       return res
         .status(400)
-        .json({ message: "Сумма вывода должна быть больше 0" });
+        .json({ message: "Сума виведення має бути більшою за 0" });
     }
 
     if (withdrawAmount > currentBalance) {
-      return res.status(400).json({ message: "Недостаточно средств в цели" });
+      return res.status(400).json({ message: "Недостатньо коштів у цілі" });
     }
 
     const newGoalBalance = currentBalance - withdrawAmount;
@@ -323,13 +323,13 @@ const withdrawFromGoal = async (req, res) => {
 
     await pool.query(
       "INSERT INTO transactions (user_id, goal_id, amount, type, date, description) VALUES ($1, $2, $3, $4, NOW(), $5)",
-      [userId, id, withdrawAmount, "withdraw", "Частичный возврат из цели"]
+      [userId, id, withdrawAmount, "withdraw", "Часткове повернення з мети"]
     );
 
     await broadcastBalanceUpdate(userId);
 
     res.json({
-      message: "Деньги успешно возвращены",
+      message: "Гроші успішно повернуто",
       newGoalBalance,
     });
   } catch (error) {

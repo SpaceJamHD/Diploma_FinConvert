@@ -147,7 +147,7 @@ const GoalDetails = () => {
                   >
                     <td>{new Date(t.date).toLocaleDateString("ru-RU")}</td>
                     <td className="text-truncate">
-                      {t.description === "Пополнение цели"
+                      {t.description === "Поповнення цілі"
                         ? "Поповнення цілі"
                         : t.description || "Без опису"}
                     </td>

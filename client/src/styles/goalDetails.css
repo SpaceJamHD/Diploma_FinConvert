@@ -149,6 +149,7 @@ input {
     font-weight: bold;
 }
 
+
 .transaction-table-wrapper {
     max-height: 300px;
     overflow-y: auto;
@@ -313,4 +314,41 @@ input {
 .goal-advice-toggle-icon {
     font-size: 1.1rem;
     color: #ffd700;
+}
+
+/* ✅ Переопределяем .table-success, .table-danger и .table-striped */
+.table-success {
+    --bs-table-bg: #1e1e1e !important;
+    --bs-table-color: #28a745 !important;
+    --bs-table-striped-bg: #1e1e1e !important;
+    --bs-table-striped-color: #28a745 !important;
+    --bs-table-hover-bg: #2a2a2a !important;
+    --bs-table-hover-color: #28a745 !important;
+    background-color: var(--bs-table-bg) !important;
+    color: var(--bs-table-color) !important;
+}
+
+.table-danger {
+    --bs-table-bg: #1e1e1e !important;
+    --bs-table-color: #dc3545 !important;
+    --bs-table-striped-bg: #1e1e1e !important;
+    --bs-table-striped-color: #dc3545 !important;
+    --bs-table-hover-bg: #2a2a2a !important;
+    --bs-table-hover-color: #dc3545 !important;
+    background-color: var(--bs-table-bg) !important;
+    color: var(--bs-table-color) !important;
+}
+
+/* ✅ Переопределяем .table-striped */
+.table-striped>tbody>tr:nth-of-type(odd)>* {
+    --bs-table-accent-bg: #232323 !important;
+    background-color: var(--bs-table-accent-bg) !important;
+    color: inherit !important;
+}
+
+.transaction-table-wrapper table,
+.transaction-table-wrapper th,
+.transaction-table-wrapper td,
+.transaction-table-wrapper tr {
+    border: none !important;
 }
