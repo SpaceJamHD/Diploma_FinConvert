@@ -4,14 +4,10 @@ const pool = require("./models/userModel");
 let wss;
 
 const setupWebSocket = (server) => {
-  const wss = new WebSocket.Server({ server });
+  wss = new WebSocket.Server({ server });
 
   wss.on("connection", (ws) => {
-    console.log("Клиент WebSocket подключен");
-  });
-
-  wss.on("connection", (ws) => {
-    // console.log(" WebSocket клиент подключился");
+    console.log("WebSocket клиент подключился");
   });
 };
 
@@ -41,15 +37,15 @@ const broadcastBalanceUpdate = async (userId) => {
       }
     });
 
-    console.log(" Баланс обновлен и отправлен клиентам:", balances);
+    console.log("Баланс отправлен всем WebSocket клиентам:", balances);
   } catch (error) {
-    console.error(" Ошибка обновления WebSocket баланса:", error);
+    console.error("Ошибка при отправке баланса по WebSocket:", error);
   }
 };
 
 const broadcastVisitsUpdate = async (userId) => {
   if (!wss) {
-    console.error(" WebSocket сервер не инициализирован");
+    console.error("WebSocket сервер не инициализирован");
     return;
   }
 
@@ -76,9 +72,9 @@ const broadcastVisitsUpdate = async (userId) => {
       }
     });
 
-    console.log(" Визиты обновлены и отправлены клиентам:", visits);
+    console.log(" Визиты отправлены WebSocket клиентам:", visits);
   } catch (error) {
-    console.error(" Ошибка отправки визитов через WebSocket:", error);
+    console.error(" Ошибка при отправке визитов через WebSocket:", error);
   }
 };
 

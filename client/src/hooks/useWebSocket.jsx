@@ -2,15 +2,12 @@ import { useEffect, useRef } from "react";
 
 const useWebSocket = (updateBalance) => {
   const wsRef = useRef(null);
+  const reconnectTimeout = useRef(null);
+  const isMounted = useRef(true);
 
-  useEffect(() => {
-    if (wsRef.current) {
-      wsRef.current.close();
-    }
-
+  const connect = () => {
     const apiUrl = process.env.REACT_APP_API_URL.replace("https", "wss");
     const ws = new WebSocket(`${apiUrl}/ws`);
-
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -21,30 +18,40 @@ const useWebSocket = (updateBalance) => {
       try {
         const message = JSON.parse(event.data);
         if (message.type === "BALANCE_UPDATE") {
-          console.log(" Получено обновление баланса:", message.data);
-          updateBalance(message.data);
+          console.log(" Обновление баланса из WS:", message.data);
+          if (isMounted.current) {
+            updateBalance(message.data);
+          }
         }
       } catch (error) {
-        console.error("Ошибка обработки WebSocket:", error);
+        console.error("Ошибка обработки WebSocket-сообщения:", error);
       }
     };
 
     ws.onclose = () => {
-      console.log(" WebSocket отключен. Переподключение через 3 сек...");
-
-      setTimeout(() => {
-        const newWs = new WebSocket(`${apiUrl}/ws`);
-        wsRef.current = newWs;
-
-        newWs.onopen = ws.onopen;
-        newWs.onmessage = ws.onmessage;
-        newWs.onclose = ws.onclose;
-      }, 3000);
+      console.warn("WebSocket отключен. Переподключаем через 3 сек...");
+      if (isMounted.current) {
+        reconnectTimeout.current = setTimeout(connect, 3000);
+      }
     };
 
+    ws.onerror = (err) => {
+      console.error(" WebSocket ошибка:", err);
+      ws.close();
+    };
+  };
+
+  useEffect(() => {
+    isMounted.current = true;
+    connect();
+
     return () => {
+      isMounted.current = false;
       if (wsRef.current) {
         wsRef.current.close();
+      }
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
       }
     };
   }, [updateBalance]);

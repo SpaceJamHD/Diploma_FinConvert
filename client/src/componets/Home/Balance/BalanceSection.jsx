@@ -49,6 +49,16 @@ const BalanceSection = ({ hideViewAll = false }) => {
 
   useEffect(() => {
     fetchBalances();
+
+    const unsubscribe = useWebSocket((updatedBalances) => {
+      if (updatedBalances && typeof updatedBalances === "object") {
+        setBalances((prev) => ({ ...prev, ...updatedBalances }));
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
   }, []);
 
   const formatCurrency = (value, currency) => {
