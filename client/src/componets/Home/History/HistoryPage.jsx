@@ -326,7 +326,7 @@ const HistoryPage = () => {
                                 onClick={() => {
                                   const targetGoalId = item.goal_id || item.id;
                                   if (targetGoalId) {
-                                    window.location.href = `/goals/${targetGoalId}`;
+                                    navigate(`/goals/${targetGoalId}`);
                                   } else {
                                     console.error(
                                       "Ошибка: goal_id отсутствует!",
