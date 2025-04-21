@@ -89,11 +89,7 @@ const AddBalanceForm = ({
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Помилка при оновленні балансу");
-      }
-
-      const data = await response.json();
+      const { data } = response;
 
       refreshWallet();
       onSave(data.updatedBalance);

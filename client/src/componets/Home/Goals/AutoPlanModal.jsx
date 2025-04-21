@@ -61,7 +61,7 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
         },
       });
 
-      if (!response.ok) {
+      if (response.status !== 200 && response.status !== 201) {
         throw new Error("Помилка збереження автоплану");
       }
 
