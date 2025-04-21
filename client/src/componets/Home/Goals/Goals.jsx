@@ -97,7 +97,7 @@ const Goals = ({ goals = [], setGoals }) => {
         },
       });
 
-      if (!response.ok) {
+      if (response.status !== 200 && response.status !== 201) {
         throw new Error(
           newGoal.id
             ? "Ошибка при обновлении цели"
@@ -105,7 +105,7 @@ const Goals = ({ goals = [], setGoals }) => {
         );
       }
 
-      const updatedGoal = await response.json();
+      const updatedGoal = response.data;
 
       if (newGoal.id) {
         setGoals((prevGoals) =>
@@ -136,8 +136,8 @@ const Goals = ({ goals = [], setGoals }) => {
     try {
       const response = await axiosInstance.delete(`/api/goals/${deleteId}`);
 
-      if (!response.ok) {
-        throw new Error("Помилка при видаленні цілі");
+      if (response.status !== 200 && response.status !== 201) {
+        throw new Error("Помилка при створенні/оновленні цілі");
       }
 
       setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== deleteId));

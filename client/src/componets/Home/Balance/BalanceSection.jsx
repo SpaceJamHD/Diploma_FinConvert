@@ -13,7 +13,6 @@ const BalanceSection = ({ hideViewAll = false }) => {
   useWebSocket((updatedBalances) => {
     console.log(" Обновленный баланс:", updatedBalances);
     setBalances(updatedBalances);
-    fetchBalances();
   });
 
   const [isLoading, setIsLoading] = useState(true);

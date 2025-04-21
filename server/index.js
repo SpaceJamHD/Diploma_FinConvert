@@ -26,9 +26,13 @@ const app = express();
 const server = http.createServer(app);
 
 const corsOptions = {
-  origin: "https://diploma-finconvert-frontend.onrender.com",
+  origin: [
+    "https://diploma-finconvert.onrender.com",
+    "https://diploma-finconvert-frontend.onrender.com",
+  ],
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.json());

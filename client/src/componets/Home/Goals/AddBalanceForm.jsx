@@ -67,6 +67,7 @@ const AddBalanceForm = ({
     try {
       let convertedAmount = numericAmount;
       let isConverted = false;
+
       if (fromCurrency !== currentCurrency) {
         console.log(
           ` Конвертація: ${numericAmount} ${fromCurrency} → ${currentCurrency}`
@@ -76,6 +77,13 @@ const AddBalanceForm = ({
           currentCurrency,
           numericAmount
         );
+
+        if (!convertedAmount || isNaN(convertedAmount)) {
+          alert("Помилка під час конвертації. Спробуйте пізніше.");
+          setIsLoading(false);
+          return;
+        }
+
         isConverted = true;
       }
 
@@ -83,13 +91,19 @@ const AddBalanceForm = ({
         `/api/goals/${goalId}/add-balance`,
         {
           originalAmount: numericAmount,
-          convertedAmount: convertedAmount,
+          convertedAmount,
           fromCurrency,
           converted: isConverted,
         }
       );
 
       const { data } = response;
+
+      if (!data || !data.updatedBalance) {
+        console.error("Сервер не повернув оновлений баланс");
+        setIsLoading(false);
+        return;
+      }
 
       refreshWallet();
       onSave(data.updatedBalance);

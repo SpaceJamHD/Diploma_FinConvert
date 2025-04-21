@@ -8,9 +8,8 @@ const useWebSocket = (updateBalance) => {
       wsRef.current.close();
     }
 
-    const ws = new WebSocket(
-      "wss://diploma-finconvert-frontend.onrender.com/ws"
-    );
+    const apiUrl = process.env.REACT_APP_API_URL.replace("https", "wss");
+    const ws = new WebSocket(`${apiUrl}/ws`);
 
     wsRef.current = ws;
 
@@ -22,20 +21,24 @@ const useWebSocket = (updateBalance) => {
       try {
         const message = JSON.parse(event.data);
         if (message.type === "BALANCE_UPDATE") {
-          console.log(" Обновленный баланс:", message.data);
+          console.log(" Получено обновление баланса:", message.data);
           updateBalance(message.data);
         }
       } catch (error) {
-        console.error(" Ошибка обработки WebSocket сообщения:", error);
+        console.error("Ошибка обработки WebSocket:", error);
       }
     };
 
     ws.onclose = () => {
       console.log(" WebSocket отключен. Переподключение через 3 сек...");
+
       setTimeout(() => {
-        wsRef.current = new WebSocket(
-          "wss://diploma-finconvert-frontend.onrender.com/ws"
-        );
+        const newWs = new WebSocket(`${apiUrl}/ws`);
+        wsRef.current = newWs;
+
+        newWs.onopen = ws.onopen;
+        newWs.onmessage = ws.onmessage;
+        newWs.onclose = ws.onclose;
       }, 3000);
     };
 
