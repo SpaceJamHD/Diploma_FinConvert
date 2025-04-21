@@ -3,6 +3,7 @@ import AddBalanceForm from "./AddBalanceForm";
 import WithdrawForm from "./WithdrawForm";
 import AutoPlanModal from "./AutoPlanModal";
 import axiosInstance from "../../../utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 import { withdrawFullGoalBalance, fetchGoalsHistory } from "../../../utils/api";
 
@@ -20,6 +21,7 @@ const Goals = ({ goals = [], setGoals }) => {
     priority: "",
     currency: "UAH",
   });
+  const navigate = useNavigate();
 
   const [showAutoPlan, setShowAutoPlan] = useState(false);
   const [selectedAutoGoal, setSelectedAutoGoal] = useState(null);
@@ -396,9 +398,7 @@ const Goals = ({ goals = [], setGoals }) => {
                           ) : (
                             <>
                               <button
-                                onClick={() =>
-                                  (window.location.href = `/goals/${goal.id}`)
-                                }
+                                onClick={() => navigate(`/goals/${goal.id}`)}
                                 style={{
                                   background: "transparent",
                                   border: "none",
