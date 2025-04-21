@@ -9,17 +9,29 @@ const setupWebSocket = (server) => {
   server.on("upgrade", (req, socket, head) => {
     wss.handleUpgrade(req, socket, head, (ws) => {
       wss.emit("connection", ws, req);
+      console.log("WebSocket подключен");
+
+      // Логика для обработки сообщений WebSocket
+      ws.on("message", (message) => {
+        console.log("Получено сообщение от клиента:", message);
+        // Здесь можно обработать дополнительные типы сообщений от клиента
+      });
+
+      ws.on("close", () => {
+        console.log("WebSocket отключен");
+      });
     });
   });
 
   wss.on("connection", (ws) => {
-    console.log("Клиент WebSocket подключился");
+    console.log("Новый клиент подключен через WebSocket");
   });
 };
 
+// Функция для отправки обновлений баланса
 const broadcastBalanceUpdate = async (userId) => {
   if (!wss) {
-    console.error(" WebSocket сервер не инициализирован");
+    console.error("WebSocket сервер не инициализирован");
     return;
   }
 
@@ -37,6 +49,7 @@ const broadcastBalanceUpdate = async (userId) => {
 
     const message = JSON.stringify({ type: "BALANCE_UPDATE", data: balances });
 
+    // Отправляем обновление всем подключенным клиентам
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
@@ -49,6 +62,7 @@ const broadcastBalanceUpdate = async (userId) => {
   }
 };
 
+// Функция для отправки обновлений по визитам
 const broadcastVisitsUpdate = async (userId) => {
   if (!wss) {
     console.error("WebSocket сервер не инициализирован");
@@ -78,9 +92,9 @@ const broadcastVisitsUpdate = async (userId) => {
       }
     });
 
-    console.log(" Визиты отправлены WebSocket клиентам:", visits);
+    console.log("Визиты отправлены WebSocket клиентам:", visits);
   } catch (error) {
-    console.error(" Ошибка при отправке визитов через WebSocket:", error);
+    console.error("Ошибка при отправке визитов через WebSocket:", error);
   }
 };
 

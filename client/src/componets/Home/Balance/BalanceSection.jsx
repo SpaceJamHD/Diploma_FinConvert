@@ -10,21 +10,21 @@ const BalanceSection = ({ hideViewAll = false }) => {
     BTC: 0,
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   const updateBalance = (data) => {
-    console.log(" Обновленный баланс:", data);
+    console.log("Обновленный баланс:", data);
     setBalances(data);
   };
 
   useWebSocket(updateBalance);
-
-  const [isLoading, setIsLoading] = useState(true);
 
   const fetchBalances = async () => {
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        console.error(" Ошибка: Токен отсутствует");
+        console.error("Ошибка: Токен отсутствует");
         return;
       }
 
@@ -41,9 +41,9 @@ const BalanceSection = ({ hideViewAll = false }) => {
         BTC: btcBalance,
       });
 
-      console.log(" Баланс получен с сервера:", data);
+      console.log("Баланс получен с сервера:", data);
     } catch (error) {
-      console.error(" Ошибка загрузки баланса:", error);
+      console.error("Ошибка загрузки баланса:", error);
     } finally {
       setIsLoading(false);
     }
@@ -51,16 +51,6 @@ const BalanceSection = ({ hideViewAll = false }) => {
 
   useEffect(() => {
     fetchBalances();
-
-    const unsubscribe = useWebSocket((updatedBalances) => {
-      if (updatedBalances && typeof updatedBalances === "object") {
-        setBalances((prev) => ({ ...prev, ...updatedBalances }));
-      }
-    });
-
-    return () => {
-      if (typeof unsubscribe === "function") unsubscribe();
-    };
   }, []);
 
   const formatCurrency = (value, currency) => {
