@@ -7,37 +7,43 @@ const useWebSocket = (updateBalance) => {
 
   const connect = () => {
     const apiUrl = process.env.REACT_APP_API_URL.replace("https", "wss");
-    const ws = new WebSocket(`${apiUrl}/ws`);
+    const wsUrl = `${apiUrl}/ws`;
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      console.log("WebSocket уже подключён");
+      return;
+    }
+
+    console.log("Подключаемся к WebSocket:", wsUrl);
+    const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log(" WebSocket подключен");
+      console.log("✅ WebSocket подключен");
     };
 
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        if (message.type === "BALANCE_UPDATE") {
-          console.log(" Обновление баланса из WS:", message.data);
-          if (isMounted.current) {
-            updateBalance(message.data);
-          }
+        if (message.type === "BALANCE_UPDATE" && isMounted.current) {
+          console.log("📩 Обновление баланса из WS:", message.data);
+          updateBalance(message.data);
         }
       } catch (error) {
-        console.error("Ошибка обработки WebSocket-сообщения:", error);
+        console.error("❌ Ошибка обработки WebSocket-сообщения:", error);
       }
     };
 
     ws.onclose = () => {
-      console.warn("WebSocket отключен. Переподключаем через 3 сек...");
+      console.warn("⚠️ WebSocket отключен. Переподключение через 3 сек...");
       if (isMounted.current) {
         reconnectTimeout.current = setTimeout(connect, 3000);
       }
     };
 
     ws.onerror = (err) => {
-      console.error(" WebSocket ошибка:", err);
-      ws.close();
+      console.error("🚨 WebSocket ошибка:", err);
+      ws.close(); // вызовет onclose
     };
   };
 
@@ -46,13 +52,10 @@ const useWebSocket = (updateBalance) => {
     connect();
 
     return () => {
+      console.log("🧹 Очистка WebSocket-подключения");
       isMounted.current = false;
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-      if (reconnectTimeout.current) {
-        clearTimeout(reconnectTimeout.current);
-      }
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
     };
   }, [updateBalance]);
 

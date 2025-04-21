@@ -4,10 +4,16 @@ const pool = require("./models/userModel");
 let wss;
 
 const setupWebSocket = (server) => {
-  wss = new WebSocket.Server({ server });
+  wss = new WebSocket.Server({ noServer: true });
+
+  server.on("upgrade", (req, socket, head) => {
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      wss.emit("connection", ws, req);
+    });
+  });
 
   wss.on("connection", (ws) => {
-    console.log("WebSocket клиент подключился");
+    console.log("Клиент WebSocket подключился");
   });
 };
 
