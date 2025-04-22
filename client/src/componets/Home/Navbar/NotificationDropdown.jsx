@@ -7,13 +7,7 @@ const NotificationDropdown = ({ onOpen }) => {
 
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const { data } = await axiosInstance.get(`/api/notifications`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data } = await axiosInstance.get("/api/notifications");
 
       if (Array.isArray(data)) {
         setNotifications(data);

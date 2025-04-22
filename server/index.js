@@ -27,7 +27,7 @@ const server = http.createServer(app);
 
 app.use(
   cors({
-    origin: true,
+    origin: "https://diploma-finconvert.onrender.com",
     credentials: true,
   })
 );

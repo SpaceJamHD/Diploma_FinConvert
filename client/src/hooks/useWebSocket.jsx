@@ -6,8 +6,10 @@ const useWebSocket = (updateBalance) => {
   const isMounted = useRef(true);
 
   const connect = () => {
-    const apiUrl = process.env.REACT_APP_API_URL.replace("https", "wss");
-    const wsUrl = `${apiUrl}/ws`;
+    const rawApi = process.env.REACT_APP_API_URL;
+    const baseWsUrl =
+      process.env.REACT_APP_WS_URL || rawApi?.replace("https", "wss");
+    const wsUrl = `${baseWsUrl}/ws`;
 
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       console.log("WebSocket уже подключён");
