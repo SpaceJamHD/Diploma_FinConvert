@@ -25,12 +25,7 @@ const pool = require("./models/userModel");
 const app = express();
 const server = http.createServer(app);
 
-app.use(
-  cors({
-    origin: "https://diploma-finconvert.onrender.com",
-    credentials: true,
-  })
-);
+app.use(cors({ credentials: true, origin: "*" }));
 
 app.use(express.json());
 app.use(bodyParser.json());
