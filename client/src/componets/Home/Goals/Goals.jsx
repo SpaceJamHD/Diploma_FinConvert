@@ -136,8 +136,8 @@ const Goals = ({ goals = [], setGoals }) => {
     try {
       const response = await axiosInstance.delete(`/api/goals/${deleteId}`);
 
-      if (response.status !== 200 && response.status !== 201) {
-        throw new Error("Помилка при створенні/оновленні цілі");
+      if (![200, 201, 204].includes(response.status)) {
+        throw new Error("Помилка при видаленні цілі");
       }
 
       setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== deleteId));
