@@ -49,7 +49,15 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/admin", adminRoutes);
 
-const PORT = 5000;
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
+});
+
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
   console.log(` Сервер запущен на http://localhost:${PORT}`);

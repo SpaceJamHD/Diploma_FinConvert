@@ -1,10 +1,10 @@
 {
-  "name": "server",
+  "name": "finconvert-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run server & npm run client",
+    "start": "node index.js",
     "server": "nodemon ./server/index.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
