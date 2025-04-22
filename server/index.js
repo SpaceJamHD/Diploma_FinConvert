@@ -1,11 +1,11 @@
 require("dotenv").config({ path: "./server/.env" });
-console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
 
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const http = require("http");
 const cron = require("node-cron");
+const path = require("path");
 
 const userRoutes = require("./routes/userRoutes");
 const balancesRoutes = require("./routes/balancesRoutes");
@@ -25,15 +25,13 @@ const pool = require("./models/userModel");
 const app = express();
 const server = http.createServer(app);
 
-const corsOptions = {
-  origin: [
-    "https://diploma-finconvert.onrender.com",
-    "https://diploma-finconvert-frontend.onrender.com",
-  ],
-  credentials: true,
-};
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
-app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -49,8 +47,6 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/admin", adminRoutes);
 
-const path = require("path");
-
 app.use(express.static(path.join(__dirname, "../client/build")));
 
 app.get("*", (req, res) => {
@@ -58,9 +54,8 @@ app.get("*", (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-
 server.listen(PORT, () => {
-  console.log(` Сервер запущен на http://localhost:${PORT}`);
+  console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
 
 setupWebSocket(server);
