@@ -1,4 +1,5 @@
 const pool = require("../models/userModel");
+const moment = require("moment-timezone");
 const { addBalanceToGoal } = require("./goalsController");
 const { getExchangeRate } = require("../utils/exchangeRates");
 
@@ -73,7 +74,7 @@ const deleteAutoPlan = async (req, res) => {
   }
 };
 
-const runAutoPlansNow = async (req, res) => {
+const runAutoPlansNow = async (req = null, res = null) => {
   try {
     const { rows: plans } = await pool.query(`
       SELECT ap.*, up.timezone
@@ -142,16 +143,22 @@ const runAutoPlansNow = async (req, res) => {
           [nextDate.utc().toDate(), plan.id]
         );
 
+        if (res) {
+          return res.json({ executed });
+        } else {
+          console.log("✅ Завершено. Виконано автопланів:", executed.length);
+        }
+
         executed.push(plan.id);
       } catch (error) {
         console.error("❌ Ошибка автоплана:", plan.id, error);
       }
     }
 
-    res.json({ executed });
+    console.log("✅ Завершено. Виконано автопланів:", executed.length);
   } catch (error) {
     console.error("Ошибка выполнения автопланов:", error);
-    res.status(500).json({ message: "Помилка сервера" });
+    console.error("❌ Помилка при виконанні автопланів:", error);
   }
 };
 

@@ -47,6 +47,8 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
         fromCurrency === "BTC" ? 8 : 2
       );
 
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
       const response = await axiosInstance({
         method,
         url,
@@ -58,6 +60,7 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
           start_date: startDate,
           end_date: endDate,
           execution_time: executionTime,
+          timezone, // 👈👈👈 вот оно!
         },
       });
 
