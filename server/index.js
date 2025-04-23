@@ -81,19 +81,7 @@ cron.schedule("* * * * *", async () => {
 
     console.log("👤 Пользователи с активными автопланами:", usersWithPlans);
 
-    for (const user of usersWithPlans) {
-      console.log(
-        `⚙️ Обрабатываем автопланы для пользователя: ${user.user_id}`
-      );
-
-      const fakeReq = { user: { id: user.user_id } };
-      const fakeRes = {
-        status: () => ({ json: () => {} }),
-        json: () => {},
-      };
-
-      await runAutoPlansNow(fakeReq, fakeRes);
-    }
+    await runAutoPlansNow();
   } catch (err) {
     console.error("❌ Ошибка во время выполнения Cron:", err);
   }

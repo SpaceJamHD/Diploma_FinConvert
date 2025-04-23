@@ -30,6 +30,8 @@ const Register = () => {
       return;
     }
 
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
     try {
       const response = await axiosInstance.post(
         `/api/users/register`,
@@ -38,6 +40,7 @@ const Register = () => {
           email,
           password,
           role: "user",
+          timezone: timeZone,
         },
         {
           withCredentials: true,

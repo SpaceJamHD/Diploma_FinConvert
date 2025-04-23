@@ -5,8 +5,7 @@ const { broadcastVisitsUpdate } = require("../webSocket");
 const JWT_SECRET = "secret007";
 
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  const role = req.body.role || "user";
+  const { name, email, password, role = "user", timezone = "UTC" } = req.body;
 
   if (!name || !email || !password || !role) {
     return res
@@ -31,6 +30,11 @@ const registerUser = async (req, res) => {
     );
 
     const userId = userResult.rows[0].id;
+
+    await pool.query(
+      `INSERT INTO user_profiles (user_id, timezone) VALUES ($1, $2)`,
+      [userId, timezone]
+    );
 
     await pool.query(
       `INSERT INTO balances (user_id, currency, amount, amount_btc, type) VALUES
@@ -136,14 +140,24 @@ const getUserProfile = async (req, res) => {
 };
 
 const updateUserProfile = async (req, res) => {
-  const { first_name, last_name, phone, address, city, country, postal_code } =
-    req.body;
+  const {
+    first_name,
+    last_name,
+    phone,
+    address,
+    city,
+    country,
+    postal_code,
+    timezone = "UTC",
+  } = req.body;
   const userId = req.user.id;
 
   try {
-    const result = await pool.query(
-      `INSERT INTO user_profiles (user_id, first_name, last_name, phone, address, city, country, postal_code)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    await pool.query(
+      `INSERT INTO user_profiles (
+         user_id, first_name, last_name, phone, address, city, country, postal_code, timezone
+       )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (user_id)
        DO UPDATE SET 
          first_name = EXCLUDED.first_name,
@@ -152,7 +166,8 @@ const updateUserProfile = async (req, res) => {
          address = EXCLUDED.address,
          city = EXCLUDED.city,
          country = EXCLUDED.country,
-         postal_code = EXCLUDED.postal_code`,
+         postal_code = EXCLUDED.postal_code,
+         timezone = EXCLUDED.timezone`,
       [
         userId,
         first_name,
@@ -162,13 +177,14 @@ const updateUserProfile = async (req, res) => {
         city,
         country,
         postal_code,
+        timezone,
       ]
     );
 
     res.status(200).json({ message: "Профиль успешно обновлен." });
   } catch (error) {
     console.error("Ошибка обновления профиля:", error);
-    res.status(500).json({ message: "Ошибка сервера." });
+    res.status(500).json({ message: "Ошибка сервера" });
   }
 };
 

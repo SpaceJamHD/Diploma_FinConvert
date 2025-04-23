@@ -15,6 +15,7 @@ const ProfilePage = () => {
     city: "",
     country: "",
     postal_code: "",
+    timezone: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -159,6 +160,18 @@ const ProfilePage = () => {
                   className="form-control"
                   name="postal_code"
                   value={profile.postal_code || ""}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                  style={{ color: "#ffcc00" }}
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label>Часовий пояс</label>
+                <input
+                  className="form-control"
+                  name="timezone"
+                  value={profile.timezone || ""}
                   onChange={handleChange}
                   disabled={!isEditing}
                   style={{ color: "#ffcc00" }}

@@ -74,138 +74,83 @@ const deleteAutoPlan = async (req, res) => {
 };
 
 const runAutoPlansNow = async (req, res) => {
-  const userId = req.user.id;
   try {
-    const { rows } = await pool.query(
-      `SELECT * FROM auto_goal_plans 
-       WHERE user_id = $1 
-         AND next_execution <= (NOW() AT TIME ZONE 'UTC')`,
-      [userId]
-    );
+    const { rows: plans } = await pool.query(`
+      SELECT ap.*, up.timezone
+      FROM auto_goal_plans ap
+      JOIN user_profiles up ON ap.user_id = up.user_id
+    `);
 
+    const nowUTC = moment.utc();
     const executed = [];
 
-    for (let plan of rows) {
+    for (const plan of plans) {
+      const tz = plan.timezone || "UTC";
+
+      const nowLocal = nowUTC.clone().tz(tz);
+      const timeNow = nowLocal.format("HH:mm");
+
+      const planTime = moment(plan.execution_time, "HH:mm:ss").format("HH:mm");
+
+      const today = nowLocal.format("YYYY-MM-DD");
+      const start = moment(plan.start_date).format("YYYY-MM-DD");
+      const end = plan.end_date
+        ? moment(plan.end_date).format("YYYY-MM-DD")
+        : null;
+
+      if (timeNow !== planTime) continue;
+      if (today < start || (end && today > end)) continue;
+
+      const fakeReq = {
+        params: { id: plan.goal_id },
+        user: { id: plan.user_id },
+        body: {
+          originalAmount: parseFloat(plan.amount),
+          convertedAmount: 0,
+          fromCurrency: plan.currency,
+        },
+      };
+
+      const fakeRes = {
+        status: () => ({ json: () => {} }),
+        json: () => {},
+      };
+
       try {
-        const originalAmount = parseFloat(plan.amount);
-
-        if (originalAmount === 0) {
-          console.log(` Пропущено: сума 0 (${plan.amount} ${plan.currency})`);
-          continue;
-        }
-
-        let convertedAmount = originalAmount;
-        let isConverted = false;
-
-        let spreadLoss = 0;
-
-        if (plan.currency !== "UAH") {
-          const exchangeRate = await getExchangeRate(plan.currency, "UAH");
-          if (!exchangeRate) continue;
-
-          const spreadPercent =
-            plan.currency === "BTC" || "UAH" === "BTC" ? 0.015 : 0.005;
-
-          const adjustedRate = exchangeRate * (1 - spreadPercent);
-          const expectedAmount = originalAmount * exchangeRate;
-          const actualAmount = originalAmount * adjustedRate;
-
-          convertedAmount = parseFloat(actualAmount.toFixed(6));
-          spreadLoss = parseFloat((expectedAmount - actualAmount).toFixed(6));
-          isConverted = true;
-
-          console.log(`Спред втрати: ${spreadLoss} UAH`);
-        }
-
-        if (convertedAmount === 0) {
-          console.log(
-            `Пропущено: конвертована сума 0 (${plan.amount} ${plan.currency})`
-          );
-          continue;
-        }
-
-        const fakeReq = {
-          params: { id: plan.goal_id },
-          user: { id: userId },
-          body: {
-            originalAmount,
-            convertedAmount,
-            fromCurrency: plan.currency,
-            converted: isConverted,
-            spreadLoss,
-          },
-        };
-
-        const fakeRes = {
-          status: () => ({ json: () => {} }),
-          json: () => {},
-        };
-
         await addBalanceToGoal(fakeReq, fakeRes);
-
-        const goalRes = await pool.query(
-          "SELECT name FROM goals WHERE id = $1",
-          [plan.goal_id]
-        );
-        const goalName = goalRes.rows[0]?.name || "невідома ціль";
-
-        const formattedAmount =
-          plan.currency === "BTC"
-            ? originalAmount.toFixed(8)
-            : originalAmount.toFixed(2);
 
         await pool.query(
           `INSERT INTO notifications (user_id, message, created_at, read)
            VALUES ($1, $2, NOW(), false)`,
           [
-            userId,
-            `Ціль "${goalName}" поповнено на ${formattedAmount} ${plan.currency}`,
+            plan.user_id,
+            `Ціль оновлено автоматично на ${plan.amount} ${plan.currency}`,
           ]
         );
 
-        await pool.query(
-          `DELETE FROM notifications
-           WHERE user_id = $1
-             AND id NOT IN (
-               SELECT id FROM notifications
-               WHERE user_id = $1
-               ORDER BY created_at DESC
-               LIMIT 5
-             )`,
-          [userId]
-        );
+        let nextDate = nowLocal.clone();
 
-        let nextDate = new Date(plan.next_execution);
-        if (plan.frequency === "daily")
-          nextDate.setDate(nextDate.getDate() + 1);
-        else if (plan.frequency === "weekly")
-          nextDate.setDate(nextDate.getDate() + 7);
-        else if (plan.frequency === "monthly")
-          nextDate.setMonth(nextDate.getMonth() + 1);
+        if (plan.frequency === "daily") nextDate.add(1, "day");
+        else if (plan.frequency === "weekly") nextDate.add(1, "week");
+        else if (plan.frequency === "monthly") nextDate.add(1, "month");
 
-        if (plan.execution_time) {
-          const [hours, minutes, seconds] = plan.execution_time.split(":");
-          nextDate.setHours(
-            parseInt(hours),
-            parseInt(minutes),
-            parseInt(seconds || "0")
-          );
-        }
+        const [h, m, s] = plan.execution_time.split(":");
+        nextDate.set({ hour: +h, minute: +m, second: +(s || 0) });
 
         await pool.query(
           `UPDATE auto_goal_plans SET next_execution = $1 WHERE id = $2`,
-          [nextDate, plan.id]
+          [nextDate.utc().toDate(), plan.id]
         );
 
         executed.push(plan.id);
-      } catch (e) {
-        console.error(` Помилка при виконанні плану ID ${plan.id}:`, e);
+      } catch (error) {
+        console.error("❌ Ошибка автоплана:", plan.id, error);
       }
     }
 
     res.json({ executed });
   } catch (error) {
-    console.error(" Помилка запуску автопланів:", error);
+    console.error("Ошибка выполнения автопланов:", error);
     res.status(500).json({ message: "Помилка сервера" });
   }
 };
