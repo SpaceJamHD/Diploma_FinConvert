@@ -4,7 +4,7 @@ const getUserNotifications = async (req, res) => {
   const userId = req.user.id;
   try {
     const result = await pool.query(
-      `SELECT id, message, created_at, read FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10`,
+      `SELECT id, message, created_at, read FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5`,
       [userId]
     );
     res.json(result.rows);

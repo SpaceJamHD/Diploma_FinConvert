@@ -19,12 +19,8 @@ const Navbar = () => {
   useEffect(() => {
     const fetchUnreadStatus = async () => {
       try {
-        const res = await axiosInstance.post("/api/notifications", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const notis = await res.json();
+        const res = await axiosInstance.get("/api/notifications");
+        const notis = res.data;
         const unread = notis.some((n) => !n.read);
         setHasUnread(unread);
       } catch (err) {
