@@ -75,8 +75,8 @@ cron.schedule("* * * * *", async () => {
     const { rows: usersWithPlans } = await pool.query(`
       SELECT DISTINCT user_id
       FROM auto_goal_plans
-      WHERE next_execution <= NOW()
-      AND (end_date IS NULL OR end_date >= CURRENT_DATE)
+      WHERE next_execution <= (NOW() AT TIME ZONE 'UTC')
+        AND (end_date IS NULL OR end_date >= CURRENT_DATE)
     `);
 
     console.log("👤 Пользователи с активными автопланами:", usersWithPlans);
