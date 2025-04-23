@@ -121,7 +121,7 @@ const getUserProfile = async (req, res) => {
   try {
     const profile = await pool.query(
       `SELECT u.name, u.email, u.role, p.phone, p.first_name, p.last_name, 
-              p.address, p.city, p.country, p.postal_code
+              p.address, p.city, p.country, p.postal_code, p.timezone
        FROM users u
        LEFT JOIN user_profiles p ON u.id = p.user_id
        WHERE u.id = $1`,
