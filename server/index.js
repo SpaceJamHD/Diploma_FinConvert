@@ -68,8 +68,8 @@ setupWebSocket(server);
 
 cron.schedule("* * * * *", async () => {
   const now = new Date();
-  console.log("🕒 Cron job: запуск авто-поповнень...");
-  console.log("🕓 Серверное время:", now.toISOString());
+  console.log(" Cron job: запуск авто-поповнень...");
+  console.log(" Серверное время:", now.toISOString());
 
   try {
     const { rows: usersWithPlans } = await pool.query(`
@@ -79,10 +79,10 @@ cron.schedule("* * * * *", async () => {
         AND (end_date IS NULL OR end_date >= CURRENT_DATE)
     `);
 
-    console.log("👤 Пользователи с активными автопланами:", usersWithPlans);
+    console.log(" Пользователи с активными автопланами:", usersWithPlans);
 
     await runAutoPlansNow();
   } catch (err) {
-    console.error("❌ Ошибка во время выполнения Cron:", err);
+    console.error(" Ошибка во время выполнения Cron:", err);
   }
 });

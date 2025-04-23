@@ -21,31 +21,31 @@ const useWebSocket = (updateBalance) => {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log("✅ WebSocket подключен");
+      console.log(" WebSocket подключен");
     };
 
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
         if (message.type === "BALANCE_UPDATE" && isMounted.current) {
-          console.log("📩 Обновление баланса из WS:", message.data);
+          console.log(" Обновление баланса из WS:", message.data);
           updateBalance(message.data);
         }
       } catch (error) {
-        console.error("❌ Ошибка обработки WebSocket-сообщения:", error);
+        console.error(" Ошибка обработки WebSocket-сообщения:", error);
       }
     };
 
     ws.onclose = () => {
-      console.warn("⚠️ WebSocket отключен. Переподключение через 3 сек...");
+      console.warn(" WebSocket отключен. Переподключение через 3 сек...");
       if (isMounted.current) {
         reconnectTimeout.current = setTimeout(connect, 3000);
       }
     };
 
     ws.onerror = (err) => {
-      console.error("🚨 WebSocket ошибка:", err);
-      ws.close(); // вызовет onclose
+      console.error(" WebSocket ошибка:", err);
+      ws.close();
     };
   };
 
@@ -54,7 +54,7 @@ const useWebSocket = (updateBalance) => {
     connect();
 
     return () => {
-      console.log("🧹 Очистка WebSocket-подключения");
+      console.log(" Очистка WebSocket-подключения");
       isMounted.current = false;
       if (wsRef.current) wsRef.current.close();
       if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);

@@ -33,7 +33,7 @@ const createAutoPlan = async (req, res) => {
         frequency,
         start_date,
         end_date,
-        utcDate, // <--- Вставляешь именно локализованное время
+        utcDate,
         execution_time,
       ]
     );
@@ -102,11 +102,11 @@ const runAutoPlansNow = async (req = null, res = null) => {
       );
       const planTime = planExecutionMoment.format("HH:mm");
 
-      console.log(`⏰ nowUTC: ${nowUTC.format()}`);
-      console.log(`🌍 nowLocal (${tz}): ${nowLocal.format()}`);
-      console.log(`🔁 plan.execution_time: ${plan.execution_time}`);
-      console.log(`🎯 planTime: ${planTime}`);
-      console.log(`📌 timeNow === planTime ?`, timeNow === planTime);
+      console.log(`nowUTC: ${nowUTC.format()}`);
+      console.log(` nowLocal (${tz}): ${nowLocal.format()}`);
+      console.log(` plan.execution_time: ${plan.execution_time}`);
+      console.log(` planTime: ${planTime}`);
+      console.log(` timeNow === planTime ?`, timeNow === planTime);
 
       console.log("Сравниваем:", {
         nowLocal: timeNow,
@@ -115,7 +115,7 @@ const runAutoPlansNow = async (req = null, res = null) => {
         tz,
       });
 
-      console.log("🕒 План:", {
+      console.log(" План:", {
         nowLocal: nowLocal.format(),
         timeNow,
         planExecutionTime: plan.execution_time,
@@ -174,19 +174,19 @@ const runAutoPlansNow = async (req = null, res = null) => {
         if (res) {
           return res.json({ executed });
         } else {
-          console.log("✅ Завершено. Виконано автопланів:", executed.length);
+          console.log(" Завершено. Виконано автопланів:", executed.length);
         }
 
         executed.push(plan.id);
       } catch (error) {
-        console.error("❌ Ошибка автоплана:", plan.id, error);
+        console.error(" Ошибка автоплана:", plan.id, error);
       }
     }
 
-    console.log("✅ Завершено. Виконано автопланів:", executed.length);
+    console.log(" Завершено. Виконано автопланів:", executed.length);
   } catch (error) {
     console.error("Ошибка выполнения автопланов:", error);
-    console.error("❌ Помилка при виконанні автопланів:", error);
+    console.error(" Помилка при виконанні автопланів:", error);
   }
 };
 

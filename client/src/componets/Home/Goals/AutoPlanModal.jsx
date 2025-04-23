@@ -60,7 +60,7 @@ const AutoPlanModal = ({ goals, onClose, editData }) => {
           start_date: startDate,
           end_date: endDate,
           execution_time: executionTime,
-          timezone, // 👈👈👈 вот оно!
+          timezone,
         },
       });
 
