@@ -15,7 +15,12 @@ const createAutoPlan = async (req, res) => {
   } = req.body;
 
   try {
-    const nextExecution = new Date(`${start_date}T${execution_time}`);
+    const nextExecution = new Date(`${start_date}T${execution_time}:00`);
+
+    // Приведение к локальному времени (без смещения по таймзоне)
+    const localTime = new Date(
+      nextExecution.getTime() - nextExecution.getTimezoneOffset() * 60000
+    );
 
     await pool.query(
       `INSERT INTO auto_goal_plans (
@@ -30,7 +35,7 @@ const createAutoPlan = async (req, res) => {
         frequency,
         start_date,
         end_date,
-        nextExecution,
+        localTime, // <--- Вставляешь именно локализованное время
         execution_time,
       ]
     );

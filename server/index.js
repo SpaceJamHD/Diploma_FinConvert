@@ -67,17 +67,24 @@ server.listen(PORT, () => {
 setupWebSocket(server);
 
 cron.schedule("* * * * *", async () => {
+  const now = new Date();
   console.log("🕒 Cron job: запуск авто-поповнень...");
+  console.log("🕓 Серверное время:", now.toISOString());
 
   try {
     const { rows: usersWithPlans } = await pool.query(`
       SELECT DISTINCT user_id
       FROM auto_goal_plans
       WHERE next_execution <= NOW()
+      AND (end_date IS NULL OR end_date >= CURRENT_DATE)
     `);
 
+    console.log("👤 Пользователи с активными автопланами:", usersWithPlans);
+
     for (const user of usersWithPlans) {
-      console.log(` Обрабатываем автопланы для пользователя: ${user.user_id}`);
+      console.log(
+        `⚙️ Обрабатываем автопланы для пользователя: ${user.user_id}`
+      );
 
       const fakeReq = { user: { id: user.user_id } };
       const fakeRes = {

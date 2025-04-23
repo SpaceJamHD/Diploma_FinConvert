@@ -11,10 +11,14 @@ const setupWebSocket = (server) => {
       wss.emit("connection", ws, req);
       console.log("WebSocket подключен");
 
-      // Логика для обработки сообщений WebSocket
+      ws.isAlive = true;
+
+      ws.on("pong", () => {
+        ws.isAlive = true;
+      });
+
       ws.on("message", (message) => {
         console.log("Получено сообщение от клиента:", message);
-        // Здесь можно обработать дополнительные типы сообщений от клиента
       });
 
       ws.on("close", () => {
@@ -26,9 +30,19 @@ const setupWebSocket = (server) => {
   wss.on("connection", (ws) => {
     console.log("Новый клиент подключен через WebSocket");
   });
+
+  setInterval(() => {
+    wss.clients.forEach((ws) => {
+      if (!ws.isAlive) {
+        console.warn("Клиент не ответил на ping — соединение закрыто");
+        return ws.terminate();
+      }
+      ws.isAlive = false;
+      ws.ping();
+    });
+  }, 30000);
 };
 
-// Функция для отправки обновлений баланса
 const broadcastBalanceUpdate = async (userId) => {
   if (!wss) {
     console.error("WebSocket сервер не инициализирован");
@@ -49,7 +63,6 @@ const broadcastBalanceUpdate = async (userId) => {
 
     const message = JSON.stringify({ type: "BALANCE_UPDATE", data: balances });
 
-    // Отправляем обновление всем подключенным клиентам
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(message);
@@ -62,7 +75,6 @@ const broadcastBalanceUpdate = async (userId) => {
   }
 };
 
-// Функция для отправки обновлений по визитам
 const broadcastVisitsUpdate = async (userId) => {
   if (!wss) {
     console.error("WebSocket сервер не инициализирован");
