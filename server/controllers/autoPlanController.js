@@ -76,9 +76,8 @@ const runAutoPlansNow = async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT * FROM auto_goal_plans 
-      WHERE user_id = $1 
-        AND next_execution::date <= NOW()::date 
-        AND (execution_time IS NULL OR execution_time <= TO_CHAR(NOW(), 'HH24:MI:SS')::time)`,
+       WHERE user_id = $1 
+         AND next_execution <= NOW()`,
       [userId]
     );
 

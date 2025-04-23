@@ -67,24 +67,27 @@ server.listen(PORT, () => {
 setupWebSocket(server);
 
 cron.schedule("* * * * *", async () => {
-  console.log("Cron job: запуск авто-поповнень...");
-  try {
-    const { rows } = await pool.query(
-      `SELECT DISTINCT user_id FROM public.auto_goal_plans
-       WHERE next_execution::date <= NOW()::date
-         AND (execution_time IS NULL OR execution_time <= TO_CHAR(NOW(), 'HH24:MI:SS')::time)`
-    );
+  console.log("🕒 Cron job: запуск авто-поповнень...");
 
-    for (const user of rows) {
-      console.log(`Processing auto plans for user: ${user.user_id}`);
+  try {
+    const { rows: usersWithPlans } = await pool.query(`
+      SELECT DISTINCT user_id
+      FROM auto_goal_plans
+      WHERE next_execution <= NOW()
+    `);
+
+    for (const user of usersWithPlans) {
+      console.log(` Обрабатываем автопланы для пользователя: ${user.user_id}`);
+
       const fakeReq = { user: { id: user.user_id } };
       const fakeRes = {
         status: () => ({ json: () => {} }),
         json: () => {},
       };
+
       await runAutoPlansNow(fakeReq, fakeRes);
     }
   } catch (err) {
-    console.error("Error during Cron execution:", err);
+    console.error("❌ Ошибка во время выполнения Cron:", err);
   }
 });
