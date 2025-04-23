@@ -31,6 +31,21 @@ const NotificationDropdown = ({ onOpen }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const formatMessage = (message) => {
+    const regex = /на ([\d.]+) (\w{3})$/;
+    const match = message.match(regex);
+
+    if (!match) return message;
+
+    const [_, amount, currency] = match;
+    const formattedAmount =
+      currency === "BTC"
+        ? parseFloat(amount).toFixed(8)
+        : parseFloat(amount).toFixed(2);
+
+    return message.replace(regex, `на ${formattedAmount} ${currency}`);
+  };
+
   useEffect(() => {
     if (visible) {
       const markAsRead = async () => {
@@ -104,7 +119,7 @@ const NotificationDropdown = ({ onOpen }) => {
                   }}
                 >
                   <div style={{ fontSize: "0.92rem", color: "#fff" }}>
-                    {note.message}
+                    {formatMessage(note.message)}
                   </div>
                   <div
                     style={{
