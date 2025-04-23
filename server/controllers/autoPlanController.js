@@ -88,18 +88,46 @@ const runAutoPlansNow = async (req = null, res = null) => {
     for (const plan of plans) {
       const tz = plan.timezone || "UTC";
 
-      const nowLocal = nowUTC.clone().tz(tz);
-      const timeNow = nowLocal.format("HH:mm");
-
-      const planTime = moment(plan.execution_time, "HH:mm:ss").format("HH:mm");
-
+      const nowLocal = moment.utc().tz(tz);
       const today = nowLocal.format("YYYY-MM-DD");
       const start = moment(plan.start_date).format("YYYY-MM-DD");
       const end = plan.end_date
         ? moment(plan.end_date).format("YYYY-MM-DD")
         : null;
+      const timeNow = nowLocal.format("HH:mm");
+
+      const planExecutionMoment = moment.tz(
+        `${today}T${plan.execution_time}`,
+        tz
+      );
+      const planTime = planExecutionMoment.format("HH:mm");
+
+      console.log(`⏰ nowUTC: ${nowUTC.format()}`);
+      console.log(`🌍 nowLocal (${tz}): ${nowLocal.format()}`);
+      console.log(`🔁 plan.execution_time: ${plan.execution_time}`);
+      console.log(`🎯 planTime: ${planTime}`);
+      console.log(`📌 timeNow === planTime ?`, timeNow === planTime);
+
+      console.log("Сравниваем:", {
+        nowLocal: timeNow,
+        planTime,
+        execution_time: plan.execution_time,
+        tz,
+      });
+
+      console.log("🕒 План:", {
+        nowLocal: nowLocal.format(),
+        timeNow,
+        planExecutionTime: plan.execution_time,
+        planTime,
+        match: timeNow === planTime,
+        today,
+        start,
+        end,
+      });
 
       if (timeNow !== planTime) continue;
+
       if (today < start || (end && today > end)) continue;
 
       const fakeReq = {
