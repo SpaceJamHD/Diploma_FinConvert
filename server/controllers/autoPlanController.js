@@ -15,9 +15,12 @@ const createAutoPlan = async (req, res) => {
   } = req.body;
 
   try {
+    const nextExecution = new Date(`${start_date}T${execution_time}`);
+
     await pool.query(
       `INSERT INTO auto_goal_plans (
-        user_id, goal_id, amount, currency, frequency, start_date, end_date, next_execution, execution_time
+        user_id, goal_id, amount, currency, frequency,
+        start_date, end_date, next_execution, execution_time
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
       [
         userId,
@@ -27,7 +30,7 @@ const createAutoPlan = async (req, res) => {
         frequency,
         start_date,
         end_date,
-        start_date,
+        nextExecution,
         execution_time,
       ]
     );
