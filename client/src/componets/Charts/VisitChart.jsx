@@ -118,7 +118,6 @@ const VisitChart = ({ data }) => {
         },
       },
     });
-    chartInstanceRef.current = new ChartJS(ctx, chartConfig);
 
     return () => {
       if (chartInstanceRef.current) {
