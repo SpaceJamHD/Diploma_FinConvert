@@ -81,6 +81,11 @@ const broadcastVisitsUpdate = async (userId) => {
     return;
   }
 
+  if (!userId || typeof userId !== "number") {
+    console.error("Некорректный userId:", userId);
+    return;
+  }
+
   try {
     const result = await pool.query(
       `SELECT to_char(visited_at, 'YYYY-MM-DD') as date, COUNT(*) as count
@@ -91,7 +96,10 @@ const broadcastVisitsUpdate = async (userId) => {
       [userId]
     );
 
-    const visits = result.rows;
+    const visits = result.rows.map((row) => ({
+      date: row.date,
+      count: Number(row.count),
+    }));
 
     const message = JSON.stringify({
       type: "VISITS_UPDATE",

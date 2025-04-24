@@ -10,29 +10,32 @@ import VisitChart from "../../Charts/VisitChart.jsx";
 import axiosInstance from "../../../utils/axiosInstance";
 
 const HomePage = () => {
-  const [showPastTransactions, setShowPastTransactions] = useState(false);
   const [visitData, setVisitData] = useState([]);
-  const role = useUserRole();
+  const role = useState(null);
 
   useEffect(() => {
     const fetchVisits = async () => {
       try {
-        const { data } = await axiosInstance.get("/api/users/visits");
+        const { data } = await axiosInstance.get(
+          `/api/users/visits/${role?.id}`
+        );
         setVisitData(data);
       } catch (error) {
-        console.error("Помилка при завантаженні візитів:", error);
+        console.error("Ошибка при загрузке данных о визитах:", error);
       }
     };
 
-    fetchVisits();
-  }, []);
+    if (role) {
+      fetchVisits();
+    }
+  }, [role]);
 
   useEffect(() => {
-    if (!role) return;
-
-    axiosInstance
-      .post("/api/users/visit", { page: "home" })
-      .catch(() => console.error("Не удалось зафиксировать визит"));
+    if (role) {
+      axiosInstance
+        .post("/api/users/visit", { user_id: role.id, page_name: "home" })
+        .catch(() => console.error("Не удалось записать визит"));
+    }
   }, [role]);
 
   useEffect(() => {

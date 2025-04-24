@@ -7,6 +7,8 @@ const {
   getSpreadLossTotalUAH,
   getConversionDirectionsAnalytics,
   getAllGoalIncomeTransactions,
+  logVisit,
+  getVisitData,
 } = require("../controllers/analyticsController");
 const authenticateToken = require("../middleware/authenticateToken");
 
@@ -32,5 +34,9 @@ router.get(
   authenticateToken,
   getAllGoalIncomeTransactions
 );
+
+router.post("/visit", logVisit);
+
+router.get("/visits/:user_id", getVisitData);
 
 module.exports = router;

@@ -307,6 +307,41 @@ const getAllGoalIncomeTransactions = async (req, res) => {
   }
 };
 
+const logVisit = async (req, res) => {
+  const { user_id, page_name } = req.body;
+
+  try {
+    const query = `
+      INSERT INTO public.page_visits (user_id, page_name, visited_at)
+      VALUES ($1, $2, NOW())
+    `;
+    await pool.query(query, [user_id, page_name]);
+    res.status(200).send("Визит успешно записан");
+  } catch (error) {
+    console.error("Ошибка при записи визита:", error);
+    res.status(500).send("Ошибка при записи визита");
+  }
+};
+
+const getVisitData = async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    const query = `
+      SELECT DATE(visited_at) AS visit_date, COUNT(*) AS count
+      FROM public.page_visits
+      WHERE user_id = $1
+      GROUP BY DATE(visited_at)
+      ORDER BY visit_date
+    `;
+    const result = await pool.query(query, [user_id]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Ошибка при получении данных визитов:", error);
+    res.status(500).send("Ошибка при получении данных визитов");
+  }
+};
+
 module.exports = {
   getSpreadLossAnalytics,
   getGoalsDistributionAnalytics,
@@ -314,4 +349,6 @@ module.exports = {
   getSpreadLossTotalUAH,
   getConversionDirectionsAnalytics,
   getAllGoalIncomeTransactions,
+  logVisit,
+  getVisitData,
 };

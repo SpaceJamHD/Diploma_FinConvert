@@ -38,13 +38,13 @@ const VisitChart = ({ data }) => {
     }
 
     const labels = data.map((visit) =>
-      new Date(visit.date).toLocaleDateString("uk-UA", {
+      new Date(visit.visit_date).toLocaleDateString("uk-UA", {
         day: "2-digit",
         month: "2-digit",
       })
     );
-
     const counts = data.map((visit) => parseInt(visit.count));
+    if (!chartRef.current) return;
 
     chartInstanceRef.current = new ChartJS(ctx, {
       type: "line",
@@ -86,10 +86,7 @@ const VisitChart = ({ data }) => {
               display: true,
               text: "Кількість відвідувань",
               color: "#B3B3B3",
-              font: {
-                size: 16,
-                weight: "bold",
-              },
+              font: { size: 16, weight: "bold" },
             },
             grid: {
               drawBorder: false,
@@ -100,11 +97,8 @@ const VisitChart = ({ data }) => {
               color: "#B3B3B3",
               padding: 10,
               stepSize: 1,
-              precision: 0, // ключевое — убирает дроби
-              font: {
-                size: 14,
-                lineHeight: 1.5,
-              },
+              precision: 0,
+              font: { size: 14, lineHeight: 1.5 },
             },
           },
           x: {
@@ -112,27 +106,19 @@ const VisitChart = ({ data }) => {
               display: true,
               text: "Дата",
               color: "#B3B3B3",
-              font: {
-                size: 16,
-                weight: "bold",
-              },
+              font: { size: 16, weight: "bold" },
             },
-            grid: {
-              drawBorder: false,
-              display: false,
-            },
+            grid: { drawBorder: false, display: false },
             ticks: {
               color: "#B3B3B3",
               padding: 10,
-              font: {
-                size: 14,
-                lineHeight: 1.5,
-              },
+              font: { size: 14, lineHeight: 1.5 },
             },
           },
         },
       },
     });
+    chartInstanceRef.current = new ChartJS(ctx, chartConfig);
 
     return () => {
       if (chartInstanceRef.current) {
@@ -148,7 +134,6 @@ const VisitChart = ({ data }) => {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="text-light mb-0">Відвідування сторінки</h2>
           </div>
-
           <div className="card bg-dark text-light shadow-lg">
             <div className="card-body">
               <h6 className="mb-0 text-warning">Активність користувача</h6>
