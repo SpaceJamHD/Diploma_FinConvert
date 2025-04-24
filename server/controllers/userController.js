@@ -31,9 +31,12 @@ const registerUser = async (req, res) => {
 
     const userId = userResult.rows[0].id;
 
+    const [firstName, lastName = ""] = name.trim().split(" ", 2);
+
     await pool.query(
-      `INSERT INTO user_profiles (user_id, timezone) VALUES ($1, $2)`,
-      [userId, timezone]
+      `INSERT INTO user_profiles (user_id, first_name, last_name, timezone) 
+       VALUES ($1, $2, $3, $4)`,
+      [userId, firstName, lastName, timezone]
     );
 
     await pool.query(
