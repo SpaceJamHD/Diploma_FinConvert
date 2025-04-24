@@ -46,9 +46,14 @@ const HomePage = () => {
   }, [userId]);
 
   useEffect(() => {
-    if (userId) {
+    const alreadyLogged = localStorage.getItem("visit_logged");
+
+    if (userId && !alreadyLogged) {
       axiosInstance
         .post("/api/analytics/visit", { user_id: userId, page_name: "home" })
+        .then(() => {
+          localStorage.setItem("visit_logged", "true");
+        })
         .catch(() => console.error("Не удалось записать визит"));
     }
   }, [userId]);

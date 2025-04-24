@@ -55,6 +55,17 @@ const Login = () => {
       const decoded = jwtDecode(token);
       const userRole = decoded.role;
 
+      try {
+        await axiosInstance.post("/api/analytics/visit", {
+          user_id: decoded.id,
+          page_name: "home",
+        });
+        localStorage.setItem("visit_logged", "true");
+        console.log(" Візит успішно зафіксовано");
+      } catch (visitErr) {
+        console.error(" Не вдалося зафіксувати візит:", visitErr);
+      }
+
       console.log("Роль пользователя:", userRole);
 
       if (userRole === "admin") {
