@@ -11,7 +11,7 @@ import axiosInstance from "../../../utils/axiosInstance";
 
 const HomePage = () => {
   const [visitData, setVisitData] = useState([]);
-  const role = useState(null);
+  const role = useUserRole();
 
   useEffect(() => {
     const fetchVisits = async () => {
@@ -19,6 +19,7 @@ const HomePage = () => {
         const { data } = await axiosInstance.get(
           `/api/users/visits/${role?.id}`
         );
+        console.log("Данные о визитах:", data);
         setVisitData(data);
       } catch (error) {
         console.error("Ошибка при загрузке данных о визитах:", error);
