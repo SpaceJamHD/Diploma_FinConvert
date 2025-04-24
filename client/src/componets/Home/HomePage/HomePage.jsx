@@ -10,34 +10,46 @@ import VisitChart from "../../Charts/VisitChart.jsx";
 import axiosInstance from "../../../utils/axiosInstance";
 
 const HomePage = () => {
-  const [visitData, setVisitData] = useState([]);
   const role = useUserRole();
+  const [visitData, setVisitData] = useState([]);
+
+  const token = localStorage.getItem("token");
+  let userId = null;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded.id;
+    } catch (e) {
+      console.error("Ошибка при декодировании токена:", e);
+    }
+  }
 
   useEffect(() => {
     const fetchVisits = async () => {
       try {
         const { data } = await axiosInstance.get(
-          `/api/users/visits/${role?.id}`
+          `/api/analytics/visits/${userId}`
         );
-        console.log("Данные о визитах:", data);
+        console.log("📊 Данные визитов:", data);
         setVisitData(data);
       } catch (error) {
         console.error("Ошибка при загрузке данных о визитах:", error);
       }
     };
 
-    if (role) {
+    if (userId) {
       fetchVisits();
     }
-  }, [role]);
+  }, [userId]);
 
   useEffect(() => {
-    if (role) {
+    if (userId) {
       axiosInstance
-        .post("/api/users/visit", { user_id: role.id, page_name: "home" })
+        .post("/api/analytics/visit", { user_id: userId, page_name: "home" })
         .catch(() => console.error("Не удалось записать визит"));
     }
-  }, [role]);
+  }, [userId]);
 
   useEffect(() => {
     class TxtRotate {
