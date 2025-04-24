@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+
 import "../../../styles/HomePage.css";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
