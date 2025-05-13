@@ -65,15 +65,6 @@ const BalanceSection = ({ hideViewAll = false }) => {
     <section id="account-balance" className="mb-3">
       <div className="d-flex justify-content-between align-items-center mb-2">
         <h2 className="text-light mb-0 fw-bold">Баланс ваших рахунків</h2>
-        {!hideViewAll && (
-          <button
-            className="btn btn-link text-warning text-decoration-none d-flex align-items-center"
-            onClick={() => console.log("Navigate to full view")}
-          >
-            Переглянути всі{" "}
-            <i className="bi bi-arrow-right-circle ms-2 fs-5"></i>
-          </button>
-        )}
       </div>
 
       {isLoading ? (

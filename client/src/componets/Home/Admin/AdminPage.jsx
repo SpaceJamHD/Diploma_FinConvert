@@ -1,8 +1,9 @@
-import React from "react";
-import AdminUsersTable from "./AdminUsersTable";
-import SuspiciousUsersTable from "./SuspiciousUsersTable";
-import AdminStats from "./AdminStats";
-import TopSpenders from "./TopSpenders";
+import React, { Suspense, lazy } from "react";
+
+const AdminStats = lazy(() => import("./AdminStats"));
+const TopSpenders = lazy(() => import("./TopSpenders"));
+const AdminUsersTable = lazy(() => import("./AdminUsersTable"));
+const SuspiciousUsersTable = lazy(() => import("./SuspiciousUsersTable"));
 
 const AdminPage = () => {
   return (
@@ -14,16 +15,35 @@ const AdminPage = () => {
         style={{ justifyContent: "space-between" }}
       >
         <div style={{ flex: "1 1 48%" }}>
-          <AdminStats />
+          <Suspense
+            fallback={<p className="text-light">Завантаження статистики...</p>}
+          >
+            <AdminStats />
+          </Suspense>
         </div>
 
         <div style={{ flex: "1 1 48%" }}>
-          <TopSpenders />
+          <Suspense
+            fallback={
+              <p className="text-light">Завантаження топ-витратників...</p>
+            }
+          >
+            <TopSpenders />
+          </Suspense>
         </div>
       </div>
 
-      <AdminUsersTable />
-      <SuspiciousUsersTable />
+      <Suspense
+        fallback={<p className="text-light">Завантаження користувачів...</p>}
+      >
+        <AdminUsersTable />
+      </Suspense>
+
+      <Suspense
+        fallback={<p className="text-light">Завантаження підозрілих дій...</p>}
+      >
+        <SuspiciousUsersTable />
+      </Suspense>
     </div>
   );
 };
