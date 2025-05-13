@@ -6,7 +6,6 @@ const AdminStats = () => {
   const [stats, setStats] = useState(null);
   const [bannedList, setBannedList] = useState([]);
   const [showBanned, setShowBanned] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -15,8 +14,6 @@ const AdminStats = () => {
         setStats(res.data);
       } catch (err) {
         console.error("Помилка при отриманні статистики:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -44,26 +41,23 @@ const AdminStats = () => {
     }
   };
 
-  if (loading) return <p className="text-light">Завантаження статистики...</p>;
-  if (!stats) return <p className="text-danger">Немає даних статистики</p>;
-
   const statItems = [
-    { title: "Усього користувачів", value: stats.totalUsers ?? "—" },
-    { title: "Активні користувачі", value: stats.activeUsers ?? "—" },
+    { title: "Усього користувачів", key: "totalUsers" },
+    { title: "Активні користувачі", key: "activeUsers" },
     {
       title: "Заблоковані користувачі",
-      value: stats.bannedUsers ?? "—",
+      key: "bannedUsers",
       clickable: true,
       onClick: toggleBannedList,
     },
-    { title: "Усього транзакцій", value: stats.totalTransactions ?? "—" },
+    { title: "Усього транзакцій", key: "totalTransactions" },
     {
       title: "Середнє транзакцій на користувача",
-      value: stats.avgPerUser ?? "—",
+      key: "avgPerUser",
     },
     {
       title: "Підозрілі дії за сьогодні",
-      value: stats.suspiciousToday ?? "—",
+      key: "suspiciousToday",
     },
   ];
 
@@ -72,7 +66,8 @@ const AdminStats = () => {
       <div className="fin-card-header pb-3">
         <h6 className="text-light mb-0">Загальна статистика системи</h6>
         <p className="text-sm text-secondary mb-0">
-          <span className="fw-bold"> Адмін-панель</span> — оновлено щойно
+          <span className="fw-bold">Адмін-панель</span> — оновлюється
+          автоматично
         </p>
       </div>
 
@@ -96,7 +91,13 @@ const AdminStats = () => {
                   style={{ transition: "background 0.2s ease" }}
                 >
                   <td className="text-light">{item.title}</td>
-                  <td className="fw-bold text-warning">{item.value}</td>
+                  <td className="fw-bold text-warning">
+                    {stats ? (
+                      stats[item.key] ?? "—"
+                    ) : (
+                      <span className="spinner-border spinner-border-sm text-warning" />
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
