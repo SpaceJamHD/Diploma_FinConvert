@@ -149,8 +149,19 @@ const getSuspiciousUsers = async (req, res) => {
   }
 };
 
+let cachedStats = null;
+let cacheTimestamp = 0;
+
 const getAdminStats = async (req, res) => {
+  const now = Date.now();
+
+  if (cachedStats && now - cacheTimestamp < 30000) {
+    return res.json(cachedStats);
+  }
+
   try {
+    console.time("getAdminStats");
+
     const [
       totalUsers,
       activeUsers,
@@ -170,14 +181,16 @@ const getAdminStats = async (req, res) => {
         SELECT COUNT(*) FROM (
           SELECT user_id
           FROM currency_transactions
-          WHERE DATE(date AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Kyiv') = CURRENT_DATE
+          WHERE 
+            date AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Kyiv' >= CURRENT_DATE
+            AND date AT TIME ZONE 'UTC' AT TIME ZONE 'Europe/Kyiv' < CURRENT_DATE + INTERVAL '1 day'
           GROUP BY user_id
           HAVING COUNT(*) > 10
         ) suspicious;
       `),
     ]);
 
-    res.json({
+    const stats = {
       totalUsers: parseInt(totalUsers.rows[0].count),
       activeUsers: parseInt(activeUsers.rows[0].count),
       bannedUsers: parseInt(bannedUsers.rows[0].count),
@@ -187,7 +200,13 @@ const getAdminStats = async (req, res) => {
         Math.max(parseInt(totalUsers.rows[0].count), 1)
       ).toFixed(2),
       suspiciousToday: parseInt(suspiciousUsers.rows[0].count),
-    });
+    };
+
+    cachedStats = stats;
+    cacheTimestamp = now;
+
+    console.timeEnd("getAdminStats");
+    res.json(stats);
   } catch (err) {
     console.error("Помилка при отриманні статистики:", err);
     res.status(500).json({ message: "Помилка сервера" });
