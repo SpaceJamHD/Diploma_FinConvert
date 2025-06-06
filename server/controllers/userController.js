@@ -10,7 +10,7 @@ const registerUser = async (req, res) => {
   if (!name || !email || !password || !role) {
     return res
       .status(400)
-      .json({ message: "Все поля обязательны для заполнения." });
+      .json({ message: "Усі поля обов'язкові для заповнення." });
   }
 
   try {

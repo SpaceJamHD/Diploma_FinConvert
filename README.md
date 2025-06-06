@@ -9,8 +9,6 @@
 - Balance tracking.
 - User profile settings.
 
----
-
 ## Technologies Used
 
 ### Client
@@ -41,12 +39,3 @@ Make sure you have the following installed:
 - PostgreSQL
 
 ---
-
-### Setup
-
-#### 1. Clone the repository
-
-```bash
-git clone <https://github.com/SpaceJamHD/Diploma_FinConvert.git>
-cd Diploma_F_I
-```

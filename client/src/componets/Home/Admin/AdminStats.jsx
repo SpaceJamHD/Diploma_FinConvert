@@ -116,7 +116,7 @@ const AdminStats = () => {
               ) : (
                 bannedList.map((user, idx) => (
                   <li key={idx} className="py-1 border-bottom border-secondary">
-                    👤 {user.name} —{" "}
+                    {user.name} —{" "}
                     <span className="text-danger">{user.block_reason}</span>
                   </li>
                 ))

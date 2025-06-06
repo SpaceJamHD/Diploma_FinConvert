@@ -29,8 +29,8 @@ const deleteUser = async (req, res) => {
     await pool.query("DELETE FROM users WHERE id = $1", [id]);
     res.status(200).json({ message: "Користувача видалено." });
   } catch (err) {
-    console.error("Ошибка удаления пользователя:", err);
-    res.status(500).json({ message: "Ошибка сервера." });
+    console.error("Помилка", err);
+    res.status(500).json({ message: "Помилка сервера." });
   }
 };
 
@@ -87,8 +87,8 @@ const sendMessageToUser = async (req, res) => {
     );
     res.status(200).json({ message: "Повідомлення надіслано." });
   } catch (err) {
-    console.error("Ошибка отправки сообщения:", err);
-    res.status(500).json({ message: "Ошибка сервера." });
+    console.error("Помилка", err);
+    res.status(500).json({ message: "Помилка" });
   }
 };
 
@@ -234,7 +234,7 @@ const getTopSpendersToday = async (req, res) => {
 
     res.json(result.rows);
   } catch (error) {
-    console.error("Ошибка получения топ-пользователей:", error);
+    console.error("Помилка", error);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };

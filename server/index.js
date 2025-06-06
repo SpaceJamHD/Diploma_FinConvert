@@ -79,10 +79,10 @@ cron.schedule("* * * * *", async () => {
         AND (end_date IS NULL OR end_date >= CURRENT_DATE)
     `);
 
-    console.log(" Пользователи с активными автопланами:", usersWithPlans);
+    console.log(" Користувачи з активными автопланами:", usersWithPlans);
 
     await runAutoPlansNow();
   } catch (err) {
-    console.error(" Ошибка во время выполнения Cron:", err);
+    console.error(" Помилка Cron:", err);
   }
 });

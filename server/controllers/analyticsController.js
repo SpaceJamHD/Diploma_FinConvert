@@ -337,8 +337,8 @@ const getVisitData = async (req, res) => {
     const result = await pool.query(query, [user_id]);
     res.json(result.rows);
   } catch (error) {
-    console.error("Ошибка при получении данных визитов:", error);
-    res.status(500).send("Ошибка при получении данных визитов");
+    console.error("Помилка при получении данных визитов:", error);
+    res.status(500).send("Помилка при получении данных визитов");
   }
 };
 
