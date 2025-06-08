@@ -178,8 +178,8 @@ const HistoryPage = () => {
                         : "btn-outline-light"
                     }`}
                     onClick={() => {
-                      setSelectedCurrency(""); // сбрасываем фильтр валюты
-                      setSortField("date"); // сбрасываем сортировку
+                      setSelectedCurrency("");
+                      setSortField("date");
                       setSortOrder("desc");
                     }}
                   >
@@ -196,7 +196,7 @@ const HistoryPage = () => {
                       }`}
                       onClick={() => {
                         setSelectedCurrency(currency);
-                        setSortField("date"); // при выборе валюты — сортировка также по умолчанию
+                        setSortField("date");
                         setSortOrder("desc");
                       }}
                     >
