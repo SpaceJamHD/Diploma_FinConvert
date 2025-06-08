@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Pie } from "react-chartjs-2";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 const MostUsedCurrenciesChart = ({ transactions }) => {
   if (!transactions || transactions.length === 0) {
@@ -88,6 +89,21 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
           },
         },
       },
+      datalabels: {
+        color: "#fff",
+        font: {
+          weight: "bold",
+          size: 14,
+        },
+        formatter: (value, context) => {
+          const total = context.chart.data.datasets[0].data.reduce(
+            (acc, val) => acc + val,
+            0
+          );
+          const percent = (value / total) * 100;
+          return percent >= 3 ? `${percent.toFixed(1)}%` : "";
+        },
+      },
     },
   };
 
@@ -116,7 +132,7 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
         }}
       >
         <div style={{ width: "300px", height: "300px" }}>
-          <Pie data={chartData} options={options} />
+          <Pie data={chartData} options={options} plugins={[ChartDataLabels]} />
         </div>
 
         <div className="d-flex flex-column gap-2">
