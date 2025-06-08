@@ -210,6 +210,20 @@ const HistoryPage = () => {
             <div className="d-flex align-items-center">
               <span className="text-light me-2">Період:</span>
               <div className="btn-group">
+                <button
+                  className={`btn ${
+                    !startDate && !endDate ? "btn-primary" : "btn-outline-light"
+                  }`}
+                  onClick={() => {
+                    setStartDate("");
+                    setEndDate("");
+                    setSortField("date");
+                    setSortOrder("desc");
+                  }}
+                >
+                  Всі
+                </button>
+
                 {[
                   { label: "7 днів", days: 7 },
                   { label: "30 днів", days: 30 },
@@ -225,6 +239,8 @@ const HistoryPage = () => {
                       pastDate.setDate(today.getDate() - period.days);
                       setStartDate(new Date(pastDate).toISOString());
                       setEndDate(new Date(today).toISOString());
+                      setSortField("date");
+                      setSortOrder("desc");
                     }}
                   >
                     {period.label}
