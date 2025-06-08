@@ -125,6 +125,18 @@ const AdminUserHistory = () => {
         <div className="fin-card-body px-4 pb-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <div className="btn-group mb-2">
+              <button
+                className={`btn ${
+                  !startDate && !endDate ? "btn-primary" : "btn-outline-light"
+                }`}
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                  setSortOrder("desc");
+                }}
+              >
+                Всі
+              </button>
               {[0, 7, 30].map((days) => (
                 <button
                   key={days}
@@ -138,6 +150,20 @@ const AdminUserHistory = () => {
 
             {view === "transactions" && (
               <div className="btn-group mb-2">
+                <button
+                  className={`btn ${
+                    selectedCurrency === ""
+                      ? "btn-info text-white"
+                      : "btn-outline-light"
+                  }`}
+                  onClick={() => {
+                    setSelectedCurrency("");
+                    setSortOrder("desc");
+                  }}
+                >
+                  Всі
+                </button>
+
                 {["UAH", "USD", "EUR", "BTC"].map((c) => (
                   <button
                     key={c}
@@ -146,9 +172,10 @@ const AdminUserHistory = () => {
                         ? "btn-info text-white"
                         : "btn-outline-light"
                     }`}
-                    onClick={() =>
-                      setSelectedCurrency(selectedCurrency === c ? "" : c)
-                    }
+                    onClick={() => {
+                      setSelectedCurrency(c);
+                      setSortOrder("desc");
+                    }}
                   >
                     {c}
                   </button>
