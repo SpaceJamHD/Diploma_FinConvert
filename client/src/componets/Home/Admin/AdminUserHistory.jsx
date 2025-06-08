@@ -153,7 +153,7 @@ const AdminUserHistory = () => {
                 <button
                   className={`btn ${
                     selectedCurrency === ""
-                      ? "btn-info text-white"
+                      ? "btn-primary"
                       : "btn-outline-light"
                   }`}
                   onClick={() => {
@@ -169,7 +169,7 @@ const AdminUserHistory = () => {
                     key={c}
                     className={`btn ${
                       selectedCurrency === c
-                        ? "btn-info text-white"
+                        ? "btn-primary"
                         : "btn-outline-light"
                     }`}
                     onClick={() => {

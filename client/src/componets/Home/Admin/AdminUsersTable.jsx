@@ -126,124 +126,134 @@ const AdminUsersTable = () => {
           </div>
 
           <div className="table-responsive">
-            <table className="fin-table table mb-0">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Ім'я</th>
-                  <th>Email</th>
-                  <th>Місто</th>
-                  <th>Дата реєстрації</th>
-                  <th>Роль</th>
-                  <th>Статус</th>
-                  <th>Дії</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
+            <div
+              style={{
+                maxHeight: "400px",
+                overflowY: "auto",
+              }}
+            >
+              <table className="fin-table table mb-0">
+                <thead>
                   <tr>
-                    <td colSpan="6" className="text-center text-light">
-                      Завантаження...
-                    </td>
+                    <th>ID</th>
+                    <th>Ім'я</th>
+                    <th>Email</th>
+                    <th>Місто</th>
+                    <th>Дата реєстрації</th>
+                    <th>Роль</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
                   </tr>
-                ) : users.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="text-center text-light">
-                      Користувачів не знайдено.
-                    </td>
-                  </tr>
-                ) : (
-                  users
-                    .filter((user) => {
-                      const term = searchTerm.toLowerCase();
-                      const matchesSearch =
-                        user.name.toLowerCase().includes(term) ||
-                        user.email.toLowerCase().includes(term) ||
-                        user.id.toString().includes(term);
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="6" className="text-center text-light">
+                        Завантаження...
+                      </td>
+                    </tr>
+                  ) : users.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="text-center text-light">
+                        Користувачів не знайдено.
+                      </td>
+                    </tr>
+                  ) : (
+                    users
+                      .filter((user) => {
+                        const term = searchTerm.toLowerCase();
+                        const matchesSearch =
+                          user.name.toLowerCase().includes(term) ||
+                          user.email.toLowerCase().includes(term) ||
+                          user.id.toString().includes(term);
 
-                      const isBanned =
-                        user.banned_until &&
-                        new Date(user.banned_until) > new Date();
+                        const isBanned =
+                          user.banned_until &&
+                          new Date(user.banned_until) > new Date();
 
-                      if (statusFilter === "banned" && !isBanned) return false;
-                      if (statusFilter === "active" && isBanned) return false;
+                        if (statusFilter === "banned" && !isBanned)
+                          return false;
+                        if (statusFilter === "active" && isBanned) return false;
 
-                      return matchesSearch;
-                    })
-                    .filter((user) => user.role !== "admin")
-                    .map((user) => (
-                      <tr key={user.id} className="fin-td">
-                        <td className="fin-td text-center">{user.id}</td>
-                        <td className="fin-td text-start">{user.name}</td>
-                        <td className="fin-td text-start">{user.email}</td>
-                        <td className="fin-td text-start">
-                          {user.city || "-"}
-                        </td>
-                        <td className="fin-td text-center">
-                          {new Date(user.created_at).toLocaleDateString(
-                            "uk-UA"
-                          )}
-                        </td>
-                        <td className="fin-td text-center">{user.role}</td>
-                        <td className="fin-td text-center">
-                          {user.banned_until &&
-                          new Date(user.banned_until) > new Date()
-                            ? `Заблокований до ${new Date(
-                                user.banned_until
-                              ).toLocaleString("uk-UA")}`
-                            : "Активний"}
-                        </td>
+                        return matchesSearch;
+                      })
+                      .filter((user) => user.role !== "admin")
+                      .map((user) => (
+                        <tr key={user.id} className="fin-td">
+                          <td className="fin-td text-center">{user.id}</td>
+                          <td className="fin-td text-start">{user.name}</td>
+                          <td className="fin-td text-start">{user.email}</td>
+                          <td className="fin-td text-start">
+                            {user.city || "-"}
+                          </td>
+                          <td className="fin-td text-center">
+                            {new Date(user.created_at).toLocaleDateString(
+                              "uk-UA"
+                            )}
+                          </td>
+                          <td className="fin-td text-center">{user.role}</td>
+                          <td className="fin-td text-center">
+                            {user.banned_until &&
+                            new Date(user.banned_until) > new Date()
+                              ? `Заблокований до ${new Date(
+                                  user.banned_until
+                                ).toLocaleString("uk-UA")}`
+                              : "Активний"}
+                          </td>
 
-                        <td className="fin-td text-center">
-                          <button
-                            onClick={() => setConfirmDeleteId(user.id)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-trash"
-                              style={{ color: "#dc3545", fontSize: "1.2rem" }}
-                            ></i>
-                          </button>
+                          <td className="fin-td text-center">
+                            <button
+                              onClick={() => setConfirmDeleteId(user.id)}
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <i
+                                className="bi bi-trash"
+                                style={{ color: "#dc3545", fontSize: "1.2rem" }}
+                              ></i>
+                            </button>
 
-                          <button
-                            onClick={() => setBanUserId(user.id)}
-                            style={{
-                              marginLeft: "10px",
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-shield-exclamation"
-                              style={{ color: "#ffc107", fontSize: "1.2rem" }}
-                            ></i>
-                          </button>
+                            <button
+                              onClick={() => setBanUserId(user.id)}
+                              style={{
+                                marginLeft: "10px",
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <i
+                                className="bi bi-shield-exclamation"
+                                style={{ color: "#ffc107", fontSize: "1.2rem" }}
+                              ></i>
+                            </button>
 
-                          <button
-                            onClick={() => navigate(`/admin/users/${user.id}`)}
-                            style={{
-                              marginLeft: "10px",
-                              background: "transparent",
-                              border: "none",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <i
-                              className="bi bi-person-lines-fill"
-                              style={{ color: "#0dcaf0", fontSize: "1.2rem" }}
-                            ></i>
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                )}
-              </tbody>
-            </table>
+                            <button
+                              onClick={() =>
+                                navigate(`/admin/users/${user.id}`)
+                              }
+                              style={{
+                                marginLeft: "10px",
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <i
+                                className="bi bi-person-lines-fill"
+                                style={{ color: "#0dcaf0", fontSize: "1.2rem" }}
+                              ></i>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
