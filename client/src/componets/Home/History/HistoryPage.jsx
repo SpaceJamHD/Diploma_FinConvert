@@ -171,6 +171,21 @@ const HistoryPage = () => {
               <div className="d-flex align-items-center me-3">
                 <span className="text-light me-2">Фільтр за валютою:</span>
                 <div className="btn-group">
+                  <button
+                    className={`btn ${
+                      selectedCurrency === ""
+                        ? "btn-primary"
+                        : "btn-outline-light"
+                    }`}
+                    onClick={() => {
+                      setSelectedCurrency(""); // сбрасываем фильтр валюты
+                      setSortField("date"); // сбрасываем сортировку
+                      setSortOrder("desc");
+                    }}
+                  >
+                    Всі
+                  </button>
+
                   {["UAH", "USD", "EUR", "BTC"].map((currency) => (
                     <button
                       key={currency}
@@ -179,7 +194,11 @@ const HistoryPage = () => {
                           ? "btn-primary"
                           : "btn-outline-light"
                       }`}
-                      onClick={() => handleCurrencyFilter(currency)}
+                      onClick={() => {
+                        setSelectedCurrency(currency);
+                        setSortField("date"); // при выборе валюты — сортировка также по умолчанию
+                        setSortOrder("desc");
+                      }}
                     >
                       {currency}
                     </button>
