@@ -192,21 +192,31 @@ const GoalSpeedChart = ({ goal, transactions }) => {
                   x: {
                     title: {
                       display: true,
-                      text: "Дата",
+                      text: "Дата", // или своя подпись
                       color: "#fff",
                       font: {
                         size: 14,
+                        weight: "bold",
                       },
+                    },
+                    ticks: {
+                      color: "#fff",
+                      font: { size: 12 },
                     },
                   },
                   y: {
                     title: {
                       display: true,
-                      text: `Сума накоплень (${currency})`,
+                      text: "Значення", // или своя подпись
                       color: "#fff",
                       font: {
                         size: 14,
+                        weight: "bold",
                       },
+                    },
+                    ticks: {
+                      color: "#fff",
+                      font: { size: 12 },
                     },
                   },
                 },
