@@ -44,7 +44,7 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
     }
   });
 
-  if (Object.keys(currencyMap).length === 0) {
+  if (Object.keys(convertedMap).length === 0) {
     return (
       <p className="text-light text-center">Немає витрат для відображення</p>
     );
