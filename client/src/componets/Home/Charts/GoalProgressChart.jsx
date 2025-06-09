@@ -73,7 +73,48 @@ const GoalProgressChart = ({ goal, transactions, exchangeRates = {} }) => {
           <div className="card p-3 bg-dark">
             <Line
               data={lineData}
-              options={{ responsive: true, maintainAspectRatio: false }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    title: {
+                      display: true,
+                      text: "Дата",
+                      color: "#fff",
+                      font: { size: 16, weight: "bold" },
+                    },
+                    ticks: {
+                      color: "#fff",
+                    },
+                  },
+                  y: {
+                    title: {
+                      display: true,
+                      text: `Сума у валюті ${goal.currency}`,
+                      color: "#fff",
+                      font: { size: 16, weight: "bold" },
+                    },
+                    ticks: {
+                      color: "#fff",
+                    },
+                  },
+                },
+                plugins: {
+                  legend: {
+                    labels: {
+                      color: "#fff",
+                      font: { size: 14 },
+                    },
+                  },
+                  tooltip: {
+                    backgroundColor: "#333",
+                    titleFont: { size: 14, weight: "bold" },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                  },
+                },
+              }}
             />
           </div>
         </div>

@@ -68,10 +68,22 @@ const TopUpFrequencyChart = ({ transactions }) => {
     scales: {
       x: {
         ticks: { color: "#fff", font: { size: 14 } },
+        title: {
+          display: true,
+          text: "Місяць",
+          color: "#fff",
+          font: { size: 16, weight: "bold" },
+        },
       },
       y: {
         ticks: { color: "#fff", font: { size: 14 } },
         beginAtZero: true,
+        title: {
+          display: true,
+          text: "Кількість поповнень",
+          color: "#fff",
+          font: { size: 16, weight: "bold" },
+        },
       },
     },
     plugins: {
