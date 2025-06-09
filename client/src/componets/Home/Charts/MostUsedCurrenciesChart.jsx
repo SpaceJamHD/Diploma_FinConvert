@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Pie } from "react-chartjs-2";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import useExchangeRates from "../../../hooks/useExchangeRates";
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import "../../../styles/bootstrap/css/bootstrap.min.css";
@@ -16,19 +17,30 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
 
   const [hiddenCurrencies, setHiddenCurrencies] = useState([]);
 
-  const currencyMap = {};
+  const { rates: exchangeRates, isLoading: ratesLoading } = useExchangeRates();
+
+  if (ratesLoading || !exchangeRates) {
+    return (
+      <p className="text-light text-center">Завантаження курсів валют...</p>
+    );
+  }
+
+  const convertedMap = {};
+
   transactions.forEach((txn) => {
     if (txn.type === "income") {
-      let currency = txn.from_currency || txn.currency;
-      let amount =
+      const currency = txn.from_currency || txn.currency;
+      const rawAmount =
         txn.original_amount !== null && txn.original_amount !== undefined
-          ? Number(parseFloat(txn.original_amount))
-          : Number(parseFloat(txn.amount).toFixed(2));
+          ? Number(txn.original_amount)
+          : Number(txn.amount);
 
-      if (!currency) return;
+      const rateToUAH = exchangeRates[currency]?.UAH || 0;
 
-      if (!currencyMap[currency]) currencyMap[currency] = 0;
-      currencyMap[currency] += amount;
+      const amountInUAH = rawAmount * rateToUAH;
+
+      if (!convertedMap[currency]) convertedMap[currency] = 0;
+      convertedMap[currency] += amountInUAH;
     }
   });
 
@@ -38,16 +50,14 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
     );
   }
 
-  const labels = Object.keys(currencyMap);
-  const allLabels = Object.keys(currencyMap);
+  const labels = Object.keys(convertedMap);
+  const allLabels = labels;
   const visibleLabels = allLabels.filter(
     (cur) => !hiddenCurrencies.includes(cur)
   );
 
   const dataValues = visibleLabels.map((currency) =>
-    currency === "BTC"
-      ? Number(currencyMap[currency].toFixed(8))
-      : Number(currencyMap[currency].toFixed(2))
+    parseFloat(convertedMap[currency].toFixed(2))
   );
 
   const currencyIcons = {
