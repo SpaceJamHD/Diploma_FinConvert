@@ -17,13 +17,20 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
 
   const [hiddenCurrencies, setHiddenCurrencies] = useState([]);
 
-  const { rates: exchangeRates, isLoading: ratesLoading } = useExchangeRates();
+  const exchangeRates = useExchangeRates();
 
-  if (ratesLoading || !exchangeRates) {
+  if (!exchangeRates || exchangeRates.usdToUah === "Загрузка...") {
     return (
       <p className="text-light text-center">Завантаження курсів валют...</p>
     );
   }
+
+  const rateMap = {
+    UAH: 1,
+    USD: parseFloat(exchangeRates.usdToUah),
+    EUR: parseFloat(exchangeRates.eurToUah),
+    BTC: parseFloat(exchangeRates.btcToUah),
+  };
 
   const convertedMap = {};
 
@@ -35,7 +42,7 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
           ? Number(txn.original_amount)
           : Number(txn.amount);
 
-      const rateToUAH = exchangeRates[currency]?.UAH || 0;
+      const rateToUAH = rateMap[currency] || 0;
 
       const amountInUAH = rawAmount * rateToUAH;
 
