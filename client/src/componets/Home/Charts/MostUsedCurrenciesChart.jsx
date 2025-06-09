@@ -32,6 +32,7 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
     BTC: parseFloat(exchangeRates.btcToUah),
   };
 
+  const rawMap = {};
   const convertedMap = {};
 
   transactions.forEach((txn) => {
@@ -43,11 +44,13 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
           : Number(txn.amount);
 
       const rateToUAH = rateMap[currency] || 0;
-
       const amountInUAH = rawAmount * rateToUAH;
 
       if (!convertedMap[currency]) convertedMap[currency] = 0;
+      if (!rawMap[currency]) rawMap[currency] = 0;
+
       convertedMap[currency] += amountInUAH;
+      rawMap[currency] += rawAmount;
     }
   });
 
@@ -101,10 +104,11 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
         backgroundColor: "#333",
         callbacks: {
           label: function (tooltipItem) {
-            let value = tooltipItem.raw;
-            let currency = tooltipItem.label;
-            value = currency === "BTC" ? value.toFixed(8) : value.toFixed(2);
-            return ` ${currency}: ${value}`;
+            const currency = tooltipItem.label;
+            const rawValue = rawMap[currency] || 0;
+            const formatted =
+              currency === "BTC" ? rawValue.toFixed(8) : rawValue.toFixed(2);
+            return ` ${currency}: ${formatted}`;
           },
         },
       },
