@@ -7,6 +7,8 @@ import "../../../styles/bootstrap/css/bootstrap.min.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
+ChartJS.defaults.plugins.datalabels.display = false;
+
 const MostUsedCurrenciesChart = ({ transactions }) => {
   if (!transactions || transactions.length === 0) {
     return <p className="text-light text-center">Немає даних</p>;
