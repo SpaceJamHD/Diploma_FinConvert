@@ -92,6 +92,7 @@ const MostUsedCurrenciesChart = ({ transactions }) => {
         },
       },
       datalabels: {
+        display: true,
         color: "#fff",
         font: {
           weight: "bold",
