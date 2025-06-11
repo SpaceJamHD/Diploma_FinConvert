@@ -631,17 +631,16 @@ const repeatGoalHandler = async (req, res) => {
 
     // 2. Улучшение значений по умолчанию и обработка возможных NULL
     const newGoal = await client.query(
-      // Используем client.query
-      `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, status, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', NOW())
+      `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
        RETURNING *`,
       [
         userId,
-        (g.name || "Без названия") + " (повтор)", // Убедимся, что имя есть
-        g.description || null, // Если описание пустое, лучше вставить NULL в БД
-        g.amount || 0, // Убедимся, что amount есть, если может быть undefined/null
-        g.currency || "UAH", // Убедимся, что валюта есть
-        g.priority || 1, // Убедимся, что приоритет есть
+        (g.name || "Без названия") + " (повтор)",
+        g.description || null,
+        g.amount || 0,
+        g.currency || "UAH",
+        g.priority || 1,
         deadline,
       ]
     );
@@ -653,11 +652,9 @@ const repeatGoalHandler = async (req, res) => {
   } catch (error) {
     await client.query("ROLLBACK"); // Откатываем все изменения при любой ошибке
     console.error("💥 Ошибка при повторении цели (сервер):", error);
-    res
-      .status(500)
-      .json({
-        error: "Помилка сервера: " + (error.message || "Неизвестная ошибка"),
-      });
+    res.status(500).json({
+      error: "Помилка сервера: " + (error.message || "Неизвестная ошибка"),
+    });
   } finally {
     client.release(); // Всегда возвращаем клиент в пул, независимо от результата
   }
