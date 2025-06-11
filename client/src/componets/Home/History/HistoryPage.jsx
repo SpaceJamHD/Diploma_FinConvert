@@ -46,7 +46,10 @@ const HistoryPage = () => {
 
   const handleConfirmRepeat = async (goal, deadline) => {
     try {
-      const repeatedGoal = await repeatGoal({ ...goal, deadline });
+      const repeatedGoal = await repeatGoal({
+        id: goal.goal_id || goal.id,
+        deadline,
+      });
       console.log("Ціль повторена з новою датою:", repeatedGoal);
       setShowRepeatModal(false);
       navigate("/goals");
