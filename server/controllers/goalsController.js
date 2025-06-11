@@ -583,23 +583,30 @@ const repeatGoalHandler = async (req, res) => {
   const userId = req.user.id;
 
   try {
+    console.log("Получен запрос на повтор цели:", { goalId, deadline, userId });
+
+    // Пытаемся найти цель в активных
     let oldGoal = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [goalId, userId]
     );
 
     if (oldGoal.rows.length === 0) {
+      // Если не найдена — ищем в истории
       oldGoal = await pool.query(
         "SELECT * FROM goals_history WHERE (goal_id = $1 OR id = $1) AND user_id = $2",
         [goalId, userId]
       );
 
       if (oldGoal.rows.length === 0) {
+        console.warn("Цель не найдена ни в goals, ни в goals_history");
         return res.status(404).json({ error: "Ціль не знайдено" });
       }
     }
 
     const g = oldGoal.rows[0];
+
+    console.log("Повторяем цель:", g);
 
     const newGoal = await pool.query(
       `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, status, created_at)
@@ -608,17 +615,17 @@ const repeatGoalHandler = async (req, res) => {
       [
         userId,
         g.name + " (повтор)",
-        g.description,
+        g.description || "",
         g.amount,
         g.currency,
-        g.priority,
+        g.priority || 1,
         deadline,
       ]
     );
 
     res.json(newGoal.rows[0]);
   } catch (error) {
-    console.error("Помилка при повторенні цілі:", error);
+    console.error("💥 Помилка при повторенні цілі:", error);
     res.status(500).json({ error: "Помилка сервера" });
   }
 };
