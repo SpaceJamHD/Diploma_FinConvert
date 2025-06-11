@@ -81,6 +81,8 @@ router.get(
   }
 );
 
+router.post("/repeat/:id", authenticateToken, repeatGoalHandler);
+
 router.post("/", authenticateToken, addGoal);
 router.put("/:id", authenticateToken, updateGoal);
 router.delete("/:id", authenticateToken, deleteGoal);
@@ -92,8 +94,6 @@ router.post("/:id/withdraw-balance", authenticateToken, withdrawFromGoal);
 router.get("/:id", authenticateToken, getGoalById);
 
 router.post("/:id/withdraw-full", authenticateToken, withdrawFullGoal);
-
-router.post("/repeat/:id", authenticateToken, repeatGoalHandler);
 
 const checkAdmin = (req, res, next) => {
   if (req.user.role !== "admin") {
