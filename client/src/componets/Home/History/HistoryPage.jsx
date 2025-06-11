@@ -45,16 +45,27 @@ const HistoryPage = () => {
   };
 
   const handleConfirmRepeat = async (goal, deadline) => {
+    console.log("Кнопка 'Подтвердить' нажата!"); // <-- Новый лог
+    console.log("Данные для повторения цели:", { goal, deadline }); // <-- Новый лог
+    if (!deadline) {
+      alert("Оберіть нову дату завершення цілі");
+      return;
+    }
     try {
+      const idToRepeat = goal.goal_id || goal.id;
+      console.log("ID цели для повторения:", idToRepeat); // <-- Новый лог
+
       const repeatedGoal = await repeatGoal({
-        id: goal.goal_id || goal.id,
+        id: idToRepeat,
         deadline,
       });
-      console.log("Ціль повторена з новою датою:", repeatedGoal);
+      console.log("Цель повторена с новой датой:", repeatedGoal);
       setShowRepeatModal(false);
+      // alert("Цель успешно повторена!");
       navigate("/goals");
     } catch (error) {
-      console.error("Помилка при повторенні цілі:", error);
+      console.error("Помилка при повторенні цілі на клиенте:", error); // <-- Обновил лог
+      alert(`Ошибка: ${error.message || "Произошла неизвестная ошибка."}`);
     }
   };
 

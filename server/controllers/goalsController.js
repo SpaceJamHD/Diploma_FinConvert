@@ -582,51 +582,84 @@ const repeatGoalHandler = async (req, res) => {
   const { deadline } = req.body;
   const userId = req.user.id;
 
+  // --- Начинаем транзакцию ---
+  const client = await pool.connect(); // Получаем клиент из пула соединений
   try {
+    await client.query("BEGIN"); // Начинаем транзакцию
+
     console.log("Получен запрос на повтор цели:", { goalId, deadline, userId });
 
+    // 1. Проверка наличия deadline на сервере
+    if (!deadline) {
+      await client.query("ROLLBACK"); // Откатываем транзакцию, если deadline нет
+      console.warn("Попытка повторения цели без даты завершения.");
+      return res
+        .status(400)
+        .json({ error: "Дата завершения является обязательной." });
+    }
+
     // Пытаемся найти цель в активных
-    let oldGoal = await pool.query(
+    let oldGoalResult = await client.query(
+      // Используем client.query вместо pool.query
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [goalId, userId]
     );
 
-    if (oldGoal.rows.length === 0) {
+    let g;
+    if (oldGoalResult.rows.length === 0) {
       // Если не найдена — ищем в истории
-      oldGoal = await pool.query(
+      oldGoalResult = await client.query(
+        // Используем client.query
         "SELECT * FROM goals_history WHERE (goal_id = $1 OR id = $1) AND user_id = $2",
         [goalId, userId]
       );
 
-      if (oldGoal.rows.length === 0) {
-        console.warn("Цель не найдена ни в goals, ни в goals_history");
+      if (oldGoalResult.rows.length === 0) {
+        await client.query("ROLLBACK"); // Откатываем транзакцию, если цель не найдена
+        console.warn(
+          "Цель не найдена ни в goals, ни в goals_history для goalId:",
+          goalId
+        );
         return res.status(404).json({ error: "Ціль не знайдено" });
       }
+      g = oldGoalResult.rows[0];
+    } else {
+      g = oldGoalResult.rows[0];
     }
-
-    const g = oldGoal.rows[0];
 
     console.log("Повторяем цель:", g);
 
-    const newGoal = await pool.query(
+    // 2. Улучшение значений по умолчанию и обработка возможных NULL
+    const newGoal = await client.query(
+      // Используем client.query
       `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, status, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', NOW())
        RETURNING *`,
       [
         userId,
-        g.name + " (повтор)",
-        g.description || "",
-        g.amount,
-        g.currency,
-        g.priority || 1,
+        (g.name || "Без названия") + " (повтор)", // Убедимся, что имя есть
+        g.description || null, // Если описание пустое, лучше вставить NULL в БД
+        g.amount || 0, // Убедимся, что amount есть, если может быть undefined/null
+        g.currency || "UAH", // Убедимся, что валюта есть
+        g.priority || 1, // Убедимся, что приоритет есть
         deadline,
       ]
     );
 
+    await client.query("COMMIT"); // Подтверждаем транзакцию, если все успешно
+    console.log("✅ Цель успешно повторена и транзакция зафиксирована.");
+
     res.json(newGoal.rows[0]);
   } catch (error) {
-    console.error("💥 Помилка при повторенні цілі:", error);
-    res.status(500).json({ error: "Помилка сервера" });
+    await client.query("ROLLBACK"); // Откатываем все изменения при любой ошибке
+    console.error("💥 Ошибка при повторении цели (сервер):", error);
+    res
+      .status(500)
+      .json({
+        error: "Помилка сервера: " + (error.message || "Неизвестная ошибка"),
+      });
+  } finally {
+    client.release(); // Всегда возвращаем клиент в пул, независимо от результата
   }
 };
 
