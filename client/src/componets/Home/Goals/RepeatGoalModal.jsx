@@ -12,16 +12,13 @@ const RepeatGoalModal = ({ goal, onClose, onConfirm }) => {
   }, []);
 
   const handleConfirm = () => {
-    const goalId = goal.goal_id || goal.id; // ⬅️ Тут главное изменение
-    console.log("🔁 Повторение цели — ID:", goalId);
-    console.log("📅 Новая дата завершения:", newDeadline);
-
     if (!newDeadline) {
       alert("Оберіть нову дату завершення цілі");
       return;
     }
 
-    onConfirm(goalId, newDeadline); // ⬅️ Передаём только ID и дату
+    const goalId = goal.id;
+    onConfirm({ ...goal, id: goalId }, newDeadline);
   };
 
   return (
