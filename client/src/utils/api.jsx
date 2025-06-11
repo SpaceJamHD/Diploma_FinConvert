@@ -101,6 +101,7 @@ export const repeatGoal = async (goalId, deadline) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ deadline }),
   });
