@@ -96,21 +96,21 @@ export const fetchGoalsHistory = async (startDate, endDate) => {
   }
 };
 
-export const repeatGoal = async (goal) => {
-  try {
-    const response = await axiosInstance.post("/api/goals", {
-      name: `${goal.name} (повтор)`,
-      description: goal.description,
-      amount: goal.amount,
-      deadline: goal.deadline,
-      priority: goal.priority,
-      currency: goal.currency,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Ошибка при повторении цели:", error);
-    throw error;
+export const repeatGoal = async ({ id, deadline }) => {
+  const response = await fetch(`/api/goals/repeat/${id}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ deadline }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Не удалось повторити ціль");
   }
+
+  return response.json();
 };
 
 export const getExchangeRate = async (fromCurrency, toCurrency) => {

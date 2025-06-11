@@ -8,6 +8,7 @@ import {
   repeatGoal,
 } from "../../../utils/api";
 import { useNavigate } from "react-router-dom";
+import RepeatGoalModal from "../Goals/RepeatGoalModal";
 
 const HistoryPage = () => {
   const [view, setView] = useState("transactions");
@@ -23,6 +24,9 @@ const HistoryPage = () => {
 
   const navigate = useNavigate();
 
+  const [showRepeatModal, setShowRepeatModal] = useState(false);
+  const [goalToRepeat, setGoalToRepeat] = useState(null);
+
   useEffect(() => {
     if (view === "transactions") {
       fetchTransactions();
@@ -35,14 +39,19 @@ const HistoryPage = () => {
     setSelectedCurrency(currency === selectedCurrency ? "" : currency);
   };
 
-  const handleRepeatGoal = async (goal) => {
-    try {
-      const repeatedGoal = await repeatGoal(goal);
-      console.log("Цель успешно повторена:", repeatedGoal);
+  const handleRepeatGoal = (goal) => {
+    setGoalToRepeat(goal);
+    setShowRepeatModal(true);
+  };
 
+  const handleConfirmRepeat = async (goal, deadline) => {
+    try {
+      const repeatedGoal = await repeatGoal({ ...goal, deadline });
+      console.log("Ціль повторена з новою датою:", repeatedGoal);
+      setShowRepeatModal(false);
       navigate("/goals");
     } catch (error) {
-      console.error("Ошибка при повторении цели:", error);
+      console.error("Помилка при повторенні цілі:", error);
     }
   };
 
@@ -417,6 +426,13 @@ const HistoryPage = () => {
                   )}
                 </tbody>
               </table>
+              {showRepeatModal && goalToRepeat && (
+                <RepeatGoalModal
+                  goal={goalToRepeat}
+                  onClose={() => setShowRepeatModal(false)}
+                  onConfirm={handleConfirmRepeat}
+                />
+              )}
             </div>
           )}
         </div>

@@ -577,6 +577,45 @@ const getGoalsByUserIdForAdmin = async (req, res) => {
   }
 };
 
+const repeatGoalHandler = async (req, res) => {
+  const goalId = req.params.id;
+  const { deadline } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const oldGoal = await pool.query(
+      "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
+      [goalId, userId]
+    );
+
+    if (oldGoal.rows.length === 0) {
+      return res.status(404).json({ error: "Ціль не знайдено" });
+    }
+
+    const g = oldGoal.rows[0];
+
+    const newGoal = await pool.query(
+      `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, status, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', NOW())
+       RETURNING *`,
+      [
+        userId,
+        g.name + " (повтор)",
+        g.description,
+        g.amount,
+        g.currency,
+        g.priority,
+        deadline,
+      ]
+    );
+
+    res.json(newGoal.rows[0]);
+  } catch (error) {
+    console.error("Помилка при повторенні цілі:", error);
+    res.status(500).json({ error: "Помилка сервера" });
+  }
+};
+
 module.exports = {
   getGoals,
   addGoal,
@@ -589,4 +628,5 @@ module.exports = {
   getGoalById,
   withdrawFullGoal,
   getGoalsByUserIdForAdmin,
+  repeatGoalHandler,
 };
