@@ -631,9 +631,10 @@ const repeatGoalHandler = async (req, res) => {
 
     // 2. Улучшение значений по умолчанию и обработка возможных NULL
     const newGoal = await client.query(
-      `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, created_at, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), 'active')
        RETURNING *`,
+
       [
         userId,
         (g.name || "Без названия") + " (повтор)",
