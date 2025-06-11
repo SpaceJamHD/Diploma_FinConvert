@@ -634,7 +634,6 @@ const repeatGoalHandler = async (req, res) => {
       `INSERT INTO goals (user_id, name, description, amount, currency, priority, deadline, created_at, status)
        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), 'active')
        RETURNING *`,
-
       [
         userId,
         (g.name || "Без названия") + " (повтор)",

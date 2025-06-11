@@ -9,12 +9,14 @@ import { Link } from "react-router-dom";
 import useExchangeRates from "../../../hooks/useExchangeRates.jsx";
 import useUserRole from "../../../hooks/useUserRole";
 import axiosInstance from "../../../utils/axiosInstance";
+import GuideModal from "./GuideModal";
 
 const Navbar = () => {
   const exchangeRates = useExchangeRates();
   const [hasUnread, setHasUnread] = useState(false);
   const role = useUserRole();
   const isBannedPage = window.location.pathname === "/banned";
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
     const fetchUnreadStatus = async () => {
@@ -221,6 +223,14 @@ const Navbar = () => {
                   <NotificationDropdown onOpen={() => setHasUnread(false)} />
                 </li>
                 <li>
+                  <button
+                    className="dropdown-item text-info"
+                    onClick={() => setShowGuide(true)}
+                  >
+                    <i className="bi bi-question-circle"></i> Довідник
+                  </button>
+                </li>
+                <li>
                   <hr className="dropdown-divider" />
                 </li>
               </>
@@ -248,6 +258,7 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
       </div>
+      {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
     </nav>
   );
 };
