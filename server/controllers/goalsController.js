@@ -583,13 +583,20 @@ const repeatGoalHandler = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const oldGoal = await pool.query(
+    let oldGoal = await pool.query(
       "SELECT * FROM goals WHERE id = $1 AND user_id = $2",
       [goalId, userId]
     );
 
     if (oldGoal.rows.length === 0) {
-      return res.status(404).json({ error: "Ціль не знайдено" });
+      oldGoal = await pool.query(
+        "SELECT * FROM goals_history WHERE (goal_id = $1 OR id = $1) AND user_id = $2",
+        [goalId, userId]
+      );
+
+      if (oldGoal.rows.length === 0) {
+        return res.status(404).json({ error: "Ціль не знайдено" });
+      }
     }
 
     const g = oldGoal.rows[0];
