@@ -96,12 +96,11 @@ export const fetchGoalsHistory = async (startDate, endDate) => {
   }
 };
 
-export const repeatGoal = async ({ id, deadline }) => {
-  const response = await fetch(`/api/goals/repeat/${id}`, {
+export const repeatGoal = async (goalId, deadline) => {
+  const response = await fetch(`/api/goals/repeat/${goalId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ deadline }),
   });
@@ -110,7 +109,7 @@ export const repeatGoal = async ({ id, deadline }) => {
     throw new Error("Не удалось повторити ціль");
   }
 
-  return response.json();
+  return await response.json();
 };
 
 export const getExchangeRate = async (fromCurrency, toCurrency) => {
