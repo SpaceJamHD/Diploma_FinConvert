@@ -16,10 +16,6 @@ const sections = [
           <strong>Спред</strong> — це різниця між курсом купівлі та продажу
           валюти. При обміні ви завжди втрачаєте частину грошей через спред.
         </p>
-        <p style={{ lineHeight: "1.6", fontSize: "1.05rem" }}>
-          Наприклад: курс купівлі = 38.00, курс продажу = 38.50. Спред =
-          <strong> 0.50 грн</strong> на кожному доларі.
-        </p>
         <p
           className="text-info fw-semibold"
           style={{ fontSize: "1.05rem", lineHeight: "1.6" }}
