@@ -1,6 +1,10 @@
-// Улучшенный GuideModal.jsx с шириной, цветами FinConvert, анимацией и четкой навигацией
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import "../../../styles/navbar.css";
+import "../../../styles/HomePage.css";
+import "../../../styles/bootstrap/css/bootstrap.min.css";
+import "../../../styles/bootstrap/js/bootstrap.bundle.min.js";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const sections = [
   {
@@ -8,15 +12,18 @@ const sections = [
     title: "Що таке спред?",
     content: (
       <>
-        <p>
+        <p style={{ lineHeight: "1.6", fontSize: "1.05rem" }}>
           <strong>Спред</strong> — це різниця між курсом купівлі та продажу
           валюти. При обміні ви завжди втрачаєте частину грошей через спред.
         </p>
-        <p>
-          Наприклад: курс купівлі = 38.00, курс продажу = 38.50. Спред ={" "}
-          <strong>0.50 грн</strong> на кожному доларі.
+        <p style={{ lineHeight: "1.6", fontSize: "1.05rem" }}>
+          Наприклад: курс купівлі = 38.00, курс продажу = 38.50. Спред =
+          <strong> 0.50 грн</strong> на кожному доларі.
         </p>
-        <p className="text-info">
+        <p
+          className="text-info fw-semibold"
+          style={{ fontSize: "1.05rem", lineHeight: "1.6" }}
+        >
           Уникайте частих обмінів між валютами без потреби — це зменшує
           загальний баланс.
         </p>
@@ -28,15 +35,18 @@ const sections = [
     title: "Автопоповнення цілей",
     content: (
       <>
-        <p>
+        <p style={{ lineHeight: "1.6", fontSize: "1.05rem" }}>
           <strong>Автопоповнення</strong> дозволяє автоматично переказувати
           кошти на ціль у вибрані дні.
         </p>
-        <p>
+        <p style={{ lineHeight: "1.6", fontSize: "1.05rem" }}>
           Наприклад: щотижня, щомісяця або у певну дату. Це допомагає
           накопичувати без зусиль.
         </p>
-        <p className="text-info">
+        <p
+          className="text-info fw-semibold"
+          style={{ fontSize: "1.05rem", lineHeight: "1.6" }}
+        >
           Встановіть реалістичну суму поповнення. Система сама нагадає або
           виконає переказ.
         </p>
@@ -48,15 +58,18 @@ const sections = [
     title: "Аналітика витрат",
     content: (
       <>
-        <p>
+        <p style={{ lineHeight: "1.6", fontSize: "1.05rem" }}>
           Розділ <strong>Аналітика</strong> допомагає побачити ваші витрати,
           доходи та втрати через спред.
         </p>
-        <p>
+        <p style={{ lineHeight: "1.6", fontSize: "1.05rem" }}>
           Використовуйте графіки, щоб виявити непотрібні витрати або динаміку
           накопичень.
         </p>
-        <p className="text-info">
+        <p
+          className="text-info fw-semibold"
+          style={{ fontSize: "1.05rem", lineHeight: "1.6" }}
+        >
           Якщо ви бачите постійні втрати — змініть валюту накопичення або
           скоротіть обміни.
         </p>
@@ -76,14 +89,23 @@ const GuideModal = ({ onClose }) => {
         tabIndex="-1"
         style={{ backgroundColor: "rgba(0, 0, 0, 0.7)", zIndex: 1050 }}
       >
-        <div className="modal-dialog modal-xl modal-dialog-centered">
+        <div
+          className="modal-dialog modal-dialog-centered"
+          style={{
+            width: "100%",
+            maxWidth: "1080px",
+            margin: "0 auto",
+            padding: "0 1rem",
+          }}
+        >
           <div
             className="modal-content shadow-lg"
             style={{
-              background: "#121212",
+              background: "#1a1a1a",
               color: "#f1f1f1",
               borderRadius: "16px",
-              border: "1px solid #444",
+              border: "1px solid #333",
+              boxShadow: "0 0 30px rgba(255, 255, 255, 0.05)",
             }}
           >
             <div className="modal-header border-0">
@@ -107,14 +129,16 @@ const GuideModal = ({ onClose }) => {
                     key={s.id}
                     onClick={() => setActiveTab(s.id)}
                     className={`btn btn-sm w-100 text-start mb-2 ${
-                      activeTab === s.id ? "btn-warning" : "btn-outline-light"
+                      activeTab === s.id
+                        ? "btn-warning fw-bold"
+                        : "btn-outline-light"
                     }`}
                   >
                     {s.title}
                   </button>
                 ))}
               </div>
-              <div className="flex-grow-1">
+              <div className="flex-grow-1 pe-2">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
