@@ -17,18 +17,15 @@ const generateFinalAdvice = (forecastData = {}) => {
   const surplus = income - expenses;
   const incomeToExpenseRatio = income > 0 ? expenses / income : 0;
   const percentOfBalance = balance > 0 ? (expenses / balance) * 100 : 0;
-  const percentOfIncome = income > 0 ? (expenses / income) * 100 : 0;
 
-  if (!isNaN(percent) && percent < -5) {
-    advice.set("balance-drop-5", {
-      id: "balance-drop-5",
-      text: `Баланс може зменшитися на ${Math.abs(percent).toFixed(
-        1
-      )}% — зверніть увагу.`,
-      type: "warning",
-      category: "forecast",
-    });
-  }
+  const showSpendingWarning =
+    (income > 0 && expenses / income > 1.2) ||
+    (expenses > income && expenses > balance * 0.4);
+
+  const showPositiveIncome = income >= 3000 && income > expenses * 1.2;
+  const showZeroIncome = income === 0;
+  const showZeroExpenses = expenses === 0;
+  const showActivityNeutral = income === 0 && expenses === 0;
 
   if (!isNaN(percent) && percent < -40) {
     advice.set("balance-drop-40", {
@@ -37,9 +34,16 @@ const generateFinalAdvice = (forecastData = {}) => {
       type: "critical",
       category: "anomaly",
     });
-  }
-
-  if (!isNaN(percent) && percent > 40) {
+  } else if (!isNaN(percent) && percent < -5) {
+    advice.set("balance-drop-5", {
+      id: "balance-drop-5",
+      text: `Баланс може зменшитися на ${Math.abs(percent).toFixed(
+        1
+      )}% — зверніть увагу.`,
+      type: "warning",
+      category: "forecast",
+    });
+  } else if (!isNaN(percent) && percent > 40) {
     advice.set("balance-up-40", {
       id: "balance-up-40",
       text: "Баланс зріс понад 40% — переконайтесь, що джерело доходу стабільне.",
@@ -48,7 +52,7 @@ const generateFinalAdvice = (forecastData = {}) => {
     });
   }
 
-  if (surplus > 0) {
+  if (surplus > 0 && income > 0 && !showSpendingWarning) {
     advice.set("surplus-positive", {
       id: "surplus-positive",
       text: `Є профіцит ${surplus.toFixed(
@@ -59,19 +63,7 @@ const generateFinalAdvice = (forecastData = {}) => {
     });
   }
 
-  if (income > 0 && expenses > 0 && income / expenses > 3) {
-    advice.set("income-dominates", {
-      id: "income-dominates",
-      text: "Доходи значно перевищують витрати — час подумати про інвестиції.",
-      type: "info",
-      category: "income",
-    });
-  }
-
-  if (
-    (income > 0 && expenses / income > 1.2) ||
-    (expenses > income && expenses > balance * 0.4)
-  ) {
+  if (showSpendingWarning) {
     advice.set("spending-too-high", {
       id: "spending-too-high",
       text: "Витрати значно перевищують дохід або становлять велику частину балансу — перегляньте бюджет.",
@@ -80,7 +72,7 @@ const generateFinalAdvice = (forecastData = {}) => {
     });
   }
 
-  if (expenses === 0) {
+  if (showZeroExpenses && !showActivityNeutral) {
     advice.set("no-expenses", {
       id: "no-expenses",
       text: "Немає витрат — перевірте дані або насолоджуйтесь економією.",
@@ -89,7 +81,7 @@ const generateFinalAdvice = (forecastData = {}) => {
     });
   }
 
-  if (expenses > 0 && expenses < 500) {
+  if (expenses > 0 && expenses < 500 && !showSpendingWarning) {
     advice.set("very-low-spending", {
       id: "very-low-spending",
       text: "Ваші витрати дуже низькі — якщо це свідомо, це чудово.",
@@ -107,7 +99,7 @@ const generateFinalAdvice = (forecastData = {}) => {
     });
   }
 
-  if (income === 0) {
+  if (showZeroIncome && !showActivityNeutral) {
     advice.set("no-income", {
       id: "no-income",
       text: "Немає доходу за місяць — перевірте або додайте поповнення.",
@@ -116,7 +108,7 @@ const generateFinalAdvice = (forecastData = {}) => {
     });
   }
 
-  if (income >= 3000) {
+  if (showPositiveIncome && !showZeroIncome && !showSpendingWarning) {
     advice.set("income-ok", {
       id: "income-ok",
       text: "Ваш дохід стабільний. Добре, якщо частину ви інвестуєте або відкладаєте.",
@@ -125,7 +117,7 @@ const generateFinalAdvice = (forecastData = {}) => {
     });
   }
 
-  if (income === 0 && expenses === 0) {
+  if (showActivityNeutral) {
     advice.set("no-activity", {
       id: "no-activity",
       text: "Жодної фінансової активності не виявлено — оновіть дані або додайте транзакції.",
@@ -159,9 +151,7 @@ const generateFinalAdvice = (forecastData = {}) => {
       type: "info",
       category: "conversion",
     });
-  }
-
-  if (conversionsCount >= 5) {
+  } else if (conversionsCount >= 5) {
     advice.set("many-conversions", {
       id: "many-conversions",
       text: "У вас було понад 5 конвертацій — перевірте ефективність і врахуйте втрати на спреді.",

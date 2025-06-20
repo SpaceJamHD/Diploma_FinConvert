@@ -1,4 +1,4 @@
-const generateGoalPriorityAdvice = (goals = [], goalTransactions = []) => {
+const generateGoalPriorityAdvice = (goals = []) => {
   const advice = new Map();
 
   if (!Array.isArray(goals) || goals.length === 0) return [];
@@ -30,6 +30,20 @@ const generateGoalPriorityAdvice = (goals = [], goalTransactions = []) => {
   );
 
   if (
+    highPriorityGoals.length > 0 &&
+    highNotFunded.length === highPriorityGoals.length
+  ) {
+    advice.set("high-priority-neglected", {
+      id: "high-priority-neglected",
+      text: "Жодна з ваших високопріоритетних цілей не фінансується — перегляньте розподіл коштів.",
+      type: "alert",
+      category: "goals",
+    });
+
+    return Array.from(advice.values());
+  }
+
+  if (
     mediumPriorityGoals.length > 0 &&
     highNotFunded.length > 0 &&
     totalLowBalance > 0
@@ -49,18 +63,6 @@ const generateGoalPriorityAdvice = (goals = [], goalTransactions = []) => {
         2
       )} грн) зосереджено на цілях з низьким пріоритетом — розгляньте перенаправлення на важливіші цілі.`,
       type: "warning",
-      category: "goals",
-    });
-  }
-
-  if (
-    highPriorityGoals.length > 0 &&
-    highNotFunded.length === highPriorityGoals.length
-  ) {
-    advice.set("high-priority-neglected", {
-      id: "high-priority-neglected",
-      text: "Жодна з ваших високопріоритетних цілей не фінансується — перегляньте розподіл коштів.",
-      type: "alert",
       category: "goals",
     });
   }

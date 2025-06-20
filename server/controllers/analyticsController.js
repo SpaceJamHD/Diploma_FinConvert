@@ -42,58 +42,38 @@ const getGoalsDistributionAnalytics = async (req, res) => {
 
   let dateCondition = "";
   if (range === "today") {
-    dateCondition = "AND date::date = CURRENT_DATE";
+    dateCondition = "AND t.date::date = CURRENT_DATE";
   } else if (range === "week") {
-    dateCondition = "AND date >= CURRENT_DATE - INTERVAL '7 days'";
+    dateCondition = "AND t.date >= CURRENT_DATE - INTERVAL '7 days'";
   } else {
-    dateCondition = "AND date >= CURRENT_DATE - INTERVAL '1 month'";
+    dateCondition = "AND t.date >= CURRENT_DATE - INTERVAL '1 month'";
   }
 
   try {
     const result = await pool.query(
       `
-      WITH all_tx AS (
+      WITH grouped_tx AS (
         SELECT 
           g.id AS goal_id,
           g.name,
-          t.original_amount,
-          t.from_currency,
-          t.amount,
           g.currency AS goal_currency,
-          t.date
+          t.from_currency,
+          SUM(t.original_amount)::numeric(18,8) AS original,
+          SUM(t.amount)::numeric(18,2) AS total
         FROM transactions t
         JOIN goals g ON g.id = t.goal_id
-        WHERE t.user_id = $1 AND t.type = 'income' ${dateCondition}
-
-        UNION ALL
-
-        SELECT 
-          gh.goal_id,
-          gh.name,
-          th.original_amount,
-          th.from_currency,
-          th.amount,
-          gh.currency AS goal_currency,
-          th.date
-        FROM goals_history_transactions th
-        JOIN goals_history gh ON gh.id = th.goal_history_id
-        WHERE th.user_id = $1 AND th.type = 'income' ${dateCondition}
-      ),
-      grouped_tx AS (
-        SELECT 
-          goal_id,
-          name,
-          goal_currency,
-          from_currency,
-          SUM(original_amount)::numeric(18,8) AS original,
-          SUM(amount)::numeric(18,2) AS total
-        FROM all_tx
-        GROUP BY goal_id, name, goal_currency, from_currency
+        WHERE 
+          t.user_id = $1 
+          AND t.type = 'income'
+          AND g.status = 'active'
+          ${dateCondition}
+        GROUP BY g.id, g.name, g.currency, t.from_currency
       )
       SELECT 
         goal_id,
         name,
         goal_currency,
+        'active' AS status,
         JSON_AGG(
           JSON_BUILD_OBJECT(
             'from_currency', from_currency,

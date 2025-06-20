@@ -752,3 +752,93 @@ input {
 .history-table-container::-webkit-scrollbar-thumb:hover {
     background: rgba(150, 150, 150, 0.9);
 }
+
+.guide-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #dddddd;
+}
+
+.guide-highlight {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #ffd700;
+    font-weight: 600;
+}
+
+.guide-card {
+    background: linear-gradient(145deg, #1e1e1e, #292929);
+    border-radius: 16px;
+    padding: 25px;
+    color: #f0f0f0;
+    max-width: 720px;
+    width: 100%;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+
+.guide-card:hover {
+    transform: scale(1.01);
+    box-shadow: 0 12px 25px rgba(255, 215, 0, 0.15);
+}
+
+.guide-card-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #dddddd;
+    margin-bottom: 10px;
+}
+
+.guide-card-content p strong {
+    color: #ffd700;
+}
+
+.guide-tab-group .btn {
+    min-width: 180px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border: 1px solid #444;
+}
+
+.guide-tab-group .btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(145deg, #ffc107, #e6a700);
+    color: #1a1a1a;
+}
+
+.guide-tab-group .btn-warning {
+    background: #ffd700;
+    color: #1a1a1a;
+    font-weight: 700;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .guide-tab-group {
+        flex-direction: row !important;
+        overflow-x: auto;
+        justify-content: start !important;
+    }
+
+    .guide-tab-group .btn {
+        flex-shrink: 0;
+        min-width: 160px;
+        white-space: nowrap;
+        font-size: 0.9rem;
+    }
+
+    .guide-card {
+        padding: 20px;
+    }
+
+    .modal-dialog {
+        max-width: 100% !important;
+        margin: 0;
+    }
+
+    .modal-content {
+        border-radius: 0 !important;
+    }
+}

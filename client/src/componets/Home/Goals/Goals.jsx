@@ -134,17 +134,29 @@ const Goals = ({ goals = [], setGoals }) => {
 
   const handleDeleteGoal = async () => {
     try {
-      const response = await axiosInstance.delete(`/api/goals/${deleteId}`);
+      const goalToDelete = goals.find((goal) => goal.id === deleteId);
 
-      if (![200, 201, 204].includes(response.status)) {
-        throw new Error("Помилка при видаленні цілі");
+      if (!goalToDelete) {
+        throw new Error("Ціль не знайдена");
+      }
+
+      if (parseFloat(goalToDelete.balance) > 0) {
+        const response = await withdrawFullGoalBalance(deleteId);
+        if (!response.deletedGoalId) {
+          throw new Error("Помилка при поверненні коштів перед видаленням");
+        }
+      } else {
+        const response = await axiosInstance.delete(`/api/goals/${deleteId}`);
+        if (![200, 201, 204].includes(response.status)) {
+          throw new Error("Помилка при видаленні цілі");
+        }
       }
 
       setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== deleteId));
       setShowConfirm(false);
       setDeleteId(null);
     } catch (error) {
-      console.error("Ошибка при удалении цели:", error);
+      console.error("❌ Ошибка при удалении цели с возвратом:", error);
     }
   };
 

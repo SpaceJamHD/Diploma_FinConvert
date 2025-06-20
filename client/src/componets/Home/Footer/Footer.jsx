@@ -23,7 +23,7 @@ const Footer = () => {
                   href="#account-balance"
                   className="text-muted text-decoration-none"
                 >
-                  Баланс
+                  Історія
                 </a>
               </li>
               <li>
@@ -31,7 +31,7 @@ const Footer = () => {
                   href="#financial-overview"
                   className="text-muted text-decoration-none"
                 >
-                  Огляд
+                  Конвертація
                 </a>
               </li>
               <li>
@@ -39,7 +39,7 @@ const Footer = () => {
                   href="#currency-forecast"
                   className="text-muted text-decoration-none"
                 >
-                  Прогноз
+                  Аналітика
                 </a>
               </li>
               <li>
