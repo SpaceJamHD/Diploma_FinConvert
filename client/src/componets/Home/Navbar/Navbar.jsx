@@ -227,7 +227,7 @@ const Navbar = () => {
                     className="dropdown-item text-info"
                     onClick={() => setShowGuide(true)}
                   >
-                    <i className="bi bi-question-circle"></i> Довідник
+                    Довідник
                   </button>
                 </li>
                 <li>

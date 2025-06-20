@@ -6,7 +6,13 @@ import "../../../styles/chart-tabs.css";
 import "../../../styles/goalDetails.css";
 import axiosInstance from "../../../utils/axiosInstance";
 
-const GoalAdviceBlock = ({ goal, transactions, balances, autoPlans }) => {
+const GoalAdviceBlock = ({
+  goal,
+  transactions,
+  balances,
+  autoPlans,
+  timeFrame = "half-year",
+}) => {
   const [advice, setAdvice] = useState({});
   const [openSections, setOpenSections] = useState({});
 
@@ -15,7 +21,8 @@ const GoalAdviceBlock = ({ goal, transactions, balances, autoPlans }) => {
       goal,
       transactions,
       balances,
-      autoPlans
+      autoPlans,
+      timeFrame
     );
     setAdvice(newAdvice);
   };

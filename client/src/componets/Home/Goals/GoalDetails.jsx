@@ -98,6 +98,7 @@ const GoalDetails = () => {
           transactions={transactions}
           balances={balances}
           autoPlans={autoPlans}
+          timeFrame="half-year"
         />
       </section>
 

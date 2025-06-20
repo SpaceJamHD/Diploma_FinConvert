@@ -1,64 +1,67 @@
-const useAdviceTopUps = (goal, transactions, balances) => {
+const useAdviceTopUps = (
+  goal,
+  transactions = [],
+  balances = {},
+  timeFrame = "half-year"
+) => {
   const tips = [];
-
   if (!goal || !goal.id) return tips;
 
-  const incomeTx = transactions.filter((t) => t.type === "income");
+  const now = new Date();
+  const periodStart =
+    timeFrame === "year"
+      ? new Date(now.setFullYear(now.getFullYear() - 1))
+      : new Date(now.setMonth(now.getMonth() - 6));
+
+  const incomeTx = transactions.filter(
+    (t) => t.type === "income" && new Date(t.date) >= periodStart
+  );
 
   if (incomeTx.length === 0) {
-    tips.push(
-      "У цілі немає жодного поповнення. Рекомендується зробити перший внесок."
-    );
-    return tips;
+    return [
+      "У цілі немає жодного поповнення за останні пів року. Рекомендується зробити перший внесок.",
+    ];
   }
 
-  const now = new Date();
-  const recentTopUps = incomeTx.filter((t) => {
-    const date = new Date(t.date);
-    return now - date <= 30 * 24 * 60 * 60 * 1000;
-  });
-
   const avgAmount =
-    recentTopUps.length > 0
-      ? recentTopUps.reduce(
-          (sum, t) => sum + parseFloat(t.original_amount || t.amount),
-          0
-        ) / recentTopUps.length
-      : 0;
+    incomeTx.reduce(
+      (sum, t) => sum + parseFloat(t.original_amount || t.amount),
+      0
+    ) / incomeTx.length;
 
-  if (recentTopUps.length === 1) {
+  if (incomeTx.length === 1) {
     tips.push(
-      "Було лише одне поповнення за останній місяць. Регулярність — ключ до досягнення цілі."
+      "Було лише одне поповнення за пів року. Регулярність — ключ до досягнення цілі."
     );
-  } else if (recentTopUps.length < 3) {
+  } else if (incomeTx.length < 3) {
     tips.push(
       "Ціль поповнюється рідко. Розгляньте встановлення регулярного графіку внесків."
     );
-  } else if (recentTopUps.length >= 6) {
+  } else if (incomeTx.length >= 6) {
     tips.push(
       "Ціль активно поповнюється — це чудово! Продовжуйте в тому ж темпі."
     );
   }
 
-  if (avgAmount > 0 && avgAmount < goal.amount * 0.05) {
+  if (avgAmount < goal.amount * 0.05) {
     tips.push(
       `Середня сума поповнення (${avgAmount.toFixed(2)} ${
         goal.currency
       }) є досить низькою. Можливо, варто збільшити внески.`
     );
   } else if (avgAmount > goal.amount * 0.2) {
-    tips.push("Ваші внески досить суттєві. Ви швидко рухаєтесь до мети!");
-  }
-
-  if (balances[goal.currency] && balances[goal.currency] >= goal.amount * 0.1) {
     tips.push(
-      "У вас є доступні кошти на гаманці. Розгляньте можливість додаткового поповнення цілі."
+      "Ваші внески досить суттєві. Ви швидко рухаєтесь до мети — збережіть цей темп!"
     );
   }
 
-  if (balances[goal.currency] < goal.amount * 0.02) {
+  if (balances[goal.currency] >= goal.amount * 0.1) {
     tips.push(
-      "Залишок на гаманці в валюті цілі низький. Поповнення може бути складним без попередньої конверсії."
+      "У вас є вільні кошти на гаманці. Розгляньте можливість поповнення цілі."
+    );
+  } else if (balances[goal.currency] < goal.amount * 0.02) {
+    tips.push(
+      "Баланс на гаманці дуже малий — може знадобитись конвертація для поповнення цілі."
     );
   }
 

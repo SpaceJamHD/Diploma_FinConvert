@@ -9,13 +9,14 @@ const useGoalAdvice = async (
   goal,
   transactions = [],
   balances = {},
-  autoPlans = []
+  autoPlans = [],
+  timeFrame = "half-year"
 ) => {
-  const progressTips = useAdviceProgress(goal, transactions);
-  const topUpTips = useAdviceTopUps(goal, transactions, balances);
-  const spendingTips = useAdviceSpending(goal, transactions);
-  const currencyTips = useAdviceCurrency(goal, transactions);
-  const deadlineTips = useAdviceDeadline(goal, transactions);
+  const progressTips = useAdviceProgress(goal, transactions, timeFrame);
+  const topUpTips = useAdviceTopUps(goal, transactions, balances, timeFrame);
+  const spendingTips = useAdviceSpending(goal, transactions, timeFrame);
+  const currencyTips = useAdviceCurrency(goal, transactions, timeFrame);
+  const deadlineTips = useAdviceDeadline(goal, transactions, timeFrame);
   const autoTopUpTips = await useAdviceAutoTopUp(goal, autoPlans);
 
   return {
